@@ -23,7 +23,7 @@ import { routeOrthogonal } from '../src/knives/route';
 const p = (x: number, y: number) => ({ x, y });
 const r = (x: number, y: number, w: number, h: number) => ({ x, y, w, h });
 
-// 260917 手排实测的两条真坏几何(见 TODO.md「门禁第三轮」):
+// 260917 手排实测的两条真坏几何:
 //   e5 末段原路折回 18px · e8 首段出去 18px 又原路退回
 const E5 = [p(1150, 150), p(1150, 200), p(513, 200), p(513, 152), p(513, 170)];
 const E8 = [p(841, 277), p(859, 277), p(390, 277), p(390, 620)];

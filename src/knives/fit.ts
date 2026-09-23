@@ -381,7 +381,7 @@ export function placeCard(fit: CardFitResult, at: { x: number; y: number }): { c
 
 // --- 旁注块(自由文本, 260923): 第三把"按内容反算盒"的刀 ---------------------
 //
-// 由来(`TODO.md` 的 `textFit` 立项, 260923 落地): 前两把刀管节点(`nodeFit`)与卡片(`cardFit`),
+// 由来(`textFit` 立项, 260923 落地): 前两把刀管节点(`nodeFit`)与卡片(`cardFit`),
 // 而**旁注(`Scene.texts`)的 rect 一向靠每处手搓**。260922 清点 examples: 五份 helper 三套高度
 // 口径(`size×1.4` / `m.height` / `size×1.25`), 且**多数只处理单行** —— 自建 helper 把多行文案
 // 整串喂 `measureText`(它明写不拆 `\n`, 见该文件边界), 于是 rect 按"所有行拼成一行"算宽,

@@ -151,7 +151,7 @@ describe('shapes/embed · 嵌套 svg / markup / z 序 / 全链', () => {
     expect(svg!.evidence.offenders).toContain('embed:chart');
   });
 
-  it('素材不进任何净空门禁: 边从它身上穿过去, 门禁一声不响(这条缺口登记在 TODO.md)', () => {
+  it('素材不进任何净空门禁: 边从它身上穿过去, 门禁一声不响(这条缺口登记在 ROADMAP.md「后续方向」)', () => {
     // 把素材摆到那条边的正下方 —— 边横穿它, 仍必须 0 error(素材不在净空判据的适用面里)
     const crossing: Scene = { ...sceneWith(), embeds: [{ id: 'chart', rect: { x: 240, y: 420, w: 300, h: 48 }, asset }] };
     const r = audit(crossing, { level: 'showcase' });

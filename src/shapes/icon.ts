@@ -23,7 +23,7 @@
 //
 // 门禁边界(明确说清): 图标**不进任何净空门禁** —— 与 `struck` 叉线 / 网格底纹同一档,
 // 它是压在版式上的墨迹, 不是参与排版的对象。想让图标与别的格子保持距离, 用 `cardFit` 的
-// `block` 留位(那是作者决策, core 不猜)。这条缺口记在 `TODO.md`。
+// `block` 留位(那是作者决策, core 不猜)。这条缺口记在 `ROADMAP.md`「后续方向」。
 // =====================================================================
 
 import { type Attrs, type DGroup, type Descriptor, group, path, circle as dCircle, rect as dRect } from '../descriptor';

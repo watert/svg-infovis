@@ -163,7 +163,7 @@ export type SceneNode = {
    *
    * 不进审计: 它是压在版式上的墨迹(同 `struck` 叉线 / 网格底纹那一档), 不是参与排版的对象。
    * 想让图标与别的格子保持距离, 用 `cardFit` 反算的 `block` 留位 —— 那是作者决策。
-   * (这条缺口登记在 `TODO.md`: 图标目前只进 `contentBounds`, 不进任何净空判据。)
+   * (这条缺口登记在 `ROADMAP.md`「后续方向」: 图标目前只进 `contentBounds`, 不进任何净空判据。)
    */
   icon?: NodeIcon;
 };
@@ -361,7 +361,7 @@ export type Scene = {
    * **明确不加任何门禁**: 素材是压在版式上的墨迹(同图标 / 网格底纹 / `struck` 叉线那一档),
    * 不是参与排版的对象。它只进 `contentBounds`(auto-fit 不裁素材)与 `single_svg`(画布装不下
    * 照样是事实 —— 那一档本来就在逐集合枚举, 见 `checkSingleCanvas`)。
-   * "边 / 标签压在图表上"这条缺口登记在 `TODO.md`, 要收口得先按纪律 9 举证 + 纪律 11 给旋钮。
+   * "边 / 标签压在图表上"这条缺口登记在 `ROADMAP.md`「后续方向」, 要收口得先按纪律 9 举证 + 纪律 11 给旋钮。
    */
   embeds?: SceneEmbed[];
   /**
