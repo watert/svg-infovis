@@ -37,7 +37,7 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 ```
 
 - 图走文件或 stdout, 诊断只走 stderr。**绝不 `2>&1`**。验尸: `head -c 200` 必须是 `<svg` 或 `<?xml`。`svg2png.sh` 会拦脏文件。
-- 栅格化用 `svg2png.sh`(rsvg, 否则 qlmanage)。不要 Chrome headless, 不要无 Freetype 的 magick。
+- 栅格化用 `svg2png.sh`(rsvg, 否则 qlmanage) —— 本仓自产的图**不需要** Chrome headless。⚠ 但**外来** SVG 若整张靠 CSS 变量上色(archify 的 viewer 导出即如此), rsvg 会渲成"深底黑块"且不报错: 先 `bun run scripts/svg-varflatten.ts` 展平, 或干脆起 Chrome 截图。
 - 读者看到的大小是根 `<svg>` 的 `width`。经验档 ≤900, 细则在 QUICKREF「交付尺寸」。
 - 读数板退出码 0 通过 / 1 门禁不过 / 2 用法错。别自己 dump rect。
 
@@ -106,7 +106,7 @@ examples/       五桶, 清单 examples/manifest.ts
 assets/embeds/  图表底板 4(Apache 2.0)
 docs/           theme / mermaid-geometry / blink-archive
 ROADMAP.md      立项依据与后续方向
-src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, build-example-pngs.sh}
+src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, svg-varflatten.ts, build-example-pngs.sh}
 ```
 
 ```bash

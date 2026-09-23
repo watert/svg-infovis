@@ -25,6 +25,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 - `bun run examples/manifest.ts` —— 全部示例清单(键名 / 桶 / 这张图证明什么)
 - `bun run scripts/inspect.ts <scene.ts>` —— 布局读数板, 不出图; 退出码 0 通过 / 1 门禁不过 / 2 用法错
+- `bun run scripts/svg-varflatten.ts <in.svg> [out.svg]` —— 外来 SVG 的 CSS 变量展平(rsvg 那一档的前置, 见文末「栅格化」)
 - `svginfo run <scene.ts> -o out.svg` —— CLI 入口(`run` / `inspect` / `render` / `new` / `icons`), `bun link` 后全局可用
 - `bun run verify` —— `bun test` + `tsc --noEmit`
 
@@ -133,6 +134,15 @@ bun run verify      # 两者一起
 ```
 
 栅格化走 `scripts/svg2png.sh`(优先 `rsvg-convert`, 否则 macOS `qlmanage`), 毫秒级零浏览器。
+
+⚠ **外来 SVG 另有一坑**: 若它整张图靠 CSS 自定义属性(`var(--x)`)上色 —— archify 的 viewer 导出就是 —— rsvg / qlmanage 会把填充描边一并丢掉, 渲成"深底黑块"而**不报错**。先展平再栅格化:
+
+```bash
+bun run scripts/svg-varflatten.ts in.svg flat.svg    # 默认取深色档, --theme light 换档
+./scripts/svg2png.sh flat.svg out.png 1200
+```
+
+本仓自产的图属性内联、没有变量, 不走这一步。
 
 ⚠ 出图命令**别加 `2>&1`**: 图走 stdout、诊断走 stderr, 合并会把诊断写进 SVG 文件头部, 而文件照样以 `</svg>` 收尾、退出码照样 0 —— 失败长得像成功。`svg2png.sh` 自带产物守卫会拦这种脏文件。
 

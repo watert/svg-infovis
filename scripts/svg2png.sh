@@ -62,6 +62,20 @@ if [ "$head_ok" = 0 ] || [ "$tail_ok" = 0 ]; then
   exit 1
 fi
 
+# ── 变量守卫 (260923) ────────────────────────────────────────────────
+# 上面那条只查"是不是一份完整 SVG"; 但**能渲**不等于**渲对**: 整张图靠 CSS 自定义属性上色的
+# 外来产物(archify 的 viewer 导出就是)在 rsvg 下会把填充与描边一并丢掉 —— 产物是"深底黑块",
+# 而它同样能过上面的守卫、同样 exit 0。这条把"看着像成功"的那一类也喊出来。
+# ⚠ 只警告、不改判决: 展平是**可选**的一步(起 Chrome 截图那条路不需要它), 也免得把
+#   既有调用方(cli.ts / build-example-pngs.sh)的退出码语义改掉。
+if grep -q 'var(--' "$in"; then
+  {
+    echo "⚠ $in 用了 CSS 自定义属性(var(--…)), 而 rsvg-convert / qlmanage 都不认 —— 栅格化结果会是黑底黑块, 且不报错。"
+    echo "  先展平变量再栅格化:"
+    echo "      bun run scripts/svg-varflatten.ts \"$in\" \"${in%.svg}.flat.svg\" && $0 \"${in%.svg}.flat.svg\" \"$out\" \"$max\""
+  } >&2
+fi
+
 if command -v rsvg-convert >/dev/null 2>&1; then
   rsvg-convert -w "$max" -o "$out" "$in"
   echo "$out (rsvg-convert)"
