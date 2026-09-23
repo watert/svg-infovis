@@ -1,0 +1,101 @@
+# examples/
+
+> 本仓的**出图示例** —— 每个示例证明一件事。想知道"某个图型该怎么起手 / 某个旋钮怎么转",
+> 在这里按桶找。API 看 `../README.md`, 缺省值和误用看 `../QUICKREF.md`, 这里只讲**图**。
+
+## 桶表
+
+`bun run examples/<file>` 逐条可跑;**键名**(下面表格第一列)就是 `bun run examples/manifest.ts` 的名字,
+也是 `scripts/build-example-pngs.sh <键名>` 的选择器 —— 一处改名三处同步是过去的老毛病, 现在只有一份清单
+(`examples/manifest.ts`, 机读走 `--tsv`)。
+
+> ⚖ **本表与清单的同步由 `test/examples-manifest.test.ts` 看着**(逐键一致 / 文件落盘 / 快照已出 /
+> 脚本里没有第二份 ITEMS 表)。改清单不加这一表、或加了表不登记清单, `bun test` 当场红。
+
+### start · 起手教学 —— 抄这个开新图
+
+| 键名 | 文件 | 这张图证明什么 |
+|---|---|---|
+| `basic` | `start/basic.ts` | 描述符层最小路径: 手拼 descriptor 直出 SVG(**不经 scene、不过门禁**) |
+| `full-chain` | `start/full-chain.ts` | 主路径全链 `scene → route → audit → export`; `--golden` 出 sha256 供字节对账 |
+
+要开一张新图**从 `full-chain` 抄** —— 它的出口是 fail-closed 的标准姿势(现在收在 `scripts/runner.ts`)。
+
+### checks · 机制对照 —— 一个旋钮/门禁的两种画法
+
+| 键名 | 文件 | 这张图证明什么 |
+|---|---|---|
+| `audit-demo` | `checks/audit-demo.ts` | 门禁诊断长什么样: 四类违例 + 干净对照, 违例元素描红(含 `evidence` / `supportedFixes`) |
+| `lanes-fanout` | `checks/lanes-fanout.ts` | fan-out 三种画法并排: ① 共享端点(零手工, pass) ② 端口摊开并轨(10 条 `edge_overlap`, fail) ③ `assignLanes` 错开(pass) |
+| `port-folds` | `checks/port-folds.ts` | 端口朝向 → 折法参考卡: 四格盒位**逐字相同**, 只换端口两面(端口是作者的旋钮) |
+
+### gallery · 能力举证 —— 这类图 core 画得出来
+
+| 键名 | 文件 | 这张图证明什么 |
+|---|---|---|
+| `node-forms` | `gallery/node-forms.ts` | 形状三态(矩形 / 菱形 / 圆柱)同框, 盒宽一律 `nodeFit({ shape })` 反算 |
+| `ontology-icons` | `gallery/ontology-icons.ts` | 本体图: 图标当视觉替身 + 逐行说明卡片 + 成对双线 + 沿线旋转标签 |
+| `academic-figure` | `gallery/academic-figure.ts` | 学术风(`THEMES.paper`)复刻: tint 分区 / 废除格(`struck` + `opacity`) / 多行文本 |
+| `lifecycle-agent-run` | `gallery/lifecycle-agent-run.ts` | 深色阶段带图: 三段 × 10 状态 + 分岔 / 合流 / 回流(版式判据在 `test/lifecycle-agent-run.test.ts`) |
+| `harness-arch` | `gallery/harness-arch.ts` | **真实规模**手排样本: 15 节点装配链路(§十 实验的对照组 / 手排税测量载体) |
+| `embed-panel` | `gallery/embed-panel.ts` | **外部素材链**: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 `<svg>`, 素材 z 序在底) |
+
+这六张**不合并**: 图型、主题、参照源各不相同, 硬合只会得到一个"什么都有一点"的杂烩。
+
+### labs · 样式矩阵 —— 缺省值就是这样定档的
+
+| 键名 | 文件 | 这张图证明什么 |
+|---|---|---|
+| `style-lab-light` | `labs/style-lab.ts light` | 主题矩阵 light: 7 tone × outline/solid 的色值与对比度 |
+| `style-lab-dark` | `labs/style-lab.ts dark` | 主题矩阵 dark: 同上, 核 solid 上的字还看不看得见 |
+| `style-lab-grid` | `labs/style-lab.ts grid` | 底纹对照: 线格 / 点阵 × 两档密度 |
+
+⚠ **这两半是特意合成一张的**(260920): 主题那一半核色, 底纹那一半核深浅 —— 同属"画布长什么样"的缺省值,
+而 260920 起网格已进 `Theme.grid` 主缺省, 分两个文件反而把"主题 = 色 + 字体 + 底纹"割裂。
+**这两张是"非出口示例"**: 并排对照卡, 不过门禁, 判据归 `test/`。
+
+### templates · 模板示范(源在 `templates/`, 快照仍在这一处)
+
+| 键名 | 文件 | 这张图证明什么 |
+|---|---|---|
+| `sequence-archify-style` | `../templates/sequence-archify-style.ts` | 模板 + 后处理能到什么程度: paper + mono + 语义分色 + phase 带 + 激活条 |
+| `layered-demo` | `../templates/layered.ts` | 模板层示范: 层框 + 整层锚点的跨层注入 → 15 节点装配链路排成三段分层图 |
+| `lifecycle-demo` | `../templates/lifecycle.ts` | 模板层示范: 三段带 × 10 状态 + 分岔 / 合流 / 回流, 图例由调用方经 `decorate` 补 |
+
+## 三个常跑的命令
+
+```bash
+bun run examples/manifest.ts                          # 清单(键名 / 桶 / 这张图证明什么)
+bun run scripts/inspect.ts examples/gallery/harness-arch.ts --showcase   # 布局看不清 → 读一张表(不出图)
+scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 → examples/images/*.png
+```
+
+## 出口纪律(每个示例都守, 别再各写一遍)
+
+1. **图走 stdout、诊断只走 stderr** —— 出图命令**永不加 `2>&1`**(合并会把诊断写进 SVG 头部, 而文件照样以
+   `</svg>` 收尾、exit 照样 0: 失败长得像成功)。
+2. **门禁判决落到退出码** —— 0 通过 / 1 门禁没过 / 2 用法错。
+3. **门禁没过时草稿照给** —— 诊断与图是互补的两半, 少一半只能盲改。草稿带 `data-draft="1"`, 机器可查。
+
+这三条**不再由每个示例各守一遍**: 260920 起全部收进 `scripts/runner.ts`(薄 runner)。示例的顶层保持纯几何
+—— 出图调用一律在 `import.meta.main` 里, 于是 `inspect` / 将来的 web 展示 import 任何示例都不会往 stdout 吐图。
+
+> 为什么 runner 住在 `scripts/` 而不是这里: 消费它的不只有 examples —— `templates/sequence-archify-style.ts`
+> 也要。放进 `examples/` 就变成"模板层反向依赖示例层"。
+
+## 加一个新示例
+
+1. **想清楚"这张图证明什么"** —— 写不出这一句, 这个示例不该存在(它已经进了清单的 `what` 字段)。
+2. 放对桶: `start/`(起手) · `checks/`(机制对照) · `gallery/`(能力举证) · `labs/`(样式矩阵)。
+3. 出口走 `scripts/runner.ts` 的 `runScene(scene, {...})`, 调用收在 `import.meta.main` 里。
+   顶层保持**纯几何**(`export const scene`), 这样读数板与 web 都能直接 import。
+4. 登记进 `examples/manifest.ts`(key = PNG 名, 不许同义两名), **并补上本文件的桶表那一行** ——
+   桶表是人读面、manifest 是机读面, **两处必须同一次改**(否则又长回"三份清单"那个老毛病), 最后跑
+   `scripts/build-example-pngs.sh <key>` 出快照。
+5. 要断言就写进 `test/` —— **判据归 test, 示例只负责展示**(断言长在示例内部时, 只有人真的跑那一次才生效)。
+
+## images/
+
+`examples/images/*.png` 是本仓**全部出图入口**的 PNG 快照, 由 `scripts/build-example-pngs.sh` 全量重出 ——
+**别手改**(改 core 后重出一遍就是对回归的检查)。快照只留这一个目录: 源搬了家(如 `templates/`)快照也不跟走,
+两个抽屉迟早漂。

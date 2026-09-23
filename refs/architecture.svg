@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880.00" height="700.00" viewBox="0 0 880.00 700.00" font-family="ui-sans-serif, system-ui, &quot;PingFang SC&quot;, sans-serif">
+  <rect x="0.00" y="0.00" width="880.00" height="700.00" rx="0.00" fill="#ffffff" stroke="none" />
+  <g data-shape="group">
+    <path d="M 56.00 382.00 A 16.00 16.00 0 0 1 72.00 366.00 L 808.00 366.00 A 16.00 16.00 0 0 1 824.00 382.00 L 824.00 468.00 A 16.00 16.00 0 0 1 808.00 484.00 L 72.00 484.00 A 16.00 16.00 0 0 1 56.00 468.00 L 56.00 382.00 Z" fill="none" stroke="#cbd5e1" stroke-dasharray="6 5" stroke-width="1.5" />
+    <text x="56.00" y="359.40" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600">core · 零运行时依赖 · bun 直跑</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 160.00 68.00 A 12.00 12.00 0 0 1 172.00 56.00 L 428.00 56.00 A 12.00 12.00 0 0 1 440.00 68.00 L 440.00 90.00 A 12.00 12.00 0 0 1 428.00 102.00 L 172.00 102.00 A 12.00 12.00 0 0 1 160.00 90.00 L 160.00 68.00 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="1.5" />
+    <text x="300.00" y="76.60" fill="#ffffff" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">HTML 骨架 · 决策唯一源</text>
+    <text x="300.00" y="92.20" fill="#ffffff" font-family="inherit" font-size="11" opacity="0.7" text-anchor="middle">层 / 层内顺序 / 分组</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 160.00 168.00 A 12.00 12.00 0 0 1 172.00 156.00 L 428.00 156.00 A 12.00 12.00 0 0 1 440.00 168.00 L 440.00 190.00 A 12.00 12.00 0 0 1 428.00 202.00 L 172.00 202.00 A 12.00 12.00 0 0 1 160.00 190.00 L 160.00 168.00 Z" fill="#ffffff" stroke="#c4b5fd" stroke-dasharray="6 5" stroke-width="1.5" />
+    <text x="300.00" y="176.80" fill="#4c1d95" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">blink 量框</text>
+    <text x="300.00" y="191.70" fill="#4c1d95" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">bounds 写回 scene</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 160.00 268.00 A 12.00 12.00 0 0 1 172.00 256.00 L 428.00 256.00 A 12.00 12.00 0 0 1 440.00 268.00 L 440.00 290.00 A 12.00 12.00 0 0 1 428.00 302.00 L 172.00 302.00 A 12.00 12.00 0 0 1 160.00 290.00 L 160.00 268.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="300.00" y="276.80" fill="#0f172a" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">scene · 几何缓存</text>
+    <text x="300.00" y="291.70" fill="#0f172a" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">bounds + 边表 + bounds_source</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 96.00 422.00 A 12.00 12.00 0 0 1 108.00 410.00 L 274.00 410.00 A 12.00 12.00 0 0 1 286.00 422.00 L 286.00 444.00 A 12.00 12.00 0 0 1 274.00 456.00 L 108.00 456.00 A 12.00 12.00 0 0 1 96.00 444.00 L 96.00 422.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="191.00" y="430.90" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">route</text>
+    <text x="191.00" y="445.20" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">盒子+端口 → 折点列</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 316.00 422.00 A 12.00 12.00 0 0 1 328.00 410.00 L 494.00 410.00 A 12.00 12.00 0 0 1 506.00 422.00 L 506.00 444.00 A 12.00 12.00 0 0 1 494.00 456.00 L 328.00 456.00 A 12.00 12.00 0 0 1 316.00 444.00 L 316.00 422.00 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1.5" />
+    <text x="411.00" y="430.90" fill="#451a03" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">audit</text>
+    <text x="411.00" y="445.20" fill="#451a03" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">十九项门禁 · 不过即拒出图</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 536.00 422.00 A 12.00 12.00 0 0 1 548.00 410.00 L 714.00 410.00 A 12.00 12.00 0 0 1 726.00 422.00 L 726.00 444.00 A 12.00 12.00 0 0 1 714.00 456.00 L 548.00 456.00 A 12.00 12.00 0 0 1 536.00 444.00 L 536.00 422.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="631.00" y="430.90" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">export</text>
+    <text x="631.00" y="445.20" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">fail-closed 出图</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 160.00 552.00 A 12.00 12.00 0 0 1 172.00 540.00 L 428.00 540.00 A 12.00 12.00 0 0 1 440.00 552.00 L 440.00 574.00 A 12.00 12.00 0 0 1 428.00 586.00 L 172.00 586.00 A 12.00 12.00 0 0 1 160.00 574.00 L 160.00 552.00 Z" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.5" />
+    <text x="300.00" y="560.80" fill="#064e3b" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">烘焙 SVG / 自包含 HTML</text>
+    <text x="300.00" y="575.70" fill="#064e3b" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">深色主题自带 canvasLayer 底</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 120.00 648.00 A 12.00 12.00 0 0 1 132.00 636.00 L 348.00 636.00 A 12.00 12.00 0 0 1 360.00 648.00 L 360.00 670.00 A 12.00 12.00 0 0 1 348.00 682.00 L 132.00 682.00 A 12.00 12.00 0 0 1 120.00 670.00 L 120.00 648.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="240.00" y="656.90" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">README 冻结图</text>
+    <text x="240.00" y="671.20" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">坐标进 git</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 430.00 648.00 A 12.00 12.00 0 0 1 442.00 636.00 L 658.00 636.00 A 12.00 12.00 0 0 1 670.00 648.00 L 670.00 670.00 A 12.00 12.00 0 0 1 658.00 682.00 L 442.00 682.00 A 12.00 12.00 0 0 1 430.00 670.00 L 430.00 648.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="550.00" y="656.90" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">HTML 看板 / deck</text>
+    <text x="550.00" y="671.20" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">走 blink 重排</text>
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 102.00 L 300.00 149.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 156.00 L 296.85 149.00 L 303.15 149.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 202.00 L 300.00 249.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 256.00 L 296.85 249.00 L 303.15 249.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 302.00 L 300.00 372.00 A 8.00 8.00 0 0 1 292.00 380.00 L 199.00 380.00 A 8.00 8.00 0 0 0 191.00 388.00 L 191.00 403.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 191.00 410.00 L 187.85 403.00 L 194.15 403.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 286.00 433.00 L 310.00 433.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 316.00 433.00 L 310.00 435.70 L 310.00 430.30 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 506.00 433.00 L 530.00 433.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 536.00 433.00 L 530.00 435.70 L 530.00 430.30 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 631.00 456.00 L 631.00 490.00 A 8.00 8.00 0 0 1 623.00 498.00 L 308.00 498.00 A 8.00 8.00 0 0 0 300.00 506.00 L 300.00 533.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 540.00 L 296.85 533.00 L 303.15 533.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 258.00 586.00 L 258.00 603.00 A 8.00 8.00 0 0 1 250.00 611.00 L 248.00 611.00 A 8.00 8.00 0 0 0 240.00 619.00 L 240.00 629.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 240.00 636.00 L 236.85 629.00 L 243.15 629.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 342.00 586.00 L 342.00 603.00 A 8.00 8.00 0 0 0 350.00 611.00 L 542.00 611.00 A 8.00 8.00 0 0 1 550.00 619.00 L 550.00 629.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 550.00 636.00 L 546.85 629.00 L 553.15 629.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <text x="462.00" y="77.10" fill="#475569" font-family="inherit" font-size="11">唯一权威: 改序只改这里</text>
+  <text x="462.00" y="177.10" fill="#475569" font-family="inherit" font-size="11">M2 · 需要浏览器(CDP 量框)</text>
+  <text x="462.00" y="277.20" fill="#475569" font-family="inherit" font-size="11">可重建缓存 · 带 html_rev / scene_rev</text>
+  <text x="96.00" y="477.10" fill="#475569" font-family="inherit" font-size="10.5">geometry · shapes · theme · serialize · predicates   (纯函数, 字节确定)</text>
+  <text x="467.50" y="395.10" fill="#475569" font-family="inherit" font-size="10.5">audit 不过 → 拒出图(除显式 force, 产物打 data-draft)</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg width="420" height="260" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 420 260">
+<rect width="420" height="260" x="0" y="0" fill="none"></rect>
+<polyline points="294.5 120.3 309.3 117.7 324.3 117.7" fill="none" pointer-events="visible" stroke="#4a7cc7" class="zr2-cls-7"></polyline>
+<polyline points="154.8 200.9 145.2 212.4 130.2 212.4" fill="none" pointer-events="visible" stroke="#8fbf6a" class="zr2-cls-7"></polyline>
+<polyline points="154.8 69.5 145.2 58 130.2 58" fill="none" pointer-events="visible" stroke="#f0c64a" class="zr2-cls-7"></polyline>
+<path d="M210 49.4A85.8 85.8 0 0 1 239.3 215.8L226.9 181.6A49.4 49.4 0 0 0 210 85.8Z" fill="#4a7cc7" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr2-cls-8"></path>
+<path d="M239.3 215.8A85.8 85.8 0 0 1 125.5 120.3L161.4 126.6A49.4 49.4 0 0 0 226.9 181.6Z" fill="#8fbf6a" ecmeta_series_index="0" ecmeta_data_index="1" ecmeta_ssr_type="chart" class="zr2-cls-9"></path>
+<path d="M125.5 120.3A85.8 85.8 0 0 1 210 49.4L210 85.8A49.4 49.4 0 0 0 161.4 126.6Z" fill="#f0c64a" ecmeta_series_index="0" ecmeta_data_index="2" ecmeta_ssr_type="chart" class="zr2-cls-10"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:11px;font-family:sans-serif;" transform="translate(329.2686 117.6963)" fill="#333" stroke="rgb(255,255,255)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">k3</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:sans-serif;" transform="translate(125.207 212.4173)" fill="#333" stroke="rgb(255,255,255)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">grok</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:sans-serif;" transform="translate(125.207 57.9827)" fill="#333" stroke="rgb(255,255,255)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">M3</text>
+<style ><![CDATA[
+.zr2-cls-7:hover {
+cursor:pointer;
+}
+.zr2-cls-8:hover {
+cursor:pointer;
+fill:rgba(81,136,218,1);
+}
+.zr2-cls-9:hover {
+cursor:pointer;
+fill:rgba(157,210,116,1);
+}
+.zr2-cls-10:hover {
+cursor:pointer;
+fill:rgba(255,217,81,1);
+}
+
+]]>
+
+</style>
+</svg>
