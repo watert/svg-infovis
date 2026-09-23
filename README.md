@@ -7,6 +7,8 @@ date: 2026-09-23T16:00:00+08:00
 
 # svg-infovis · diagramming 几何内核
 
+> 本仓从私人笔记仓的 `.agents/skills/mini-diagram/` 迁出(2026-09-23), 历史档案留在原仓 git 历史, 迁出方案见原仓 `TODO/svg-infovis-publish.md`。
+
 > ⚠️ **两句纠偏**: ① 本仓是 **diagramming**(流程 / 时序 / 架构图)的几何内核 —— 名字里的 `infovis` 是历史遗留, 它**不是** d3 那类 data visualization 库。② CLI 名 **`svginfo`** 是画图的 **authoring CLI**(run / inspect / render), **不是** SVG 元数据查看器 —— `-info` 后缀按 Unix 惯例容易被读成"查看器", 特此说明(见 [ROADMAP.md](./ROADMAP.md))。
 
 ![full chain](examples/images/full-chain.png)
