@@ -5,7 +5,7 @@
 // =====================================================================
 
 import { describe, expect, test } from 'bun:test';
-import { THEMES, groupLabelRect, groupShape, svg, textBlocks, toSVG, OPTICAL_CENTRAL_FIX } from '../src/index';
+import { THEMES, groupLabelRect, groupShape, svg, textBlocks, toSVG } from '../src/index';
 import type { Rect } from '../src/geometry/vec.ts';
 
 const BOX: Rect = { x: 100, y: 200, w: 400, h: 120 };
@@ -44,8 +44,8 @@ describe('shapes/group · 标签定位', () => {
     const r = groupLabelRect({ ...BOX, label: LABEL, labelPlacement: 'outer', labelInset: [30, -40] })!;
     const fs = 12;
     expect(r.x).toBe(BOX.x + 30);
-    // baseline = y + iy 的行中心; 盒顶 = baseline - 0.8em (central 折算含光学补偿)
-    expect(r.y).toBeCloseTo(BOX.y - 40 + fs * 0.35 + OPTICAL_CENTRAL_FIX - fs * 0.8, 5);
+    // baseline = y + iy 的行中心; 盒顶 = baseline - 0.8em
+    expect(r.y).toBeCloseTo(BOX.y - 40 + fs * 0.35 - fs * 0.8, 5);
     expect(r.h).toBeCloseTo(fs * 1.25, 5);
   });
 

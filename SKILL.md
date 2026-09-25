@@ -76,7 +76,7 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 2. **descriptor 双态**。shape 吐纯数据, 字符串化归 `serialize`。
 3. **字节确定性**。禁 `Date.now` / `Math.random`; 数值 `round1`; 集合按 codepoint 序。
 4. **不搞第二权威**。决策在作者的数据里, core 只算几何。文档同样: 一个事实一处。
-5. **几何自己算**。不用 `dominant-baseline` (走 `baselineY`), 不用 SVG `marker`。垂直居中看行中心, `central` 含 CJK 光学补偿 1.2px。
+5. **几何自己算**。不用 `dominant-baseline` (走 `baselineY`), 不用 SVG `marker`。垂直居中看行中心, `central = 行心 + 0.35em` **纯公式**(实测墨心 CJK 0.3555–0.3594em, 残差 ≤0.1px) —— 别在这里加全局 px 补偿。
 6. **画布算出血**。描边居中, 外扩 `strokeWidth/2`。viewBox 别写死。
 7. **渲染面必须是 scene 的满射**。出图走 `sceneChildren`。出图后 `grep NaN` 产物。
 8. **文本要有位置才审得到, 要有内容才上得了屏**。差集在 `phantom_labels` / `phantom_texts`, 不许静默。

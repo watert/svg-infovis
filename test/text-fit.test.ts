@@ -70,7 +70,7 @@ describe('text_fit · 按内容反算旁注块(与渲染同源)', () => {
     const midY = round1(note.rect.y + note.rect.h / 2);
     rendered.forEach((t, i) => {
       expect(t.x).toBe(note.rect.x); // start 锚: 文字左端落在盒左边
-      // 渲染吐的是**基线 y**(`baselineY` 的 central 折算含 CJK 光学补偿 1.2px), 不是行心 ——
+      // 渲染吐的是**基线 y**(`baselineY` 的 central 折算 = 行心 + 0.35em), 不是行心 ——
       // 与 `textShape` 逐字同源: 行心先 `round1` 收口, 再由 `textShape` 折算(这一步不该手抄一个 5.05)
       expect(t.y).toBe(baselineY(round1(midY + offsets[i]), FS, 'central'));
     });

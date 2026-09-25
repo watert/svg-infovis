@@ -87,7 +87,7 @@ bun run scripts/inspect.ts /path/to/my-scene.ts --metrics --rows=80 --showcase
 | 自重叠 `eps` | **0.5px** | `predicates.ts` | 非相邻段同轴反向的投影重叠阈值 |
 | `PIERCE_MIN` | **0.5px** | `audit.ts` | 边穿盒 / 端点擦边的**半像素**分界。导出是给 `route-cost` 当尺子用的 —— 门禁与代价层同一把尺子, 别另定一个数 |
 | `CYLINDER_CAP_RATIO` | **1/8** | `shapes/node.ts` | 圆柱盖高占盒高的比例 ⇒ 盒高 +4×盖高 = **×2**(与菱形两轴 ×2 同档)。`nodeFit({ shape: 'cylinder' })` 已含这一步 |
-| `OPTICAL_CENTRAL_FIX` | **1.2px** | `descriptor.ts` | `baselineY` 的 CJK 光学补偿, **只作用于 `central`**。少了它中文"看着偏下、上面空一截" |
+| `BASELINE_FACTORS.central` | **0.35em** | `descriptor.ts` | `baselineY` 的 central 折算 = 行心 + 0.35em, **纯公式、无 px 修正**(实测墨心: CJK 0.3555–0.3594em / 大写 0.3636 / 小写 0.3413, 残差 ≤0.1px)。⚠ 曾有一个 `OPTICAL_CENTRAL_FIX = 1.2`(260917 按两行块校准的常数补偿), 260925 已移除 —— 那是**内容依赖**的修正, 进了共享折算层就把每个单行场景(节点单标签 / 边标签 / 旁注 / 组标题)统一往下推 1.2px |
 | `GRID_ID` | **`md-grid`** | `shapes/grid-pattern.ts` | 底纹 `<pattern>` 的缺省 id。**一图铺两种网格 / 同页多张带网格的图必须各自给 id** —— 重复 id 下 `url(#md-grid)` 全解析到第一个定义(实测四格整片渲染成第一种) |
 | `measureText` 常量 | `0.6em / 1.4 / 1.015 / 0.03` | `measure.ts` | 半角宽 / 行高 / 估宽安全系数 / 粗体增益 |
 | `SCENE_TEXT_DEFAULTS.fontSize` | **11** | `knives/audit.ts` | 旁注(`SceneText` / `textFit` / `textNote`)缺省字号 —— 与 `SceneText` 渲染上屏(`export.ts` 的 `t.fontSize ?? …`)同源, 没给 `fontSize` 时两边吃同一个数 |

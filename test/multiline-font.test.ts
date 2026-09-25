@@ -21,7 +21,7 @@ import type { Scene } from '../src/knives/audit';
 import type { Descriptor } from '../src/descriptor';
 
 const GAP = 13 * NODE_TEXT_LAYOUT.lineGapEm; // 主字号缺省 13
-// descriptor 的 y 是 baselineY 折算后的**基线**(central 含光学补偿), 断言过同一个折算
+// descriptor 的 y 是 baselineY 折算后的**基线**(central = 行心 + 0.35em), 断言过同一个折算
 const base = (lineCy: number, size = 13): number => baselineY(lineCy, size, 'central');
 
 const textsOf = (d: Descriptor[]): Extract<Descriptor, { kind: 'text' }>[] =>

@@ -96,8 +96,17 @@ export type Baseline = 'hanging' | 'central' | 'baseline';
  * librsvg / resvg / PDF 管线各有偏差, 换渲染器整张图的文字就漂, 而且漂多少不可对账。
  * 自己算 = 坐标进得了 golden, 跨渲染器只差一个固定系数。
  *
- * 取值依据: 常规字体的 em-box 中点大约在基线上方 0.35em(ascender≈0.8 / descender≈0.2);
- * hanging 取 ascent 的 0.8。CJK / 等宽字族若有偏差, 改这里一处即可。
+ * `central = 0.35` 是**量出来的**(260925 复核): 按它摆好单行字后逐像素量墨迹, 墨心落在基线上方
+ * **CJK 0.3555–0.3594em**(11/13/16/20 四档字号一致)、大写英文 0.3636em、小写 0.3413em ——
+ * 残差 ≤0.1px。所以这一格**不该再叠任何 px 补偿**; CJK / 等宽字族真要有偏差, 也是改这个系数。
+ *
+ * ⚠ **别在这里加"光学补偿"**: 260917 曾加过一个 `OPTICAL_CENTRAL_FIX = 1.2`(`central` 恒
+ * +1.2px), 260925 已移除。它当时是拿"主标签 CJK + 次标签大写英文"那个**两行块**校准出来的
+ * (那份内容上 +1.2 确实更准), 可两行块的视觉中心还牵扯行距与两行字族的墨心差 —— 那是
+ * **内容依赖**的修正, 而 `baselineY` 是所有 central 站点共享的**折算层**(节点单标签 / 边标签
+ * 遮罩片 / 旁注 / 组标题都吃它)。放进共享层 = 每个单行场景统一多下沉 1.2px, 而它们本来是对的。
+ * 教训: **内容依赖的偏差修在摆那块内容的地方, 折算层只放与内容无关的几何系数** —— 想再往这里
+ * 加全局常量, 先证明它对"单行 CJK / 单行英文 / 多行 / 各字号"同时成立。
  */
 export const BASELINE_FACTORS: Record<Baseline, number> = {
   baseline: 0,
@@ -106,20 +115,11 @@ export const BASELINE_FACTORS: Record<Baseline, number> = {
 };
 
 /**
- * `central` 的**光学补偿**(px)。
- *
- * 0.35em 是西文 em-box 的经验值, 而**中文 ink 的重心比它高** —— 260917 实拍 + 像素量测:
- * 按 0.35em 摆主/次两行, 文字块视觉中心比目标**高 1.2px**(纯数学对称后仍偏 1.5px)。
- * 三档字号(11/13/16)实测偏差一致 = **与字号无关**, 所以用常数补偿而不是改系数
- * (改系数会让偏差随字号漂: 11 刚好 / 16 偏 0.4)。
- *
- * 只作用于 `central` —— `baseline` / `hanging` 是字面语义, 不该被光学补偿污染。
+ * 把"锚点 y"折算成 SVG 里真正要写的基线 y。**纯公式**(只吃 `BASELINE_FACTORS`)——
+ * 这里多一个 px 修正, 全图的字就一起跟着沉, 别再塞东西进来(原委见上一条)。
  */
-export const OPTICAL_CENTRAL_FIX = 1.2;
-
-/** 把"锚点 y"折算成 SVG 里真正要写的基线 y */
 export const baselineY = (y: number, fontSize: number, baseline: Baseline = 'baseline'): number =>
-  y + fontSize * BASELINE_FACTORS[baseline] + (baseline === 'central' ? OPTICAL_CENTRAL_FIX : 0);
+  y + fontSize * BASELINE_FACTORS[baseline];
 
 /** 水平对齐: 这条各渲染器一致, 保留属性 */
 export const anchorAttrs = (anchor: TextAnchor = 'start'): Attrs =>

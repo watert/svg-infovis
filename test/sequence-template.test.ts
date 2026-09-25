@@ -44,10 +44,15 @@ describe('sequence 模板 · 内置示例', () => {
     //     rect 宽 −2 / 高 −4.8; 列距按更瘦的标签反算 ⇒ [133,166,156] → [132,164,154](第一格被
     //     版式下限 132 兜住, 故只 −1), 画布宽 580 → 575; 标签盒底边离线距离不变, 字因此各下沉 2.4px。
     //     元素数 125 → 125 零增删。
-    // 三轮的判据与 diff 都在本文件 + `label-box-size` / `label-rotate` / `semantic-slots` 里钉着。)
+    //  ④ 移除 `central` 的光学补偿 `OPTICAL_CENTRAL_FIX`(对齐调研: 单行字被它统一多推 1.2px)——
+    //     16 条 `<text>` 的 y 各**上移 1.2**(原始值精确 1.2; 序列化后那条边标签显示 −1.1,
+    //     是 `round1` 落在 .x5 半格边界上的取整抖动, 复算见 `test/text-center.test.ts` 的回归);
+    //     画布 575×588 与元素数(rect 9 / g 27 / path 27 / text 16)**一字未动**, 去掉全部
+    //     `<text>` 之后其余字节逐字节相同。
+    // 各轮的判据与 diff 都在本文件 + `label-box-size` / `label-rotate` / `semantic-slots` / `text-center` 里钉着。)
     const { scene, opts } = build(DEMO_SEQUENCE);
     expect(createHash('sha256').update(tryExport(scene, opts).svg).digest('hex'))
-      .toBe('e39d81702baa6a9b8a8a674e94ac1eda19d5dd15089161ce86e611c789ed122e');
+      .toBe('1d2c1a5455d2b4ced678db8a29b75173eedff6709db284e7f9ccad41d0e264e4');
   });
 
   it('全绿出图: 0 error / 0 warning, 产物无 NaN', () => {
