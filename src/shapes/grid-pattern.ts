@@ -26,9 +26,9 @@
 // 当元素审(与 `SceneGroup.noCheck` / lifeline 同族, 它更进一步: 干脆没有对象可审)。
 // =====================================================================
 
-import { type DDefs, type Descriptor, circle, defs, path, pattern, rect } from '../descriptor';
+import { type Attrs, type DDefs, type Descriptor, circle, defs, path, pattern, rect } from '../descriptor';
 import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
-import { round1 } from '../geometry/vec';
+import { type Pt, round1 } from '../geometry/vec';
 
 /** 网格风格词表 —— 与 `assertOneOf` 同源, 写错的风格词会静默回落成缺省形态, 必须拦 */
 export type GridStyle = 'line' | 'dot';
@@ -56,13 +56,25 @@ export type GridProps = {
   width?: number;
   /** pattern id, 缺省 `md-grid`。同页嵌多张带网格的 SVG 时各自给一个, 免得 `url(#…)` 串台 */
   id?: string;
+  /**
+   * 网格块的**左上角**(画布绝对坐标, 缺省 `(0, 0)`): 它同时是 tile 的**相位原点** —— 网格线 /
+   * 点阵从这个角起算, 而**不是**从画布原点起算。
+   *
+   * 为什么有这一位(260925, 活体 = `examples/labs/style-lab.ts` 的四格底纹对照): 并排几块网格
+   * 此前靠 `<g transform="translate(…)">` 把内容整体挪过去, 而平移一旦编进坐标, 图案相位就改从
+   * **画布原点**起算 —— 实测(rsvg 1000 / 1400 / 2800px 三档, 与"格角起算"逐像素对账)差
+   * **16~22%** 像素, 所以"直接展平"不是无损的。有了这一位, 块既落在绝对坐标上、又保住自己
+   * 那一份相位, `<g transform>` 才拆得掉。
+   */
+  origin?: Pt;
 };
 
 /**
- * 主题层能给的网格缺省 —— 去掉 `id`(那是"同一张图铺多种网格"才需要的区分, 不归主题)。
+ * 主题层能给的网格缺省 —— 去掉两位**作者决策**: `id`(同一张图铺多种网格才需要的区分)与
+ * `origin`(一块网格铺在哪儿)。主题铺的是"整张画布那一层", 起点恒为画布原点。
  * 出口口径: `opts.grid` 的字段**逐个**盖在它上面, 所以主题给"底"、作者只写要改的那一两位。
  */
-export type GridDefaults = Omit<GridProps, 'id'>;
+export type GridDefaults = Omit<GridProps, 'id' | 'origin'>;
 
 /** 缺省 pattern id —— 同页多图串台时唯一的抓手, 见 `GridProps.id` */
 export const GRID_ID = 'md-grid';
@@ -90,6 +102,12 @@ export function gridPattern(p: GridProps = {}): DDefs {
   if (opacity <= 0) {
     throw new ShapeInputError(SHAPE, 'opacity', `不是正数(拿到 ${opacity})`, '透明度 0 等于完全不画 —— 要关掉网格请用 `opts.grid: false`');
   }
+  // 相位原点(给了才校验): 尺寸类旋钮一律非有限即抛, 与 step / width 同档
+  const origin = p.origin;
+  if (origin) {
+    assertFiniteNumber(SHAPE, 'origin.x', origin.x);
+    assertFiniteNumber(SHAPE, 'origin.y', origin.y);
+  }
   const tile = String(round1(step));
 
   const body: Descriptor[] = [];
@@ -110,7 +128,11 @@ export function gridPattern(p: GridProps = {}): DDefs {
     }
     body.push(circle(step / 2, step / 2, d / 2, { fill: color, 'fill-opacity': opacity }));
   }
-  return defs([pattern(p.id ?? GRID_ID, step, step, body, { patternUnits: 'userSpaceOnUse' })]);
+  // tile 相位原点: 只有**显式给了** `origin` 才发射 `x`/`y` —— 不给时这两个属性根本不出现,
+  // 老产物逐字节不变(`x`/`y` 缺省即 0 = 画布原点, 与"没有这一位"的语义正好相同)
+  const attrs: Attrs = { patternUnits: 'userSpaceOnUse' };
+  if (origin) { attrs.x = origin.x; attrs.y = origin.y; }
+  return defs([pattern(p.id ?? GRID_ID, step, step, body, attrs)]);
 }
 
 /**
@@ -118,12 +140,16 @@ export function gridPattern(p: GridProps = {}): DDefs {
  *
  * ⚠ 网格跟着**画布尺寸**走, 不跟内容走 —— w/h 要给 scene(或 `fit` 之后)的尺寸; 给小了
  * 画布上会留一块没有网格的角。
+ *
+ * 给了 `origin` 就是"这块网格从 `origin` 起铺 w×h"(铺满矩形跟着它走, 相位也由它起算) ——
+ * 并排几块网格各铺一格时用得上; 不给 = 老样子, 铺满整张画布。
  */
 export function gridLayer(w: number, h: number, p: GridProps = {}): Descriptor[] {
   assertFiniteNumber('gridLayer', 'w', w, '网格铺满的是画布尺寸(scene.width / height), 不是内容包围盒');
   assertFiniteNumber('gridLayer', 'h', h);
+  const o = p.origin ?? { x: 0, y: 0 };
   return [
     gridPattern(p),
-    rect(0, 0, w, h, 0, { fill: `url(#${p.id ?? GRID_ID})`, stroke: 'none' }),
+    rect(o.x, o.y, w, h, 0, { fill: `url(#${p.id ?? GRID_ID})`, stroke: 'none' }),
   ];
 }

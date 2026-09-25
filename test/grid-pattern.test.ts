@@ -126,4 +126,17 @@ describe('grid-pattern · 网格底纹(两种风格 · 层序 · 不进审计)',
     expect(svg).toContain('<pattern id="grid-b"');
     expect(svg).toContain('fill="url(#grid-b)"');
   });
+
+  it('origin: **显式给了才发射** `x`/`y`(不给则产物逐字节不变), 铺满那块矩形跟着它走', () => {
+    // 缺省档: 那两个属性根本不出现 —— 老图与老快照的字节全靠这一条(实际用法见 style-lab 四格展平)
+    expect(gridSVG()).toContain('patternUnits="userSpaceOnUse">');
+    expect(gridSVG()).not.toContain('patternUnits="userSpaceOnUse" x=');
+    // 给了: 相位原点与铺满矩形同时落在 (16, 46) —— 并排多块网格各钉回自己格角的前提
+    const at = gridSVG({ origin: { x: 16, y: 46 } });
+    expect(at).toContain('patternUnits="userSpaceOnUse" x="16" y="46"');
+    expect(at).toContain('<rect x="16.00" y="46.00" width="420.00" height="220.00" rx="0.00" fill="url(#md-grid)"');
+    // 尺寸类旋钮坏值不静默(与 step / width 同档)
+    expect(() => gridPattern({ origin: { x: Number.NaN, y: 0 } })).toThrow(ShapeInputError);
+    expect(() => gridPattern({ origin: { x: 0, y: Number.POSITIVE_INFINITY } })).toThrow(ShapeInputError);
+  });
 });

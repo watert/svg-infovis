@@ -18,12 +18,12 @@
 // 中性灰 10.7, 定档缘由见 `shapes/grid-pattern.ts` 文件头)。
 // ⚠ 深浅精度是 serialize 的 1 位小数档: 写 0.06 会被写成 0.1 —— 要更细就把 alpha 编进 `color`。
 //
-// 本文件是 SKILL「判据归 test, 示例只负责展示」里点名的**非出口示例**(并排对照卡, 不过门禁)。
+// 本文件是 `examples/README.md`「判据归 test, 示例只负责展示」里点名的**非出口示例**(并排对照卡, 不过门禁)。
 // =====================================================================
 
 import {
   type Descriptor, type GridProps, type Rect, THEMES, TONES,
-  canvasLayer, edgeShape, group, groupShape, nodeShape, packCol, packRow, rect, rectCenter, rectFace, svg, textShape,
+  canvasLayer, edgeShape, grid, group, groupShape, nodeShape, packCol, packRow, rect, rectBottom, rectCenter, rectFace, rectRight, svg, textShape,
 } from '../../src/index';
 import { gridLayer } from '../../src/shapes/grid-pattern';
 import { routeOrthogonal } from '../../src/knives/route';
@@ -75,38 +75,45 @@ function themeMatrix(mode: 'light' | 'dark'): string {
 }
 
 /** 底纹对照(前身 `grid-lab.ts`)—— paper 主题下四格: 上排 line / 下排 dot, 每排两档密度 */
-function gridLab(): string {
+export function gridLab(): string {
   const theme = THEMES.paper;
   const CW = 300;
   const CH = 180;
   const GAP = 16;
   const PAD = 16;
   const TOP = PAD + 30;
-  const W = PAD * 2 + CW * 2 + GAP;
-  const H = TOP + CH * 2 + GAP + PAD;
+  // 四格 = 2×2 规则格子, 格位走 `grid` 查询(不再手算 `PAD + col * (CW + GAP)`)
+  const sheet = grid({ origin: { x: PAD, y: TOP }, cols: 2, rows: 2, cell: { w: CW, h: CH }, gap: { x: GAP, y: GAP } });
+  // 画布 = 格区并集再让出外侧留白(右 / 下各一份 PAD; 顶上那份在 TOP 里)
+  const W = rectRight(sheet.bounds) + PAD;
+  const H = rectBottom(sheet.bounds) + PAD;
 
-  /** 一格 = 纸底 + 网格 + 两个节点一条边(格子自己平移, 内容坐标与真实用法一致) */
-  const cell = (col: number, row: number, label: string, grid: GridProps): Descriptor => {
-    // 两个盒的位置是格内版式(作者给的); 折点全从它们的面现算 —— 出 Ingest 底边中点,
+  /**
+   * 一格 = 纸底 + 网格 + 两个节点一条边。**一切坐标都是画布绝对坐标**, 格角 `c` 是唯一的偏移
+   * 来源 —— 这里从前挂 `<g transform="translate(…)">` 把整格挪过去, 260925 已拆(平移编进坐标);
+   * 拆得掉的**前提**是网格相位有落脚处: `gridLayer` 的 `origin: c` 把 tile 各自钉回格角,
+   * 否则图案改从画布原点起算, 栅格后差 16~22% 像素(rsvg 三档实测, 见 `shapes/grid-pattern.ts` 的 `origin`)。
+   */
+  const cell = (col: number, row: number, label: string, gridProps: GridProps): Descriptor => {
+    const c = sheet.cell(col, row);
+    // 两个盒的位置是格内版式(作者给的, 相对格角); 折点全从它们的面现算 —— 出 Ingest 底边中点,
     // 下到 Store 左边中线那一行, 再横着进 Store 左边(拐角 = 两口各自那根线的交点)
-    const ingest: Rect = { x: 30, y: 52, w: 104, h: 38 };
-    const store: Rect = { x: 166, y: 106, w: 104, h: 38 };
+    const ingest: Rect = { x: c.x + 30, y: c.y + 52, w: 104, h: 38 };
+    const store: Rect = { x: c.x + 166, y: c.y + 106, w: 104, h: 38 };
     const from = rectFace(ingest, 'bottom');
     const to = rectFace(store, 'left');
-    return group(
-      [
-        canvasLayer(theme, CW, CH),
-        ...gridLayer(CW, CH, grid),
-        textShape({ x: 14, y: 18, content: label, size: 10.5, theme, color: theme.label }),
-        nodeShape({ ...ingest, radius: 8, label: 'Ingest', tone: 'blue', variant: 'tint', theme, fontSize: 11.5 }),
-        nodeShape({ ...store, radius: 8, label: 'Store', tone: 'slate', variant: 'outline', theme, fontSize: 11.5 }),
-        edgeShape({
-          points: [from, { x: from.x, y: to.y }, to],
-          theme, radius: 8, end: 'arrow-triangle', markerSize: 6,
-        }),
-      ],
-      { transform: `translate(${PAD + col * (CW + GAP)} ${TOP + row * (CH + GAP)})` },
-    );
+    return group([
+      // 纸底与网格都摆到格角上(纸底走 `theme.canvas` 这一位, 与 `canvasLayer` 同一个取值)
+      rect(c.x, c.y, CW, CH, 0, { fill: theme.canvas, stroke: 'none' }),
+      ...gridLayer(CW, CH, { ...gridProps, origin: c }),
+      textShape({ x: c.x + 14, y: c.y + 18, content: label, size: 10.5, theme, color: theme.label }),
+      nodeShape({ ...ingest, radius: 8, label: 'Ingest', tone: 'blue', variant: 'tint', theme, fontSize: 11.5 }),
+      nodeShape({ ...store, radius: 8, label: 'Store', tone: 'slate', variant: 'outline', theme, fontSize: 11.5 }),
+      edgeShape({
+        points: [from, { x: from.x, y: to.y }, to],
+        theme, radius: 8, end: 'arrow-triangle', markerSize: 6,
+      }),
+    ]);
   };
 
   // ⚠ 四格的 pattern 参数各不相同, 所以**必须各自给 id**: 缺省 id 一律是 `md-grid`, 而重复 id 下
