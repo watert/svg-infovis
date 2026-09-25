@@ -33,7 +33,7 @@ const [box, dia, db] = col.rects;
 const e1 = routeOrthogonal({ from: box, fromPort: { side: 'bottom' }, to: dia, toPort: { side: 'top' } });
 const e2 = routeOrthogonal({ from: dia, fromPort: { side: 'bottom' }, to: db, toPort: { side: 'top' } });
 
-const scene: Scene = {
+export const scene: Scene = {
   width: 640,
   height: 420,
   nodes: [

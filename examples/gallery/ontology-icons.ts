@@ -143,7 +143,7 @@ const captionRect = {
   h: capFit.h,
 };
 
-const scene: Scene = {
+export const scene: Scene = {
   width: 0, // 交给 `fit` 按内容重定(先 fit 再审 —— 审计吃的是平移后的那份)
   height: 0,
   nodes,

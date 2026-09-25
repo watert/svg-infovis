@@ -116,7 +116,7 @@ const texts: SceneText[] = [
 const eLoopLabel = edgeLabel({ id: 'e-loop', points: eLoop.points }, 'State Update\nJSON Patch ΔΣ',
   { id: 'loop', fontSize: 13, at: { x: 1198, y: 482 } });
 
-const scene: Scene = { width: W, height: H, nodes, edges, groups, texts, labels: [eLoopLabel] };
+export const scene: Scene = { width: W, height: H, nodes, edges, groups, texts, labels: [eLoopLabel] };
 
 // --- 出口(fail-closed + 诊断走 stderr) -----------------------------------------
 //
