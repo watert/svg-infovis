@@ -135,6 +135,7 @@ bun run scripts/inspect.ts /path/to/my-scene.ts --metrics --rows=80 --showcase
 | **角色框**(上下文 / 状态; 学术风) | `variant: 'tint'` | 浅色底 + 深一档描边。三档语义: `outline` 默认 / `tint` 角色 / `solid` 强调 |
 | **这格被废除** | `SceneNode.struck: true` + `opacity` | 红 X + 淡化; 叉线不参与净空审计(它没有合法注入点) |
 | 旁注要**加粗 / 上色** | `SceneText.weight` / `color` | 缺省 `theme.label` / 400 |
+| 边标签的字色要**跟着这条边的肤色**走 | `edgeLabel({ id, points, tone }, text)`(边带 `tone` 就继承)或 options 的 `{ tone }`; 单点例外走 `{ color }` / `{ bg }` | 烘焙期写进 `SceneLabel.tone`, 出口取 `tones[tone].text` —— **文字槽**, 不是边线那个 `border` 槽(线是描边、字是填充, 浅色系 border 当字色看不清)。三个模板已接线(`sequence` / `layered` / `lifecycle` 的 `tone` **一处给全**, 线与标签共用同一个值)。⚠ 遮罩片缺省**与画布同色 = 隐形**(只剩"切断穿过的线"的本职), 要徽章观感才显式给 `bg`; `labelChip` 是徽章语义, 缺省仍 `theme.labelBg` |
 | 这条线是**版式基准线**(泳道线 / 坐标轴 / 分隔线) | `SceneEdge.noCheck: true` + 样式里 `end: 'none'` | 豁免面**只有穿盒一档**; 不写 `end: 'none'` 会在右端长出一个三角 |
 | 这个框是**纯视觉分区**(band / region, 泳道线横穿是常态) | `SceneGroup.noCheck: true`(别写 `contains`) | 写 `contains` 会被 `cluster_border_clearance` 判成"切断分组" |
 | **单点例外**(这一格就是那个颜色) | 出口覆盖表 `nodeStyles` / `edgeStyles` / `groupStyles` | 逃生口, 优先级永远最高 —— 但"角色"该写在 scene 里, 别让"哪一格是什么角色"只活在一张按 id 索引的表里 |

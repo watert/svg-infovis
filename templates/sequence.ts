@@ -516,7 +516,9 @@ export function buildSequence(spec: SequenceSpec): { scene: Scene; opts: ExportO
       // 标签横向**只落在一个列距内**: 贴源侧那一格的中点(跨列消息居中放必被中间泳道线穿过);
       // 纵向抬到线上方 —— 自身半高 + labelLift
       : { x: (cxFrom + (s.dir > 0 ? columns[s.from + 1] : columns[s.from - 1])) / 2, y: y - (s.size.height / 2 + labelLift) };
-    labels.push(edgeLabel({ id, points }, s.label, { at }));
+    // tone 一并烘进标签(260925): 消息边有肤色, 标签的字色就跟着它走 —— 与上面那条
+    // `edges.push({ …, tone: s.tone })` 同一个值, 不许在标签这侧另给一个色
+    labels.push(edgeLabel({ id, points, tone: s.tone }, s.label, { at }));
   });
 
   // --- ⑨ 画布 ---

@@ -41,7 +41,7 @@
 ```ts
 emitSequence({
   actors:   [{ id, label, sub?, tone?, variant? }],   // 列序 = 数组序(作者决策)
-  messages: [{ from, to, label?, tone? }],            // 行序 = 数组序; from === to = 自调用
+  messages: [{ from, to, label?, tone? }],            // 行序 = 数组序; from === to = 自调用; tone 同时定这条线与**它标签**的字色
   activations: [{ actor, from, to, tone?, variant? }],// 激活条: **消息下标**区间(含两端), 可缺省
   out: '/tmp/seq.svg',                                // 产物由脚本自己写(不经 shell 重定向)
   // 旋钮(全有缺省, 见 SEQ_DEFAULTS): colGapMin / boxGap / labelGap / labelLift / rowGap / headGap /
@@ -89,7 +89,7 @@ bun run templates/sequence.ts --out=/tmp/seq.svg [--dark]
 ```ts
 emitLayered({
   layers: [{ id, label, tone?, rows: [[node…], …] }],  // 层序 = 数组序; 行序 = rows 序; 列序 = 数组序
-  edges:  [{ from, to, label?, tone?, fromSide?, toSide?, fromT?, toT?, labelDy? }], // from/to = 节点 id **或**层 id
+  edges:  [{ from, to, label?, tone?, fromSide?, toSide?, fromT?, toT?, labelDy? }], // from/to = 节点 id **或**层 id; tone 同时定线与标签字色
   frame: 'derived' | 'band',                           // 层框形态(决策): 成员派生 / 显式铺满全宽
   out: '/tmp/arch.svg',                                // 产物由脚本自己写(不经 shell 重定向)
   // 旋钮(全有缺省, 见 LAYERED_DEFAULTS): nodeGapX / nodeH / rowGap / layerPad / layerGap /
@@ -100,7 +100,8 @@ emitLayered({
 
 **决策(调用方给全)**: 有几层 / 层序 / 每层几行 / 谁在哪一行哪一格 / 谁连谁 / 每条边吃哪个端口面 /
 语义槽(`tone` `variant` `shape`) · **骨架(模板该算)**: 盒宽盒高(走 `nodeFit`) · 行位 ·
-**层距(一维账本解)** · 层框(成员派生) · 走廊腰线(`assignLanes`) · 画布边界 · audit 与出口调用。
+**层距(一维账本解)** · 层框(成员派生) · 走廊腰线(`assignLanes`) · 画布边界 · audit 与出口调用 ·
+**边标签的字色**(`tone` 一处给全: 线与标签共用同一个值, 标签这侧不另给色)。
 
 `from` / `to` 写成**层 id** 就是"这条边指向整带"(archify 的 `FLAG --> ctx`), 端口落在层框边上 ——
 与 `sequence` 的消息边相反, 这里的端点在盒面上, 所以**要写** `from`/`to`(串起端口归属与
@@ -142,7 +143,7 @@ bun run templates/layered.ts --out=/tmp/arch.svg [--dark]
 emitLifecycle({
   bands:       [{ id, label, from?, to?, spanMin?, tone? }], // 数组序 = 自上而下的段序(作者决策)
   states:      [{ id, label, sub?, band, col, row?, tone?, variant?, radius?, focus? }],
-  transitions: [{ id?, from, to, label?, tone?, via?, fromSide?, toSide? }], // 数组序 = 先后
+  transitions: [{ id?, from, to, label?, tone?, via?, fromSide?, toSide? }], // 数组序 = 先后; tone 同时定迁移线与它标签字色
   out: '/tmp/life.svg',                                      // 产物由脚本自己写(不经 shell 重定向)
   // 旋钮(全有缺省, 见 LIFECYCLE_DEFAULTS): colGapMin / boxGap / rowGap / bandGap / bandPad /
   //   bandLabelGap / ruleRaise / bandLabelRaise / labelGap / laneStep / railClear / corridorClear /
@@ -160,7 +161,7 @@ emitLifecycle({
 **决策(调用方给全)**: 几条段带 / 段序(数组序) / 谁在第几列第几行 / 迁移的先后 / 语义槽(`tone` `variant` `focus`) ·
 **骨架(模板该算)**: 盒宽盒高(走 `nodeFit`) · **列距(一次 x 解跑统一列空间)** · 行 y 与带间走廊 ·
 段带跨度与分隔线 + 段标签落位 · 断点路由四族(`same-col` / `chain` / `down` / `back`, 外加**声明的** `via`) ·
-画布边界 · audit 与出口调用。
+画布边界 · audit 与出口调用 · **迁移标签的字色**(跟着 `transitions[].tone` 走, 与线同一个值)。
 
 `buildLifecycle(spec)` 另外返回 `plan`(可观测): `columns`(列心 x) · `gaps`(逐格列距) ·
 `needs`(逐格 `box / used / by` 三份账 —— 谁把这一格顶开的) · `boxes`(逐状态盒) ·

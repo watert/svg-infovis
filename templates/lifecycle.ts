@@ -678,7 +678,8 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
       : s.family === 'same-col'
         ? { x: ca + labelGap + s.size.width / 2, y: (ra.y + ra.h + rb.y) / 2 }
         : { x: (ca + cb) / 2, y: laneY(kb, s.lane) - h };
-    labels.push(edgeLabel({ id: s.id, points }, s.t.label, { at }));
+    // tone 与上面那条边同源(260925): 迁移边有肤色(`s.t.tone`, 上面 `edges.push` 那个值), 标签字色跟着走
+    labels.push(edgeLabel({ id: s.id, points, tone: s.t.tone }, s.t.label, { at }));
   }
 
   // 段带分隔线 + 标签: 分隔线是**版式基准线**, 走 `SceneEdge.noCheck`(与泳道线同族);

@@ -74,6 +74,18 @@ describe('layered 模板 · 起手骨架', () => {
     expect(emitLayered(DEMO_LAYERED).report.pass).toBe(true);
   });
 
+  it('边标签的字色跟着**自己那条边**的 tone 走(与 sequence 同一条纪律, 260925 接线)', () => {
+    // `edgeLabel({ …, tone: c.edge.tone })`: 边有肤色, 标签的字就该一起读出来 —— 判据是同源,
+    // 不是"标签这边挑个好看的颜色"(两处可以各改各的, 漂开时没有任何东西会响)。
+    const { scene } = build(DEMO_LAYERED);
+    const toneOf = new Map(scene.edges.map((e) => [e.id, e.tone]));
+    const pairs = (scene.labels ?? []).map((l) => ({ owner: l.ownerEdge, label: l.tone, edge: toneOf.get(l.ownerEdge!) }));
+    expect(pairs.length).toBeGreaterThan(0);
+    expect(pairs.filter((p) => p.label !== p.edge)).toEqual([]);
+    // 反面: 内置示例确实有带 tone 的带标签边(否则上面那条在"全 undefined"下白过)
+    expect(pairs.filter((p) => p.edge !== undefined).length).toBeGreaterThan(0);
+  });
+
   it('层距是账本的解: content / lanes 两条需求竞争, `by` 指名谁顶住的', () => {
     const { plan } = build(DEMO_LAYERED);
     // 逐段都对账: content = 该层内容高 + 双侧 pad + layerGap(逐字重算一遍, 不是"大约")

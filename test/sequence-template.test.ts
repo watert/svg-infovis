@@ -63,6 +63,19 @@ describe('sequence 模板 · 内置示例', () => {
     expect(lines.every((e) => e.from === e.to)).toBe(true);
   });
 
+  it('消息标签的字色跟着**自己那条边**的 tone 走(标签这侧不许另给一个色)', () => {
+    // 260925 接线: `edgeLabel({ …, tone: s.tone })` —— 边有肤色就该让标签的字一起读出来。
+    // 判据钉在"同源"上: 每条标签的 `tone` 必须与它 `ownerEdge` 那条边的 `tone` **同一个值**,
+    // 而不是"标签这边自己挑一个好看的色"(那样两处可以各改各的, 漂开时没有任何东西会响)。
+    const { scene } = build(DEMO_SEQUENCE);
+    const toneOf = new Map(scene.edges.map((e) => [e.id, e.tone]));
+    const pairs = (scene.labels ?? []).map((l) => ({ id: l.id, owner: l.ownerEdge, label: l.tone, edge: toneOf.get(l.ownerEdge!) }));
+    expect(pairs.length).toBeGreaterThan(0);
+    expect(pairs.filter((p) => p.label !== p.edge)).toEqual([]);
+    // 反面: 内置示例确实有**带 tone** 的消息(否则上面那条断言在"全 undefined"下白过)
+    expect(pairs.filter((p) => p.edge !== undefined).length).toBeGreaterThan(0);
+  });
+
   it('标签的 x 区间里不许出现任何泳道线 —— "标签只落在一个列距内"这条纪律的机器化', () => {
     const { scene } = build(DEMO_SEQUENCE);
     const xs = lifelineX(scene);

@@ -589,7 +589,8 @@ export function buildLayered(spec: LayeredSpec): { scene: Scene; opts: ExportOpt
     // `from`/`to` **写**上(节点 id 或层 id): 端口归属与"这条边以该层框为端点"的豁免都靠它
     // 判 —— 与 sequence 的消息边相反(那边端点天生在盒外, 写了会被误判), 这里的端点在盒面上。
     sceneEdges.push({ id: c.id, from: c.edge.from, to: c.edge.to, points: r.points, label: c.edge.label, tone: c.edge.tone });
-    if (c.edge.label) sceneLabels.push(edgeLabel({ id: c.id, points: r.points }, c.edge.label, { dy: c.edge.labelDy ?? 0 }));
+    // tone 与上面那条边同源(260925): 边有肤色, 标签的字色跟着它走 —— 标签这侧不许另给一个色
+    if (c.edge.label) sceneLabels.push(edgeLabel({ id: c.id, points: r.points, tone: c.edge.tone }, c.edge.label, { dy: c.edge.labelDy ?? 0 }));
     const flags: string[] = [];
     if (r.laneProjected) flags.push('laneProjected');
     if (r.laneInfeasible) flags.push('laneInfeasible');
