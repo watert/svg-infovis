@@ -39,8 +39,18 @@
 | `lifecycle-agent-run` | `gallery/lifecycle-agent-run.ts` | 深色阶段带图: 三段 × 10 状态 + 分岔 / 合流 / 回流(版式判据在 `test/lifecycle-agent-run.test.ts`) |
 | `harness-arch` | `gallery/harness-arch.ts` | **真实规模**手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 `../ROADMAP.md`「立项依据」) |
 | `embed-panel` | `gallery/embed-panel.ts` | **外部素材链**: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 `<svg>`, 素材 z 序在底) |
+| `stat` | `infograph/stat.ts` | **大数字块 4 块同排**: 块宽高走 `statFit` 反算 + 位置走 `packRow`, 生成图里一个手写坐标都没有; delta 标记是路径小三角(mono 字体栈下 `▲` 实测出 tofu) |
+| `badge-list` | `infograph/badge-list.ts` | **编号徽章 + 列表行 5 行**: `listRowFit` 的返回面**直接喂** `packCol` 堆成一列; 徽章一图摆出 tone × variant 三档(颜色是语义槽, 哪步算"走完"归作者) |
+| `heading` | `infograph/heading.ts` | **标题梯级 + 分隔线**: kicker / 标题 / 副标题三档字号只在 `HEADING_LAYOUT` 写一次(量宽与画字同一份), 每块位置从上一块底边加缝推(`below`), 一个 y 都不手拍 |
+| `progress` | `infograph/progress.ts` | **blocks/ 第一件**: 两条单值进度条 + 一条三段堆叠条 —— `ratio` 是作者算好的数(kernel 不归一化), 盒交给 `packCol` 摆完再**摊回声明重画**(逐位相同), `above` / `inside` 两档标签位置都画出来 |
+| `pictogram` | `infograph/pictogram.ts` | **blocks/ 第二件**: ISOTYPE 图标阵列(单行 10 染 7 / 4×5 格 20 染 13) —— `N` 与 `k` 由作者声明, 尺寸走 `pictogramFit` 反算, 素材名字在构建期经 `iconAsset` 读一次盘 |
 
-这六张**不合并**: 图型、主题、参照源各不相同, 硬合只会得到一个"什么都有一点"的杂烩。
+前六张(v0.1 那一族, `node-forms` → `embed-panel`)**不合并**: 图型、主题、参照源各不相同, 硬合只会得到一个"什么都有一点"的杂烩。
+
+260925 起的五张(v0.2 排版层)是另一族: **单件组件的观感举证** —— 画的是压在版式上的墨迹, 没有可审计的
+拓扑, 所以都走描述符层直出(与 `basic` 同档, **不过门禁**)。它们又是三层 API 的**递进**举证:
+`stat` 只到 `statFit` + `packRow` → `heading` 用 `below` 把块接着排 → `progress` / `pictogram` 走块契约
+(`{ shape, bounds }`)让盒能被当盒摆 —— 硬合一处就把这层递进抹平了。
 
 ### labs · 样式矩阵 —— 缺省值就是这样定档的
 

@@ -83,6 +83,17 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./shapes/grid-pattern` — 画布网格底纹(`line` / `dot`)
 - `./shapes/icon` — 图标槽几何(`iconInkRect` 等)
 - `./shapes/embed` — 整幅外来 SVG 的嵌套 `<svg>` 渲染
+- `./shapes/stat` — 大数字块(数字 + 标签 ± delta; 盒由 `statFit` 反算, delta 标记是几何不是字形)
+- `./shapes/badge` — 徽章与列表行(`badgeFit` / `listRowFit`; `{ shape, bounds }` 契约的先例)
+- `./shapes/heading` — 标题梯级与分隔线(kicker / 标题 / 副标题三档 + `dividerShape`)
+
+### `blocks/` — 带数值语义的组合块(独立子路径, **不进 barrel**)
+
+判据是"几何里有没有一个比例 / 计数": 只收"一个数值 → 一段几何"的组件, 契约 `{ shape, bounds }`
+(块能被 `pack` / `place` 当盒摆)。版式纪律与动笔前的四问见 [`blocks/README.md`](./blocks/README.md)。
+
+- `./blocks/progress` — 单值进度条 / 100% 堆叠条(`ratio` 由作者算好, kernel 不归一化)
+- `./blocks/pictogram` — 图标阵列(`k / N` 的 ISOTYPE 排布)
 
 ### `knives/` — 构建期推导与判决
 
@@ -123,7 +134,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - [`refs/recipes.md`](./refs/recipes.md) —— 十三条图型与风格配方
 - [`refs/architecture.md`](./refs/architecture.md) —— 分层契约与当前实现边界
 - [`refs/aesthetics.md`](./refs/aesthetics.md) —— 美学评估研究草案(全警示级, 不是操作手册)
-- [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md)
+- [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md) · [`docs/infograph-roadmap.md`](./docs/infograph-roadmap.md)
 - [`examples/README.md`](./examples/README.md) —— 五桶示例与出口纪律
 - [`ROADMAP.md`](./ROADMAP.md) —— 立项依据与后续方向
 

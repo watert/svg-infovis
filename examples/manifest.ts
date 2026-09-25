@@ -77,6 +77,18 @@ export const EXAMPLES: ExampleEntry[] = [
     what: '真实规模手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 ROADMAP.md「立项依据」)' },
   { key: 'embed-panel', group: 'gallery', file: 'examples/gallery/embed-panel.ts',
     what: '外部素材链: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 <svg>, 素材 z 序在底)' },
+  // v0.2 排版层(260925): 三件 shapes 排版件 + 两件 blocks —— 五张都是描述符层直出
+  // (拼 `svg()` 出图, 不过门禁: 它们画的是压在版式上的墨迹, 没有可审计的拓扑)
+  { key: 'stat', group: 'gallery', file: 'examples/infograph/stat.ts',
+    what: '大数字块 4 块同排: 块宽高走 `statFit` 反算 + 位置走 `packRow`, 一个手写坐标都没有; delta 标记是路径小三角(mono 字体栈下 `▲` 实测出 tofu)' },
+  { key: 'badge-list', group: 'gallery', file: 'examples/infograph/badge-list.ts',
+    what: '编号徽章 + 列表行 5 行: `listRowFit` 的返回面**直接喂** `packCol` 堆成一列, 徽章一图摆出 tone × variant 三档' },
+  { key: 'heading', group: 'gallery', file: 'examples/infograph/heading.ts',
+    what: '标题梯级(kicker / 标题 / 副标题)+ 两种分隔线 + 居中页脚: 每块位置从上一块底边加缝推(`below`), 一个 y 都不手拍' },
+  { key: 'progress', group: 'gallery', file: 'examples/infograph/progress.ts',
+    what: 'blocks/ 第一件: 两条单值进度条 + 一条三段堆叠条 —— `ratio` 由作者算好, 盒交给 `packCol` 摆完再摊回声明重画(逐位相同), 两档标签位置都画出来' },
+  { key: 'pictogram', group: 'gallery', file: 'examples/infograph/pictogram.ts',
+    what: 'blocks/ 第二件: ISOTYPE 图标阵列(单行 10 染 7 / 4×5 格 20 染 13) —— `N` 与 `k` 是作者声明的数, 尺寸走 `pictogramFit` 反算' },
 
   // ── labs ─────────────────────────────────────────────────────────────
   { key: 'style-lab-light', group: 'labs', file: 'examples/labs/style-lab.ts', arg: 'light',

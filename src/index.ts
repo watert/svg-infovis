@@ -53,6 +53,14 @@ export * from './geometry/pack';
 // 锚点糖面(260925): "把盒摆到另一个盒的某侧" —— 与 pack 并列的两件事(pack 管一列 / 一行,
 // place 管两个盒的关系)。它自己不算坐标: 参考点走 `rectFace`、落点走 `placeRect`, 故排在 box 之后
 export * from './geometry/place';
+// v0.2 排版层(260925): 无数值语义的三件排版件 —— 大数字块(stat) / 徽章与列表行(badge) /
+// 标题梯级与分隔线(heading)。它们的依赖横跨三层, 故排在这里: 行内标记上屏器走 `shapes/inline`、
+// 度量走 `knives/measure`、版式原语走 `geometry/box` 与 `geometry/pack` —— 按本文件那句
+// "读 barrel 的顺序即依赖顺序", 这三件取的是**最晚的那个**依赖, 不是 shapes 段的名分。
+// ⚠ 带数值语义的组合块(blocks/)刻意**不进** barrel: 它们各编码一个比例 / 计数, 留在独立子路径
+export * from './shapes/stat';
+export * from './shapes/badge';
+export * from './shapes/heading';
 // 成对连线(260920): 单线路由**跑一次**再沿法线平移两条 —— 是 route 的包装, 不是第二个路由器
 export * from './knives/route-pair';
 // 一维约束账本 + 最长路(260922): `route`(一条边) / `assignLanes`(一束边) / `nodeFit`(一个盒) /
