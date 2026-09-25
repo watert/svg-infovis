@@ -6,8 +6,8 @@
 // 所以这里的断言分三层:
 //   · 地板: showcase 档 0 error(①)
 //   · 语义: 版式判据的**语义**必须原样保留(②) —— 门禁全绿也可能是一张烂版式
-//   · 机制: 跨列声明真能顶开列距(③) / 决策变了产物就变且可复现(④) / 畸形当场抛(⑤) /
-//     决策量确实比手排小一个量级(⑥)
+//   · 机制: 跨列声明真能顶开列距(③) / **纵轴走廊的账也读得出谁顶开的**(附) / 决策变了产物就变且可复现(④) /
+//     畸形当场抛(⑤) / 决策量确实比手排小一个量级(⑥)
 //
 // ⚠ `long_edge` 白名单(① 里点名): 门禁的门槛是"边长 > 画布对角的 40%", 而**段带分隔线按定义
 //   就比它长**(一段跨 3 列的分隔线 ≈ 画布宽的一半)。手排示例同图有 4 条这类警示, 在它自己的
@@ -18,8 +18,8 @@ import { describe, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { audit, type SceneEdge } from '../src/knives/audit';
 import { fitScene } from '../src/export';
-import { ShapeInputError, THEMES } from '../src/index';
-import { DEMO_LIFECYCLE, buildLifecycle, decorateDemoLegend, emitLifecycle, type LifecycleSpec } from '../templates/lifecycle';
+import { ShapeInputError, THEMES, labelBoxSize } from '../src/index';
+import { DEMO_LIFECYCLE, LIFECYCLE_DEFAULTS, buildLifecycle, decorateDemoLegend, emitLifecycle, type LifecycleSpec } from '../templates/lifecycle';
 
 const FIT = { padding: 30 } as const;
 const built = buildLifecycle(DEMO_LIFECYCLE);
@@ -195,27 +195,44 @@ describe('templates/lifecycle · 判据', () => {
       .toBe('above:main/gap:col1|col2');
   });
 
-  it('附 · via 族的标签落在那条**声明折点串的中段中点**上(不是"目标带上方的凭空位置")', () => {
+  it('附 · via 族的标签落在声明折点串的中段**上方 h**(不是"目标带上方的凭空位置", 也不骑线)', () => {
     // 实测(260925): `via` 的 `s.lane` 恒为 -1(③ 段只给 down / back 发通道), 旧式落位
     // `laneY(kb, -1)` 算出的是"目标带分隔线上方 + 一格 laneStep" —— 一个与作者声明折点
     // **毫无关系**的凭空位置(同一条 via 换一组折点, 标签纹丝不动)。
+    // 同日的第二刀: 中段**中点**是"字面骑线" —— 遮罩片(缺省与画布同色)会把那一段线切一个洞,
+    // 观感与 chain / down / back 三族的"抬到线上方 h"不一致 ⇒ via 也抬 h。
     const via = [{ x: 300, y: 900 }, { x: 300, y: 20 }, { x: 746, y: 20 }];
     const spec: LifecycleSpec = {
       ...DEMO_LIFECYCLE,
       transitions: DEMO_LIFECYCLE.transitions.map((t) => (t.id === 'e-failed-retry' ? { ...t, label: 'retry', via } : t)),
     };
-    // 折线 = [源盒面, ...声明折点, 目标盒面] 去共线后 5 点 ⇒ 中段 = via[1] → via[2]
+    // 折线 = [源盒面, ...声明折点, 目标盒面] 去共线后 5 点 ⇒ 中段 = via[1] → via[2](y = 20 的那条横段)
     const atOf = (s: LifecycleSpec): { x: number; y: number } => {
       const l = (buildLifecycle(s).scene.labels ?? []).find((x) => x.id === 'L-e-failed-retry');
       if (!l) throw new Error('scene 里没有 via 那条迁移的标签 —— 改名了就把判据一起改');
       return l.at;
     };
-    expect(atOf(spec)).toEqual({ x: (via[1].x + via[2].x) / 2, y: (via[1].y + via[2].y) / 2 });
+    // 口径与邻支同源: 抬 = 自身半高 + labelGap(那两个数都从模板自己的声明里取, 不另抄一份)
+    const LIFT = labelBoxSize('retry').height / 2 + LIFECYCLE_DEFAULTS.labelGap;
+    expect(atOf(spec)).toEqual({ x: (via[1].x + via[2].x) / 2, y: via[2].y - LIFT });
     // 判据的要点是"落位跟着**声明折点**走": 折点挪一截, 标签跟着挪(旧式落位不会动)
     const moved: LifecycleSpec = {
       ...spec,
       transitions: spec.transitions.map((t) => (t.id === 'e-failed-retry' ? { ...t, via: [via[0], via[1], { ...via[2], x: 500 }] } : t)),
     };
-    expect(atOf(moved)).toEqual({ x: (via[1].x + 500) / 2, y: via[2].y });
+    expect(atOf(moved)).toEqual({ x: (via[1].x + 500) / 2, y: via[2].y - LIFT });
+    // "抬 h"落到观感上就一句话: 遮罩片下缘离那条线正好 labelGap(不骑线, 线不被切出洞)
+    expect(atOf(spec).y + labelBoxSize('retry').height / 2).toBeCloseTo(via[2].y - LIFECYCLE_DEFAULTS.labelGap, 9);
+  });
+
+  it('附 · 纵轴走廊也上账本: 旋钮与"标签 + 通道"需求各喂一条, `yNeeds[].by` 读得出谁顶开的', () => {
+    const p = buildLifecycle(DEMO_LIFECYCLE).plan;
+    // demo 实测: 01 带上方要容回边通道 ⇒ 那段走廊被 `corridor:wait` 顶开; 02→03 之间只有旋钮下限
+    expect(p.yNeeds.map((n) => n.by)).toEqual([['corridor:wait'], ['bandGap']]);
+    // 账目自洽: 段距 = 带内容高 + 走廊高, 且走廊从不低于旋钮下限(账本只会按需顶开, 不压扁)
+    for (const n of p.yNeeds) expect(n.used - n.content).toBeGreaterThanOrEqual(LIFECYCLE_DEFAULTS.bandGap);
+    // 旋钮压到需求之下 ⇒ 两段走廊都改判给需求 —— `by` 是解出来的, 不是写死的
+    expect(buildLifecycle({ ...DEMO_LIFECYCLE, bandGap: 40 }).plan.yNeeds.map((n) => n.by))
+      .toEqual([['corridor:wait'], ['corridor:term']]);
   });
 });

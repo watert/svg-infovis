@@ -30,7 +30,8 @@
 //   ③ 落位需求  逐条迁移先定量两份: 标签遮罩片尺寸 与 "它吃哪一格列距"
 //   ④ 列距    逐格 + **跨列** 需求各喂一条 `AxisConstraint` → `solveAxis` 解共享列空间
 //   ⑤ 列心    首列锚在 margin + 段带标签槽 + 半个盒宽, 其后纯累加
-//   ⑥ 行 y    逐带累加(带内子行 + 带间走廊); 走廊高度取旋钮与"通道 + 标签 + 分隔线"需求的较大者
+//   ⑥ 行 y    各带内容顶喂一维账本 → `solveAxis`(带内子行 + 带间走廊; 走廊高度 = 旋钮与
+//             "通道 + 标签 + 分隔线"需求各喂一条, 谁大谁赢)
 //   ⑦ 装配    状态盒 / 迁移边(折点由拓扑定) / 段带分隔线 + 标签 / 边标签
 //   ⑧ 画布    内容包围盒 + margin; `fit: true` 下只是兜底与 `plan` 可读
 //     ↓
@@ -40,8 +41,9 @@
 //
 //   · **一组列心跨全图共用**(不是每带各解一次): 跨带对齐 = 同列号 = 同列心,
 //     event / terminal 声明的列 N 就是 main 的列 N —— 对齐由**声明**保证, 不靠模板猜。
-//   · **列距只喂账本, 不自己写 max 累加**: 逐格需求好写, 一旦出现跨格要求(一段段带横跨 3 列),
-//     "原地取 max" 就不再成立 —— 要求沿链累积, 且必须说得出是谁顶开的, 那正是 `solveAxis` 的活。
+//   · **轴上的间距只喂账本, 不自己写 max 累加**: 逐格需求好写, 一旦出现跨格要求(一段段带横跨
+//     3 列), "原地取 max" 就不再成立 —— 要求沿链累积, 且必须说得出是谁顶开的, 那正是 `solveAxis`
+//     的活(纵轴同政策: 走廊上并列着"旋钮下限"与"标签 + 通道"两样需求, 同理各喂一条)。
 //   · **同列 ⇒ 直线**: 同列的两个盒端口同 x, 二者之间**不许插折点**(判据 ②)。
 //     跨带下行 / 回流的折点走**段带分隔线上方的走廊**, 那是唯一一条不压盒子的横向通道。
 //   · **`via` 永远赢**: spec 显式给折点时按声明原样走, 不静默改写; `plan` 里标 `declarative: true`。
@@ -251,6 +253,8 @@ export type LifecyclePlan = {
   gaps: number[];
   /** 逐格列距的账: `box` = 盒宽需求, `used` = 账本的解, `by` = 谁顶住了这一格(账本原样) */
   needs: Array<{ index: number; box: number; used: number; by: string[] }>;
+  /** 逐段走廊的账(与 `needs` 同构): `content` = 带 k 的内容高, `used` = 段距的解, `by` = 谁顶住的 */
+  yNeeds: Array<{ index: number; content: number; used: number; by: string[] }>;
   /** 状态盒(与 `states` 同 id) */
   boxes: Record<string, Rect>;
   /** 段带: 声明区间 ↔ 实际跨度(可见跨度 = 列心距 + 两端半宽) 与分隔线区间 */
@@ -543,11 +547,11 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
   const columns: number[] = [x0 + colW[0] / 2];
   for (let i = 1; i < nCols; i++) columns.push(columns[i - 1] + gaps[i - 1]);
 
-  // --- ⑥ 行 y 与段带 y ---
+  // --- ⑥ 行 y 与段带 y: 与列距**同构**的一维账本(变量 = 各带内容顶) ---
   //
-  // 逐带累加: 带内子行 = 盒高 + rowGap, 带间走廊 = bandGap。走廊不只是"留白", 它要同时容下
-  // ① 段带标签(分隔线上方) ② 下行 / 回流的横向通道 ③ 分隔线本身 —— 三样从**同一套旋钮**
-  // 反算出来的需求高度, 走廊取"旋钮"与"需求"的较大者(不够时按需顶开, 不静默压扁)。
+  // 约束 `k → k+1` 的下界 = 带 k 的内容高 + 那段走廊(要同时容下 ① 段带标签 ② 下行 / 回流的
+  // 横向通道 ③ 分隔线本身): 旋钮(`bandGap`)与需求(`headroom`)各喂一条, 谁大谁赢由账本决
+  // —— 与 ④ 段 `rail:` 同一条政策, 不在这里写 max, `plan.yNeeds[].by` 于是读得出是谁顶开的。
   const maxLabelH = Math.max(0, ...bands.map((b) => (labelSizes.get(b.id) as { height: number }).height));
   /** 某段带上方的需求高度(从它的内容顶面往上量) */
   const headroom = (k: number): number => {
@@ -556,13 +560,19 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
     return ruleRaise + Math.max(bandLabelRaise + maxLabelH / 2, laneZone);
   };
   const subRows = bands.map((b) => Math.max(1, ...states.filter((s) => s.band === b.id).map((s) => (s.row ?? 0) + 1)));
-  const bandTop: number[] = [];
-  const contentTop = margin + headroom(0);
-  for (let k = 0; k < bands.length; k++) {
-    bandTop.push(k === 0 ? contentTop : bandBottom(k - 1) + Math.max(bandGap, headroom(k) + laneStep));
+  const bandContentH = (k: number): number => subRows[k] * boxH + (subRows[k] - 1) * rowGap;
+  const yConstraints: AxisConstraint[] = [];
+  for (let k = 0; k + 1 < bands.length; k++) {
+    const h = bandContentH(k);
+    yConstraints.push({ from: k, to: k + 1, minimum: h + bandGap, contributor: 'bandGap' });
+    yConstraints.push({ from: k, to: k + 1, minimum: h + headroom(k + 1) + laneStep, contributor: `corridor:${bands[k + 1].id}` });
   }
-  function bandContentH(k: number): number { return subRows[k] * boxH + (subRows[k] - 1) * rowGap; }
-  function bandBottom(k: number): number { return bandTop[k] + bandContentH(k); }
+  const yAxis = solveAxis({ count: bands.length, constraints: yConstraints });
+  // ⚠ 与 ⑤ 同一条保命政策: 账本解的是**相对**带顶(origin = 0), 绝对坐标在这里自家累加 —— 带小数
+  //   的锚点逐位取和会带进 ulp 级差异, 而产物要求逐字节稳定(260925 实测: 九份 demo 变体逐字节同)。
+  const bandTop: number[] = [margin + headroom(0)];
+  for (let k = 1; k < bands.length; k++) bandTop.push(bandTop[k - 1] + yAxis.gaps[k - 1]);
+  const bandBottom = (k: number): number => bandTop[k] + bandContentH(k);
   const ruleY = (k: number): number => bandTop[k] - ruleRaise;
   /** 第 k 段带上方的横向走廊里第 i 条的 y(从分隔线往上错开) */
   const laneY = (k: number, i: number): number => ruleY(k) - corridorClear - i * laneStep;
@@ -686,10 +696,12 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
     } else if (s.family === 'via') {
       // **via 单独一支**: 折点是作者声明的绝对坐标, 与 `lane` / "目标带上方的走廊"毫无关系 ——
       // `via` 的 `s.lane` 恒为 -1(③ 只给 down / back 发通道), 走下面那条 `laneY(kb, -1)` 只会
-      // 算出目标带分隔线上方的**凭空位置**。落位取声明折点串(`squash` 后)的**中段中点** ——
-      // 与其余族"贴着自己那条段"同一口径; 偶数段时取靠后的那一段(`points` 中点法自然如此)。
+      // 算出目标带分隔线上方的**凭空位置**。落位取声明折点串(`squash` 后)的**中段中点**, 再按
+      // 与其余族**同一口径抬到线上方 h**(偶数段取靠后那一段, `points` 中点法自然如此)。
+      // ⚠ 260925 前这里是"字面骑线": 遮罩片(与画布同色)会把那一段线切出一个洞, 观感与邻支不一。
       const k = Math.floor((points.length - 1) / 2);
-      at = mid(points[k], points[k + 1]);
+      const on = mid(points[k], points[k + 1]);
+      at = { x: on.x, y: on.y - h };
     } else {
       // 下行 / 回流: 落在各自那条横向走廊上(走廊 y 由 `laneY` 定, 见 ⑥)
       at = { x: (ca + cb) / 2, y: laneY(kb, s.lane) - h };
@@ -750,6 +762,7 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
   const height = Math.round(extent.h + legendReserve);
 
   const needs = axis.attribution.map((at, i) => ({ index: i, box: boxNeeds[i], used: gaps[i], by: at.by }));
+  const yNeeds = yAxis.attribution.map((at, i) => ({ index: i, content: bandContentH(i), used: yAxis.gaps[i], by: at.by }));
 
   const scene: Scene = { width, height, nodes, edges, labels, texts };
   const opts: ExportOptions = {
@@ -759,7 +772,7 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
     edgeStyles: { ...edgeStyles, ...(spec.edgeStyles ?? {}) },
   };
   const plan: LifecyclePlan = {
-    columns, gaps, needs, boxes, bands: bandPlans, routes, legendAnchor, width, height,
+    columns, gaps, needs, yNeeds, boxes, bands: bandPlans, routes, legendAnchor, width, height,
   };
   return { scene, opts, plan };
 }

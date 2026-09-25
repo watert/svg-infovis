@@ -165,12 +165,14 @@ emitLifecycle({
 同一条走廊里的通道序。
 
 **决策(调用方给全)**: 几条段带 / 段序(数组序) / 谁在第几列第几行 / 迁移的先后 / 语义槽(`tone` `variant` `focus`) ·
-**骨架(模板该算)**: 盒宽盒高(走 `nodeFit`) · **列距(一次 x 解跑统一列空间)** · 行 y 与带间走廊 ·
+**骨架(模板该算)**: 盒宽盒高(走 `nodeFit`) · **列距(一次 x 解跑统一列空间)** · **行 y 与带间走廊(一次 y 解)** ·
 段带跨度与分隔线 + 段标签落位 · 断点路由四族(`same-col` / `chain` / `down` / `back`, 外加**声明的** `via`) ·
 画布边界 · audit 与出口调用 · **迁移标签的字色**(跟着 `transitions[].tone` 走, 与线同一个值)。
 
 `buildLifecycle(spec)` 另外返回 `plan`(可观测): `columns`(列心 x) · `gaps`(逐格列距) ·
-`needs`(逐格 `box / used / by` 三份账 —— 谁把这一格顶开的) · `boxes`(逐状态盒) ·
+`needs`(逐格 `box / used / by` 三份账 —— 谁把这一格顶开的) ·
+`yNeeds`(逐段走廊的 `content / used / by` 三份账 —— 与 `needs` 同构: 谁把这段走廊顶开的,
+`bandGap` 旋钮还是 `corridor:<带 id>` 那笔"标签 + 通道"需求) · `boxes`(逐状态盒) ·
 `bands`(声明区间 ↔ 实际跨度 + 分隔线区间 + 标签盒) · `routes`(每条迁移的 `family` / `corridor` / `declarative`) ·
 `legendAnchor` / `width` / `height`。想接着手改就停在 `buildLifecycle`。
 
