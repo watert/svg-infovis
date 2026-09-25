@@ -83,7 +83,7 @@
     <path d="M 352.00 174.00 L 359.00 170.85 L 359.00 177.15 Z" fill="#c4b5fd" stroke="#c4b5fd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
   </g>
   <g data-shape="label-box">
-    <rect x="151.50" y="112.60" width="125.10" height="22.90" rx="4.00" fill="#f8fafc" stroke="none" />
+    <rect x="153.50" y="116.90" width="121.10" height="14.30" rx="4.00" fill="#ffffff" stroke="none" />
     <text x="214.00" y="128.90" fill="#475569" font-family="inherit" font-size="10.5" text-anchor="middle">决策 → 几何 · 单向</text>
   </g>
   <text x="44.00" y="79.10" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">决策</text>
