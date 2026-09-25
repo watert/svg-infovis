@@ -50,6 +50,9 @@ export * from './geometry/grid';
 // 摆放列 / 行(260920): 把一串盒摞起来或铺开 —— 并集复用 `box.bounds`(并集只许一份公式),
 // 故排在 box 之后; 它**不**碰 route(pack 没有"面上的点")
 export * from './geometry/pack';
+// 锚点糖面(260925): "把盒摆到另一个盒的某侧" —— 与 pack 并列的两件事(pack 管一列 / 一行,
+// place 管两个盒的关系)。它自己不算坐标: 参考点走 `rectFace`、落点走 `placeRect`, 故排在 box 之后
+export * from './geometry/place';
 // 成对连线(260920): 单线路由**跑一次**再沿法线平移两条 —— 是 route 的包装, 不是第二个路由器
 export * from './knives/route-pair';
 // 一维约束账本 + 最长路(260922): `route`(一条边) / `assignLanes`(一束边) / `nodeFit`(一个盒) /

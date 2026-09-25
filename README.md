@@ -56,16 +56,17 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 - `.` —— barrel 聚合出口(纯函数侧; `node:fs` 读盘的图标模块刻意不在内)
 
-### `geometry/` — 纯数学, 零依赖
+### `geometry/` — 纯函数几何(构建期算坐标, 无副作用 / 不 mutate)
 
-- `./geometry/vec` — 向量 / 矩形原语, `round1` / `fmt` / `codepointSort`
+- `./geometry/vec` — 向量 / 矩形原语(`mid` = 两点中点), `round1` / `fmt` / `codepointSort`
 - `./geometry/rounded-path` — 圆角路径逐角解算 + 端点标记 / 线端内缩
 - `./geometry/predicates` — 几何谓词(相交 / 净空 / 正交 / 自重叠 / 有限性守卫)
 - `./geometry/text-rows` — 多行文本行块堆法(度量与渲染共用)
 - `./geometry/inline-text` — 行内标记解析(`**粗**` / `*斜*` / `~~删~~` / `[字]{accent}`; 度量与渲染同一份 run 表 + 一张 `INLINE_STYLE`)
-- `./geometry/box` — 面上的点 / 九点锚 / `bounds` / `placeRect`
+- `./geometry/box` — 面上的点 / 九点锚 / `bounds` / `placeRect`(面上点复用 `knives/route` 的 `portPoint`, 故非零依赖)
 - `./geometry/grid` — 均匀格子(格位 / 格心 / 格面 / 缝中线)
-- `./geometry/pack` — 行 / 列摆放(`packRow` / `packCol`)
+- `./geometry/pack` — 行 / 列摆放(`packRow` / `packCol`; 主轴间距 `gap`(缝, 单值或**逐项**数组)与 `pitch`(节距)二选一)
+- `./geometry/place` — 锚点糖面(`rightOf` / `leftOf` / `below` / `above` / `centeredOn`: 把盒摆到另一个盒的某侧)
 
 ### descriptor 与序列化
 

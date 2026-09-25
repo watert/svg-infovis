@@ -14,6 +14,7 @@ import {
   dirIndex,
   expandRect,
   fmt,
+  mid,
   perpL,
   perpR,
   rectBottom,
@@ -96,5 +97,16 @@ describe('vec · 确定性数值与矩形原语', () => {
     // 非正交方向被量化到最近轴向 —— 有损, 所以它不能当"是否正交"的判据(见 predicates-parity 的正交用例)
     expect(dirIndex({ x: 100, y: 0.5 })).toBe(0);
     expect(dirIndex({ x: 0.5, y: 100 })).toBe(1);
+  });
+
+  it('mid: 两点中点(缝中点 / 回环标签落位那条公式的**唯一一份**实现), 不取整', () => {
+    expect(mid({ x: 0, y: 0 }, { x: 10, y: 20 })).toEqual({ x: 5, y: 10 });
+    // 与参数顺序无关(中点是集合的, 不是有序的)
+    expect(mid({ x: 10, y: 20 }, { x: 0, y: 0 })).toEqual(mid({ x: 0, y: 0 }, { x: 10, y: 20 }));
+    // .5 照实给 —— 取整是落盘那一层 `round1` 的口径, 这里四舍五入会自己制造半像素误差
+    expect(mid({ x: 1, y: 1 }, { x: 2, y: 2 })).toEqual({ x: 1.5, y: 1.5 });
+    expect(mid({ x: 100, y: 50 }, { x: 100, y: 50 })).toEqual({ x: 100, y: 50 });
+    // 与 `rectCenter` 同口径: 盒心就是两条对边的中点
+    expect(mid({ x: 0, y: 0 }, { x: 10, y: 20 })).toEqual(rectCenter({ x: 0, y: 0, w: 10, h: 20 }));
   });
 });
