@@ -18,6 +18,10 @@
 // 的源跟着模板层搬了家(260920), 但它的 PNG 快照仍集中在 `examples/images/` —— 快照只留**一个**
 // 目录(两个抽屉就会漂), 于是清单的范围是"出图入口"而不是"examples 目录"。`file` 因此是路径。
 //
+// ⚠ 模板**自带的冒烟示例**同样是出图入口(260925 补登 `sequence-demo` = `templates/sequence.ts` 的
+// `DEMO_SEQUENCE`): 它当时是唯一没登记的入口, 于是登记面全绿、而快照重出链整整看不见它 ——
+// "出图入口"判据是"这条命令会往 stdout 吐一张图", 不是"文件躺在哪个目录"。
+//
 // 不进清单的: `scripts/inspect.ts`(它是读数 CLI, 不出图)、`scripts/runner.ts`(出口工具 ——
 // 它给所有示例提供出口, 自己不出图)。
 // 也不进: 非出口示例(`audit-demo` / `style-lab`)仍然在清单里 —— 它们出图, 只是不过门禁。
@@ -54,9 +58,9 @@ export const EXAMPLES: ExampleEntry[] = [
 
   // ── checks ───────────────────────────────────────────────────────────
   { key: 'audit-demo', group: 'checks', file: 'examples/checks/audit-demo.ts',
-    what: '门禁诊断长什么样: 四类违例 + 干净对照, 违例元素描红' },
+    what: '门禁诊断长什么样: 四类违例 + 干净对照, 四个违例元素挨个标出(节点/边描红, 标签走自身 bg/color)' },
   { key: 'lanes-fanout', group: 'checks', file: 'examples/checks/lanes-fanout.ts',
-    what: 'fan-out 三种画法对照: 共享端点(零手工) / 端口摊开并轨 / assignLanes 错开' },
+    what: 'fan-out 三种画法对照 —— **产物只画 ①** 共享端点(零手工, pass); ② 端口摊开并轨(10 条 edge_overlap)与 ③ assignLanes 错开只在 stderr 报条数, 不出图' },
   { key: 'port-folds', group: 'checks', file: 'examples/checks/port-folds.ts',
     what: '端口朝向 → 折法参考卡: 盒位逐字相同, 只换端口两面' },
 
@@ -70,7 +74,7 @@ export const EXAMPLES: ExampleEntry[] = [
   { key: 'lifecycle-agent-run', group: 'gallery', file: 'examples/gallery/lifecycle-agent-run.ts',
     what: '深色阶段带图: 三段 × 10 状态 + 分岔/合流/回流(版式判据在 test/)' },
   { key: 'harness-arch', group: 'gallery', file: 'examples/gallery/harness-arch.ts',
-    what: '真实规模手排样本: 15 节点装配链路(§十 实验的对照组 / 手排税测量载体)' },
+    what: '真实规模手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 ROADMAP.md「立项依据」)' },
   { key: 'embed-panel', group: 'gallery', file: 'examples/gallery/embed-panel.ts',
     what: '外部素材链: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 <svg>, 素材 z 序在底)' },
 
@@ -83,6 +87,8 @@ export const EXAMPLES: ExampleEntry[] = [
     what: '底纹对照: 线格 / 点阵 × 两档密度(opacity 缺省就是这么量出来的)' },
 
   // ── templates(源在 templates/, 快照仍集中在 examples/images/) ──────────
+  { key: 'sequence-demo', group: 'templates', file: 'templates/sequence.ts',
+    what: '模板层示范: 4 泳道 × 8 消息 + 3 条激活条(一次带缓存的读请求) —— 缺省主题下的模板原生观感, 对照 archify-style 那一档' },
   { key: 'sequence-archify-style', group: 'templates', file: 'templates/sequence-archify-style.ts',
     what: '模板层示范: paper + mono + 语义分色 + phase 带 + 激活条 → archify 观感' },
   { key: 'layered-demo', group: 'templates', file: 'templates/layered.ts',

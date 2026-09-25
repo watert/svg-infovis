@@ -25,8 +25,8 @@
 
 | 键名 | 文件 | 这张图证明什么 |
 |---|---|---|
-| `audit-demo` | `checks/audit-demo.ts` | 门禁诊断长什么样: 四类违例 + 干净对照, 违例元素描红(含 `evidence` / `supportedFixes`) |
-| `lanes-fanout` | `checks/lanes-fanout.ts` | fan-out 三种画法并排: ① 共享端点(零手工, pass) ② 端口摊开并轨(10 条 `edge_overlap`, fail) ③ `assignLanes` 错开(pass) |
+| `audit-demo` | `checks/audit-demo.ts` | 门禁诊断长什么样: **四类违例** + 干净对照, 四个违例元素挨个标出 —— 节点与边**描红**(红指向真凶 `evidence.other`, 不是被点名的受害者), 标签没有 `labelStyles` 通道, 走自身 `bg` / `color` 徽章(含 `evidence` / `supportedFixes`) |
+| `lanes-fanout` | `checks/lanes-fanout.ts` | fan-out 三种画法对照 —— **产物只画 ①** 共享端点(零手工, pass); ② 端口摊开并轨(10 条 `edge_overlap`, fail)与 ③ `assignLanes` 错开(pass)**不出图**, 只在 stderr 报条数 |
 | `port-folds` | `checks/port-folds.ts` | 端口朝向 → 折法参考卡: 四格盒位**逐字相同**, 只换端口两面(端口是作者的旋钮) |
 
 ### gallery · 能力举证 —— 这类图 core 画得出来
@@ -37,7 +37,7 @@
 | `ontology-icons` | `gallery/ontology-icons.ts` | 本体图: 图标当视觉替身 + 逐行说明卡片 + 成对双线 + 沿线旋转标签 |
 | `academic-figure` | `gallery/academic-figure.ts` | 学术风(`THEMES.paper`)复刻: tint 分区 / 废除格(`struck` + `opacity`) / 多行文本 |
 | `lifecycle-agent-run` | `gallery/lifecycle-agent-run.ts` | 深色阶段带图: 三段 × 10 状态 + 分岔 / 合流 / 回流(版式判据在 `test/lifecycle-agent-run.test.ts`) |
-| `harness-arch` | `gallery/harness-arch.ts` | **真实规模**手排样本: 15 节点装配链路(§十 实验的对照组 / 手排税测量载体) |
+| `harness-arch` | `gallery/harness-arch.ts` | **真实规模**手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 `../ROADMAP.md`「立项依据」) |
 | `embed-panel` | `gallery/embed-panel.ts` | **外部素材链**: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 `<svg>`, 素材 z 序在底) |
 
 这六张**不合并**: 图型、主题、参照源各不相同, 硬合只会得到一个"什么都有一点"的杂烩。
@@ -52,12 +52,14 @@
 
 ⚠ **这两半是特意合成一张的**(260920): 主题那一半核色, 底纹那一半核深浅 —— 同属"画布长什么样"的缺省值,
 而 260920 起网格已进 `Theme.grid` 主缺省, 分两个文件反而把"主题 = 色 + 字体 + 底纹"割裂。
-**这两张是"非出口示例"**: 并排对照卡, 不过门禁, 判据归 `test/`。
+**这三个 key 都是"非出口示例"**(同一个 `style-lab.ts` 分出三档: light / dark 是主题那一半, grid 是底纹那一半):
+并排对照卡, 直接出图**不过门禁**, 判据归 `test/`(这一档量的是观感, 目前还没有断言看着它)。
 
 ### templates · 模板示范(源在 `templates/`, 快照仍在这一处)
 
 | 键名 | 文件 | 这张图证明什么 |
 |---|---|---|
+| `sequence-demo` | `../templates/sequence.ts` | 模板层示范: 4 泳道 × 8 消息 + 3 条激活条(一次带缓存的读请求) —— 缺省主题下的模板原生观感, 对照 `archify-style` 那一档 |
 | `sequence-archify-style` | `../templates/sequence-archify-style.ts` | 模板 + 后处理能到什么程度: paper + mono + 语义分色 + phase 带 + 激活条 |
 | `layered-demo` | `../templates/layered.ts` | 模板层示范: 层框 + 整层锚点的跨层注入 → 15 节点装配链路排成三段分层图 |
 | `lifecycle-demo` | `../templates/lifecycle.ts` | 模板层示范: 三段带 × 10 状态 + 分岔 / 合流 / 回流, 图例由调用方经 `decorate` 补 |
@@ -93,6 +95,16 @@ scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 �
    桶表是人读面、manifest 是机读面, **两处必须同一次改**(否则又长回"三份清单"那个老毛病), 最后跑
    `scripts/build-example-pngs.sh <key>` 出快照。
 5. 要断言就写进 `test/` —— **判据归 test, 示例只负责展示**(断言长在示例内部时, 只有人真的跑那一次才生效)。
+6. **画布按约定声明: `width: 0, height: 0` + 出口 `fit`** —— 声明值不上屏(`fitScene` 按
+   `contentBounds` 重算), 手算画布是白算。现状**五种写法并存**, 这就是教训(**同一个语义五种字面量**,
+   读者分不清哪个是真画布, 抓的人也就抓不住旧值): ① `0×0` + fit(`embed-panel` / `ontology-icons`)
+   ② 非零魔数占位 + fit(`harness-arch` 1400×900 / `node-forms` 640×420) ③ 从 `bounds()` 现算 +
+   fit(`port-folds`) ④ 手定常量且**不走** fit, 把画布自己算准(`full-chain` 的 `W`/`H`)
+   ⑤ 每个分片各给一个常量、裸 `toSVG`(非出口示例 `audit-demo` 的 560×340 / 420×260)。
+   ⚠ 两条代价: **读数板不走 fit**(`scripts/inspect.ts` 直接 `audit(scene)`), 所以 `0×0` 在它眼里
+   是"全员越界"(实测 `embed-panel`: `single_svg` 点 11 个 offenders / 画布 `[0,0]`)—— 那是
+   **读数板误红**, 图本身没事; 而声明**非零**画布又**不走 fit** 就是真红: 内容越出声明值 →
+   `single_svg` → 出口当场抛 `ExportBlockedError`。要么算准, 要么 `0×0` 交给 fit。
 
 ## images/
 

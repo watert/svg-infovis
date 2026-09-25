@@ -14,12 +14,12 @@ date: 2026-09-23T16:00:00+08:00
 
 ## 当前能力(v0.1)
 
-- **geometry**: 向量 / 圆角路径解算 / 几何谓词 / 行块堆法 / box·grid·pack 版式原语
+- **geometry**: 向量 / 圆角路径解算 / 几何谓词 / 行块堆法 / box·grid·pack·place 版式原语(`place` 是 260925 补的"盒摆到另一个盒某侧", 与 `pack` 并列 —— pack 管一列 / 一行, place 管两个盒的关系)
 - **knives**: 正交路由(`via` 声明、腰线分配)、门禁审计(十九项 + 密度四项警示)、fit 盒反算、describe 读数板、nudge 微调、cluster 组语义、一维约束账本
 - **shapes / serialize / theme**: 三形态节点、标签遮罩几何、7 tone × 3 mode × 3 variant、字节确定序列化
 - **export**: `tryExport`(迭代草稿)/ `exportScene`(fail-closed 交付)/ auto-fit
 - **templates**: sequence / layered / lifecycle 三套可填参骨架
-- **examples**: 五桶 12 项示例 + PNG 快照; 配方与架构文档齐备
+- **examples**: 五桶 18 项示例 + PNG 快照(项数 = `examples/manifest.ts` 的 `EXAMPLES` 长度, 数它别数人脑); 配方与架构文档齐备
 - **素材链**: 图标走 `lucide-static` 依赖 + lazy 读盘; 整幅外来 SVG 走 fail-closed 素材链
 - **CLI `svginfo`**: authoring 入口(run / inspect / render / new / icons), `bun link` 全局可用
 
