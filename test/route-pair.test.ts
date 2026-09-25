@@ -219,12 +219,15 @@ describe('route-pair · 端到端: 双线那一对进 scene 过门禁', () => {
   });
 
   it('反证: 把实体贴到画布左沿, 外侧标签会被如实指出来 —— 门禁真在读它们', () => {
+    // ⚠ 这一格的 `offset` 是**跟着遮罩口径走的**(260925 从 16 提到 24): 遮罩行高改成墨迹口径后
+    // 盒子矮了 4.8px, 而旋转 90° 的标签**横向占位就是盒高** —— 原来 16 的偏移量下标签左缘落在
+    // x=+0.6(仍在画布内), 这条反证就白过了。挪到 24 才重新探出画布, 判据(门禁真读标签)不变。
     const pair = routePair({ from: A, fromPort: { side: 'bottom' }, to: B, toPort: { side: 'top' }, gap: 26 });
     const report = audit({
       width: 400, height: 600,
       nodes: [{ id: 'a', rect: A }, { id: 'b', rect: B }],
       edges: pair.points.map((points, i) => ({ id: `e${i}`, from: 'a', to: 'b', points })),
-      labels: pairLabels(pair, ['Departed From', 'Arrived To'], { offset: 16 }),
+      labels: pairLabels(pair, ['Departed From', 'Arrived To'], { offset: 24 }),
     });
     const d = report.diagnostics.find((x) => x.code === 'single_svg');
     expect(d?.evidence.offenders).toContain('label:L-pair0');

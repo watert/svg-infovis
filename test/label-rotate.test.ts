@@ -59,16 +59,17 @@ describe('labelRect · 旋转后矩形的轴对齐包围盒', () => {
 
   it('不旋转时就是原位外框(尺寸来自 labelBoxSize)', () => {
     expect(l.rotate).toBe(-90); // edgeLabel 把角度烘进 SceneLabel
-    // 去掉角度后: 以 at 为中心的原框。宽 63.6 / 高 23.6 —— 260923 起高走行块口径(旧值是 19,
-    // 按 `fontSize + 2×padY` 的近似给的, 比真行盒矮)
-    expect(labelRect({ ...l, rotate: undefined })).toEqual({ x: -31.8, y: 88.2, w: 63.6, h: 23.6 });
+    // 去掉角度后: 以 at 为中心的原框。宽 59.6 / 高 14.8 —— 走过三轮口径: 旧值 19(按
+    // `fontSize + 2×padY` 的近似给高, 比真行盒矮) → 23.6(260923 真行块) → 19.6(260925 内边距 4/2)
+    // → **14.8**(260925 行高改墨迹 1.15em + 内边距 3/1)
+    expect(labelRect({ ...l, rotate: undefined })).toEqual({ x: -29.8, y: 92.6, w: 59.6, h: 14.8 });
   });
 
   it('90° 整数倍下宽高互换(这就是它的真矩形)', () => {
     expect(labelRect(l)).toEqual({
       x: round1(l.at.x - l.height / 2), y: round1(l.at.y - l.width / 2), w: l.height, h: l.width,
     });
-    expect(labelRect(l)).toEqual({ x: -11.8, y: 68.2, w: 23.6, h: 63.6 });
+    expect(labelRect(l)).toEqual({ x: -7.4, y: 70.2, w: 14.8, h: 59.6 });
   });
 
   it('任意角度下是外接矩形(保守: 门禁宁可多报)', () => {

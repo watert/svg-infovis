@@ -22,10 +22,12 @@ import { type Pt, dist, norm, perpL, round1, sub } from '../geometry/vec';
 import { normalizeRoutePoints, polylineLength } from '../geometry/predicates';
 // 行块几何(260923): 遮罩片的高不再是"字号 + 2×padY"的近似, 而是真行块并集 —— 与
 // `shapes/node.ts` 的节点标签 / `export.ts` 的 `scene.texts` / `knives/fit.ts` 的 `textFit`
-// 共用同一份堆法(`geometry/text-rows`), 行距口径也共用 `NODE_TEXT_LAYOUT.lineGapEm`
+// 共用同一份堆法(`geometry/text-rows`), 行距口径也共用 `NODE_TEXT_LAYOUT.lineGapEm`。
+// **行高**是唯一分道的地方(260925): 那三处吃 `measureText` 的行盒(1.4em, 宁宽不窄), 遮罩吃
+// `MASK_ROW_INK_EM`(1.15em 墨迹) —— 见该常量的注释。
 import { rowBlock } from '../geometry/text-rows';
 import { NODE_TEXT_LAYOUT } from './node';
-import { measureText } from '../knives/measure';
+import { ESTIMATE_SAFETY_FACTOR, measureText } from '../knives/measure';
 import type { SceneLabel } from '../knives/audit';
 
 export type EdgeProps = {
@@ -137,10 +139,28 @@ export function edgeGeometry(p: EdgeProps): EdgeGeometry {
 /**
  * 标签遮罩片的三个样式缺省 —— **尺寸公式的系数只有这一份**(上屏与审计同吃它)。
  *
- * 260923 把高换成真行块; 260925 顺手把内边距收一档 **5/4 → 4/2** —— 行盒本身已含上下各 ~0.2em
- * 空白, 再叠 `2×padY` 是双重计呼吸, 遮罩才显得比字胖。11 号单行标签: 23.6 → **19.6**。
+ * 260923 把高换成真行块, 260925 又连改两处(都把遮罩从"徽章"拉回"遮线片"):
+ *   · 内边距 **5/4 → 4/2**: 行盒本身已含上下各 ~0.2em 空白, 再叠 `2×padY` 是双重计呼吸;
+ *   · 内边距再收到 **3/1**, 且行高口径改**墨迹**(见 `MASK_ROW_INK_EM`)。
+ * 合起来 11 号单行标签: 23.6 → 19.6 → **14.8**(宽 63.6 → 61.6 → 59.6)。
  */
-export const LABEL_BOX_DEFAULTS = { fontSize: 11, padX: 4, padY: 2 } as const;
+export const LABEL_BOX_DEFAULTS = { fontSize: 11, padX: 3, padY: 1 } as const;
+
+/**
+ * 遮罩片行块的**墨迹行高**(em): 1.15 —— **只管遮罩这一处**, 不碰 `measureText` 的行盒。
+ *
+ * 两套口径各管一件事, **不是近似关系**:
+ *   · `LINE_HEIGHT_EM = 1.4`(measure.ts)是**行距口径**: 它服务多行的 pitch(谁跟谁隔多远),
+ *     换算成盒高时含了上下各 ~0.2em 的呼吸位 —— 那是排版行盒, 不是字的墨迹;
+ *   · 本常量是**墨迹口径**: 拉丁 ascender → descender 实测 ≈ 1.15em, 而 SVG `<text>` 只画墨迹、
+ *     从不画行盒。给遮罩配 1.4em 就是"盒子按排版行盒给、字按墨迹画" —— 单行标签 (padY=0 时)
+ *     也有 1.42× 字号高, 遮线片于是又长回徽章。
+ *
+ * **行心间距(`gap`)仍取 `fontSize × NODE_TEXT_LAYOUT.lineGapEm`**, 一行不改: 那是渲染时真正的
+ * 行间 pitch。11 号下 gap 13.75 > 墨迹高 12.9, 所以多行**不会叠**; 并集高 = `(n−1)×gap + 墨迹高`。
+ * 两侧都乘 `ESTIMATE_SAFETY_FACTOR`(与 `measureText` 同源), 免得估窄了字探出遮罩。
+ */
+export const MASK_ROW_INK_EM = 1.15;
 
 export type LabelBoxSizeOptions = {
   /** 字号(缺省 `LABEL_BOX_DEFAULTS.fontSize`; 与 `labelBoxShape` 的缺省同值) */
@@ -157,10 +177,13 @@ export type LabelBoxSize = { width: number; height: number; fontSize: number };
  * 标签遮罩片的**尺寸唯一来源**: 文本度量 + 内边距 → 上屏矩形(= 审计的检测矩形)。
  * 反算类调用方(按内容顶开列距 / 排图例 / 定画布边界)只用这一个函数量宽高, 别自己拼。
  *
- * **多行(260923)**: 逐行量宽取**最宽一行**, 高取 `rowBlock` 的**行块并集** —— 与
- * `nodeShape`(节点标签) / `export.ts`(`scene.texts`) / `knives/fit.ts` 的 `textFit` 同一份口径。
- * 旧口径是"整串喂 `measureText` + 高度写死 `fontSize + 2×padY`": 单行时按 1em 给高, 而真行盒
- * 高约 1.4em ⇒ **遮罩片比字矮**(检测盒也跟着矮, 净空门禁量的是矮的那块); 多行则只按第一行算宽。
+ * **宽** = 最宽一行的 `measureText` 宽 + 2×padX(逐行量宽, 不是整串当一行)。
+ * **高** = 行块并集, 行高取**墨迹**(`MASK_ROW_INK_EM`, 不是 `measureText` 的行盒)：单行 = 墨迹高
+ * + 2×padY; 多行 = `(n−1)×gap + 墨迹高` + 2×padY, gap 仍是渲染真正用的 `lineGapEm × fontSize`。
+ * 旧口径两处都偏胖: 整串当一行量宽 + 按 1.4em 行盒给高(单行 1.42× 字号), 260923/260925 逐轮换掉。
+ *
+ * ⚠ **本函数的"瘦"只作用于边标签**: 节点外盒 / `textFit` / `scene.texts` 走 `measureText` 的
+ * 行盒口径, 它们要的是"宁宽不窄"(装不下就是真装不下), 与"遮线片只需盖住墨迹"是两件事。
  */
 export function labelBoxSize(content: string, o: LabelBoxSizeOptions = {}): LabelBoxSize {
   const fontSize = o.fontSize ?? LABEL_BOX_DEFAULTS.fontSize;
@@ -168,9 +191,10 @@ export function labelBoxSize(content: string, o: LabelBoxSizeOptions = {}): Labe
   if (o.padX !== undefined) assertFiniteNumber('labelBoxSize', 'padX', o.padX);
   if (o.padY !== undefined) assertFiniteNumber('labelBoxSize', 'padY', o.padY);
   const lines = content.split('\n');
-  const perLine = lines.map((t) => measureText(t, { fontSize }));
-  const contentW = Math.max(...perLine.map((r) => r.width));
-  const contentH = rowBlock(lines.length, fontSize * NODE_TEXT_LAYOUT.lineGapEm, perLine.map((r) => r.height)).height;
+  const contentW = Math.max(...lines.map((t) => measureText(t, { fontSize }).width));
+  // 墨迹行高: 与 measureText 同一份安全系数, 只把 1.4em 的行盒换成 1.15em 的墨迹
+  const inkH = round1(fontSize * MASK_ROW_INK_EM * ESTIMATE_SAFETY_FACTOR);
+  const contentH = rowBlock(lines.length, fontSize * NODE_TEXT_LAYOUT.lineGapEm, lines.map(() => inkH)).height;
   return {
     width: round1(contentW + 2 * (o.padX ?? LABEL_BOX_DEFAULTS.padX)),
     height: round1(contentH + 2 * (o.padY ?? LABEL_BOX_DEFAULTS.padY)),

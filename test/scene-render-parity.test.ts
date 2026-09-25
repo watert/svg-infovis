@@ -56,7 +56,7 @@ describe('scene-render-parity · 审计面必须是渲染面的满射', () => {
     expect(l.ownerEdge).toBe('e');
     expect(l.text).toBe('route');
     expect(l.width).toBeGreaterThan(0);
-    // 高 = 行块并集 + 2 × padY(缺省 4) —— 260923 起与 `labelBoxSize` 同源, 不再写死 `11 + 8`
+    // 高 = 行块并集(**墨迹行高**, 260925)+ 2 × padY(缺省 1) —— 与 `labelBoxSize` 同源, 不写死字面量
     expect(l.height).toBe(labelBoxSize('route').height);
     // dy 走法线偏移: 竖直段(第一段)上偏移的是 x
     const off = edgeLabel(edge, 'route', { dy: 6 });

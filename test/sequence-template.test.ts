@@ -32,10 +32,22 @@ describe('sequence 模板 · 内置示例', () => {
     // positions"就能悄悄改掉每个坐标还不报警)。
     // 产物**有意**变了再换数: `bun run templates/sequence.ts --out=/tmp/seq.svg && shasum -a 256 /tmp/seq.svg`
     // (260923 换过一次: 边标签遮罩片的高从 `fontSize + 2×padY` 的近似改成真行块并集 —— 单行标签
-    //  的检测盒因此变高, 全图字节随之变化。这是**口径换代**, 不是渲染漂移: 文字位置一字未动。)
+    //  的检测盒因此变高, 全图字节随之变化。这是**口径换代**, 不是渲染漂移: 文字位置一字未动。
+    //  260925 再换两次(同一轮的两步, 各自核对过):
+    //  ① 遮罩底色改画布色(隐形)+ 内边距收紧 5/4 → 4/2 —— 逐行 diff 只见到 `label-box` 的 rect
+    //     从 #f8fafc 变 #ffffff、宽 −2、高 −4; 列距按更瘦的标签反算 ⇒ 每格 −2px、画布宽 586 → 580;
+    //     标签盒底边离线距离不变(抬高量跟着半高走, 字因此各下沉 2px)。
+    //  ② 标签接上 `tone`(`edgeLabel({ …, tone: s.tone })`)—— 8 条消息标签的字色各随自己那条线:
+    //     #475569 → blue #1e3a8a(×3)/ violet #4c1d95 / slate #0f172a(×3)/ emerald #064e3b,
+    //     **只有 8 个 `<text>` 的 fill 变了, 元素数与全部坐标一字未动**。
+    //  ③ 遮罩行高改**墨迹口径**(1.15em, 见 `MASK_ROW_INK_EM`)+ 内边距 4/2 → 3/1 —— `label-box` 的
+    //     rect 宽 −2 / 高 −4.8; 列距按更瘦的标签反算 ⇒ [133,166,156] → [132,164,154](第一格被
+    //     版式下限 132 兜住, 故只 −1), 画布宽 580 → 575; 标签盒底边离线距离不变, 字因此各下沉 2.4px。
+    //     元素数 125 → 125 零增删。
+    // 三轮的判据与 diff 都在本文件 + `label-box-size` / `label-rotate` / `semantic-slots` 里钉着。)
     const { scene, opts } = build(DEMO_SEQUENCE);
     expect(createHash('sha256').update(tryExport(scene, opts).svg).digest('hex'))
-      .toBe('520dc07a914514645fe569fa2aed22462bd10836059c60c0be0227d3ef28ca61');
+      .toBe('e39d81702baa6a9b8a8a674e94ac1eda19d5dd15089161ce86e611c789ed122e');
   });
 
   it('全绿出图: 0 error / 0 warning, 产物无 NaN', () => {
