@@ -27,6 +27,10 @@
 //   那种文件的顶层会往 stdout 吐 SVG, 把读数冲成混合产物。
 // =====================================================================
 
+import { type Rect } from '../src/geometry/vec';
+import { bounds } from '../src/geometry/box';
+import { GROUP_FIT_PAD } from '../src/knives/cluster';
+import { routeOrthogonal } from '../src/knives/route';
 import { type Scene, audit } from '../src/knives/audit';
 import { describeScene } from '../src/knives/describe';
 
@@ -38,24 +42,43 @@ const USAGE = `用法: bun run scripts/inspect.ts [<scene-module.ts>] [--metrics
   --rows=N           每段最多 N 行(缺省 40)
   --notes=N          每个对象下最多 N 条诊断(缺省 3)`;
 
+// --- 内置演示场景: 只有版式是手写的, 几何一律现算 ----------------------------------
+
+// 三格的盒尺寸与位置是**作者决策**(演示场景的版式: 左列上下两格 + 右侧一格)
+const BOX = { w: 160, h: 56 };
+const IN: Rect = { x: 60, y: 60, ...BOX };
+const MID: Rect = { x: 60, y: 156, ...BOX };
+const OUT: Rect = { x: 420, y: 130, ...BOX };
+
+// 折点一个都不手写: 两条边各跑一次 route, 拿回的点列就是 scene 里那一份
+// (e-1 直连两格上下; e-2 从 mid 右边出、绕腰线进 out 左边)
+const E1 = routeOrthogonal({ from: IN, fromPort: { side: 'bottom' }, to: MID, toPort: { side: 'top' } });
+const E2 = routeOrthogonal({ from: MID, fromPort: { side: 'right' }, to: OUT, toPort: { side: 'left' } });
+
+// 组框 = 成员(in / mid 两格)并集 + `GROUP_FIT_PAD`(常量从 `knives/cluster` 引, 不抄数字)——
+// 与 audit / describe 的派生同一份口径, 所以读数里 derived 那行与 rect **必然**逐字相同
+const GROUP_RECT = bounds([IN, MID], { pad: GROUP_FIT_PAD })!;
+
 /**
- * 内置演示场景: 2 列 3 行 + 一条折线 + 一个组框, **全部门禁通过** —— 不给路径时跑它(示范代码必须
- * 能自己跑起来)。"它仍然全绿"这件事由 `test/inspect-demo.test.ts` 守着 —— 判据归 test, 本文件不再
- * 自带断言: 断言长在 CLI 里时, 不真的跑一次就**没有任何机器在看着它**。
- * 组框刻意写成"成员并集 + `GROUP_FIT_PAD`", 所以读数里 derived 那行应与 rect 逐字相同。
+ * 内置演示场景: 左列上下两格 + 右侧一格, 两条边(一直一折) + 一个组框, **全部门禁通过** ——
+ * 不给路径时跑它(示范代码必须能自己跑起来)。"它仍然全绿"这件事由 `test/inspect-demo.test.ts` 守着
+ * —— 判据归 test, 本文件不再自带断言: 断言长在 CLI 里时, 不真的跑一次就**没有任何机器在看着它**。
+ *
+ * 除版式之外一律派生(260925): 折点走 `routeOrthogonal`、组框走 `bounds(成员, { pad })` ——
+ * 于是读数里 derived 那行与 rect 逐字相同是**算出来的**, 不是手抄了一份同值坐标。
  */
 export const DEMO: Scene = {
   width: 640, height: 420,
   nodes: [
-    { id: 'in', rect: { x: 60, y: 60, w: 160, h: 56 }, label: '输入' },
-    { id: 'mid', rect: { x: 60, y: 156, w: 160, h: 56 }, label: '处理' },
-    { id: 'out', rect: { x: 420, y: 130, w: 160, h: 56 }, label: '产物' },
+    { id: 'in', rect: IN, label: '输入' },
+    { id: 'mid', rect: MID, label: '处理' },
+    { id: 'out', rect: OUT, label: '产物' },
   ],
   edges: [
-    { id: 'e-1', from: 'in', to: 'mid', points: [{ x: 140, y: 116 }, { x: 140, y: 156 }] },
-    { id: 'e-2', from: 'mid', to: 'out', points: [{ x: 220, y: 184 }, { x: 320, y: 184 }, { x: 320, y: 158 }, { x: 420, y: 158 }] },
+    { id: 'e-1', from: 'in', to: 'mid', points: E1.points },
+    { id: 'e-2', from: 'mid', to: 'out', points: E2.points },
   ],
-  groups: [{ id: 'g-box', rect: { x: 32, y: 32, w: 216, h: 208 }, label: '本地', contains: ['in', 'mid'] }],
+  groups: [{ id: 'g-box', rect: GROUP_RECT, label: '本地', contains: ['in', 'mid'] }],
 };
 
 function fail(msg: string): never {

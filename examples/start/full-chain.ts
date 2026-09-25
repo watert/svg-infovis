@@ -20,7 +20,7 @@ const H = 400;
 // 五格同尺寸(这张图讲的是链路, 盒尺寸是手定的: 150 × 46)
 const BOX = { w: 150, h: 46 };
 // 一条链(竖排, 节距 100)+ 两个出口(横排) —— 摆位走 pack, 与折点走 route 是同一条纪律
-const chain = packCol({ items: [BOX, BOX, BOX], gap: 100 - BOX.h, x: 250, y0: 40, align: 'start' });
+const chain = packCol({ items: [BOX, BOX, BOX], pitch: 100, x: 250, y0: 40, align: 'start' });
 const sinks = packRow({ items: [BOX, BOX], gap: 170, y: 330, x0: 90, align: 'start' });
 const [html, blink, audit] = chain.rects;
 const [readme, board] = sinks.rects;

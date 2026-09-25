@@ -27,7 +27,7 @@
 
 import {
   type Pt, type Rect, type RouteRequest, type RouteResult, type Scene, type SceneText, type Side, type Tone,
-  THEMES, add, grid, nodeFit, rectBottom, rectRight, routeAll, textFit,
+  THEMES, add, below, grid, nodeFit, rectBottom, rectRight, rightOf, routeAll, textFit,
 } from '../../src/index';
 import { runScene } from '../../scripts/runner';
 
@@ -56,8 +56,12 @@ const BOX_H = Math.max(fitA.h, fitB.h);
 // (见 `route.ts` 文件头 ③, 那时折线会突然绕远)。70 是作者给的余量, 不是门禁要求。
 const CORRIDOR = 70;
 const TITLE_ZONE = 48;                     // 格顶 → A 盒顶: 装标题 + 折法两行
+// 四格的两盒统一尺寸: `place` 的糖面吃尺寸对象(不吃 fit), 尺寸对不齐就谈不上"同一套相对坐标"
+const BOX_SIZE = { w: BOX_W, h: BOX_H };
 const REL_A: Rect = { x: 0, y: TITLE_ZONE, w: BOX_W, h: BOX_H };
-const REL_B: Rect = { x: BOX_W + CORRIDOR, y: TITLE_ZONE + BOX_H + CORRIDOR, w: BOX_W, h: BOX_H };
+// B 在 A 的右下方各隔一条走廊(`align: 'start'` = 贴 A 的左边 / 顶边) —— 走 `rightOf` / `below`
+// 糖面直说这句话, 不再自己写 `BOX_W + CORRIDOR` 这种换算
+const REL_B: Rect = below(rightOf(REL_A, BOX_SIZE, CORRIDOR, { align: 'start' }), BOX_SIZE, CORRIDOR, { align: 'start' });
 
 const TITLE_SIZE = 12, CAPTION_SIZE = 10.5, HEAD_SIZE = 17, DESC_SIZE = 12;
 const CELL_W = REL_B.x + BOX_W;

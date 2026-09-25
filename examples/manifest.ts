@@ -48,7 +48,7 @@ export const GROUP_LABEL: Record<ExampleGroup, string> = {
 export const EXAMPLES: ExampleEntry[] = [
   // ── start ────────────────────────────────────────────────────────────
   { key: 'basic', group: 'start', file: 'examples/start/basic.ts',
-    what: '描述符层最小路径: 手拼 descriptor 直出 SVG(不经 scene、不过门禁)' },
+    what: '描述符层最小路径: 直出 descriptor(不经 scene、不过门禁), 坐标全走派生(`nodeFit` / `packCol` / `rectFace` / `bounds`)' },
   { key: 'full-chain', group: 'start', file: 'examples/start/full-chain.ts',
     what: '主路径全链 scene → route → audit → export, 且 `--golden` 是字节对账入口' },
 

@@ -20,8 +20,9 @@ describe('inspect · 内置演示场景必须全绿', () => {
     }
   });
 
-  it('组框刻意写成"成员并集 + GROUP_FIT_PAD": 派生框与手写 rect 逐字相同', () => {
-    // 这条守 demo 的自我一致性 —— 框比成员大或小, 读数里 derived 那行就会与 rect 分岔
+  it('组框确实是"成员并集 + GROUP_FIT_PAD": 派生框与 DEMO 里的 rect 逐字相同', () => {
+    // 这条守 demo 的自我一致性 —— DEMO 的框走 `bounds(成员, { pad: GROUP_FIT_PAD })`, 与这里的
+    // `deriveGroupRect` 同一份口径; 框比成员大或小, 读数里 derived 那行就会与 rect 分岔
     const box = DEMO.groups?.[0];
     expect(box).toBeDefined();
     expect(deriveGroupRect(DEMO, box!.id)).toEqual(box!.rect);

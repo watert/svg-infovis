@@ -16,7 +16,7 @@
 
 | 键名 | 文件 | 这张图证明什么 |
 |---|---|---|
-| `basic` | `start/basic.ts` | 描述符层最小路径: 手拼 descriptor 直出 SVG(**不经 scene、不过门禁**) |
+| `basic` | `start/basic.ts` | 描述符层最小路径: 直出 descriptor(**不经 scene、不过门禁**); 坐标全走派生(`nodeFit` 盒 / `packCol` 列 / `rectFace` 端点 / `bounds` 组框) |
 | `full-chain` | `start/full-chain.ts` | 主路径全链 `scene → route → audit → export`; `--golden` 出 sha256 供字节对账 |
 
 要开一张新图**从 `full-chain` 抄** —— 它的出口是 fail-closed 的标准姿势(现在收在 `scripts/runner.ts`)。
