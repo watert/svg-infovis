@@ -1,6 +1,6 @@
 // =====================================================================
 // ontology-icons · 图标 + 说明卡片的本体图(260920, 复刻航空业本体那张参照图)
-//   bun run examples/ontology-icons.ts > /tmp/ontology-icons.svg
+//   bun run examples/gallery/ontology-icons.ts > /tmp/ontology-icons.svg
 //
 // 这张图是**能力举证**: "图标当节点的视觉替身 + 逐行说明卡片 + 成对双线 + 沿线旋转的标签"
 // 这一整套 —— 即参照图那类 ontology / 关系图 —— 用 core 现有件能不能画出来。答案是能, 且
@@ -14,8 +14,8 @@
 //
 // 两条与参照图的**有意偏差**(都是 core 的既定纪律, 不是做不到):
 //   ① 参照图里 "Hub For" / "Owned By" 是 45° 斜线 —— core 的 `orthogonal_edges` 门禁要求
-//      折线全程正交, 所以这两条走 L 形。放开斜线是独立决定(要不要给边加"自由角度"档),
-//      见 TODO; 本图按现行纪律出。
+//      折线全程正交, 所以这两条走 L 形。放开斜线是**独立决定**(要不要给边加"自由角度"档) ——
+//      本图按现行纪律出; 真要开就得按纪律 9 / 11 在 `ROADMAP.md` 立项, 那里现在**没有**这一项。
 //   ② 卡片文案的换行位置由本文件写死 —— 换行是作者的决定, core 不替你折行(口径见 fit.ts)。
 //
 // 布局用到的两条"这类图特有"的手法(都记进了 refs/recipes.md 配方 11):
@@ -32,6 +32,7 @@ import { pairLabels, routePair } from '../../src/knives/route-pair';
 import { iconAsset } from '../../src/icons/lucide';
 import { iconInkRect } from '../../src/shapes/icon';
 import { contentBounds } from '../../src/export';
+import { below } from '../../src/geometry/place';
 import { edgeLabel, labelAngle } from '../../src/shapes/edge';
 import { THEMES } from '../../src/theme';
 import { round1 } from '../../src/geometry/vec';
@@ -135,13 +136,10 @@ const CAPTION = [
 const capSize = 16;
 // 宽高只由 textFit 给(与 scene.texts 上屏逐字同源: 最宽行 + 行块并集高)
 const capFit = textFit({ content: CAPTION.join('\n'), fontSize: capSize, weight: 700 });
-const before = contentBounds({ width: 0, height: 0, nodes, edges, labels });
-const captionRect = {
-  x: round1((before ? before.x + before.w / 2 : 470) - capFit.w / 2),
-  y: round1((before ? before.y + before.h : 1095) + 52),
-  w: capFit.w,
-  h: capFit.h,
-};
+// 落位: 贴在**内容包围盒底边中点**往下 52px —— `below` 的 align 缺省 `center` 就是"骑底边中点",
+// 于是重心不用手算(内容非空, `contentBounds` 不会给 null)
+const before = contentBounds({ width: 0, height: 0, nodes, edges, labels })!;
+const captionRect = below(before, capFit, 52);
 
 export const scene: Scene = {
   width: 0, // 交给 `fit` 按内容重定(先 fit 再审 —— 审计吃的是平移后的那份)
@@ -154,7 +152,7 @@ export const scene: Scene = {
 
 const styles = Object.fromEntries(nodes.map((n) => [n.id, { fill: CARD_FILL }]));
 
-// 出口走 `examples/_runner`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
+// 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
 if (import.meta.main) {
   runScene(scene, {
     level: LEVEL,

@@ -17,17 +17,17 @@
 // 一条纪律: **折点一个坐标都不手写**。四格共用同一套相对盒坐标喂 `routeAll`, 拿回折点列后只做
 // 刚体平移(平移到各自的格位) —— 平移量是版式, 不是几何。折法名与折数也一律从折点列现算。
 //
-//   bun run examples/port-folds.ts > /tmp/port-folds.svg     # 门禁不过 → exit 1
+//   bun run examples/checks/port-folds.ts > /tmp/port-folds.svg     # 门禁不过 → exit 1
 //   scripts/svg2png.sh /tmp/port-folds.svg /tmp/port-folds.png 1200
 //
 // 出口放在 `import.meta.main` 里面是刻意的: **被 import 时本模块是纯 scene**(门禁不跑、不写文件、
-// 不动退出码) —— `examples/inspect.ts` 与后续 web 展示都按这个契约接, 谁也不该因为"读了一眼图"
+// 不动退出码) —— `scripts/inspect.ts` 与后续 web 展示都按这个契约接, 谁也不该因为"读了一眼图"
 // 而收到 exit 1。跑门禁只有一条路: 直接 `bun run` 本文件。
 // =====================================================================
 
 import {
   type Pt, type Rect, type RouteRequest, type RouteResult, type Scene, type SceneText, type Side, type Tone,
-  THEMES, add, below, grid, nodeFit, rectBottom, rectRight, rightOf, routeAll, textFit,
+  ORTHO_EPS, THEMES, add, below, bounds, grid, nodeFit, rectBottom, rectRight, rightOf, routeAll, textFit,
 } from '../../src/index';
 import { runScene } from '../../scripts/runner';
 
@@ -51,9 +51,11 @@ const fitB = nodeFit({ label: 'B · 目标', level: 'showcase' });
 const BOX_W = Math.max(fitA.w, fitB.w);
 const BOX_H = Math.max(fitA.h, fitB.h);
 
-// 盒间走廊(横竖同值): 两条 stub(各 18)之外还得放得下 ② 那条竖腰线 —— 走廊窄于 2×stub 时
-// `a1` 会越到 `b1` 的外侧, 竖腰线 Z 的可行域成空集, route 只能改走"绕两盒顶 / 底"的横腰线候选
-// (见 `route.ts` 文件头 ③, 那时折线会突然绕远)。70 是作者给的余量, 不是门禁要求。
+// 盒间走廊(横竖同值): 走廊**多窄都不影响折法** —— 实测 10 / 20 / … / 70 七档出的是同一套折法,
+// 一档都没绕远(③ 的"绕两盒顶 / 底"一次都没进)。原因是 `route.ts` 文件头 ① 那条: 两根 stub
+// **对顶**时各让一半(`half = min(stub, 缝/2)`), 于是 `a1` 与 `b1` 的间隔恒 ≥ 0(`2×half ≤ 缝`
+// 对任何走廊成立), 腰线可行域永不为空。
+// 70 是作者给的**观感**余量(四格之间的呼吸位), 不是可行域要求 —— 别把它当门禁下限读。
 const CORRIDOR = 70;
 const TITLE_ZONE = 48;                     // 格顶 → A 盒顶: 装标题 + 折法两行
 // 四格的两盒统一尺寸: `place` 的糖面吃尺寸对象(不吃 fit), 尺寸对不齐就谈不上"同一套相对坐标"
@@ -64,10 +66,13 @@ const REL_A: Rect = { x: 0, y: TITLE_ZONE, w: BOX_W, h: BOX_H };
 const REL_B: Rect = below(rightOf(REL_A, BOX_SIZE, CORRIDOR, { align: 'start' }), BOX_SIZE, CORRIDOR, { align: 'start' });
 
 const TITLE_SIZE = 12, CAPTION_SIZE = 10.5, HEAD_SIZE = 17, DESC_SIZE = 12;
-const CELL_W = REL_B.x + BOX_W;
-const CELL_H = REL_B.y + BOX_H;
+// 格尺寸 = 两盒并集的**远角坐标**(不是并集本身的宽高) —— 格里那套相对坐标的原点恒在 (0, 0),
+// 并集右 / 下缘到原点的距离才是格要装下的范围(A 之上那条 TITLE_ZONE 标题带也算格的一部分)
+const CELL = bounds([REL_A, REL_B])!;
+const CELL_W = rectRight(CELL);
+const CELL_H = rectBottom(CELL);
 const CELL_GAP_X = 96, CELL_GAP_Y = 96;    // 格间 > 格内走廊(70), 四格才读得出是四格
-const PAD = 32, HEAD_H = 96;               // 顶部标题 + 说明两行, 与第一排格标题留 17px
+const PAD = 32, HEAD_H = 96;               // 顶部标题 + 说明两行, 与第一排格标题留 16px
 const MUTED = '#64748b';                   // 次级文字(主题没有"弱化"槽: 格标题按格色, 折法名走这个)
 
 // 四格本体 = 一张 2×2 的**均匀格子**: 格位与画布占位全从它查(格内仍是同一套相对盒坐标)
@@ -85,10 +90,11 @@ const routes = routeAll(reqs);
 /** 折法名: 1 折 = L(先哪轴后哪轴看首段), 2 折 = Z(腰线轴看中间那段) */
 const foldName = (r: RouteResult): string => {
   const [p0, p1] = r.points;
-  const first = Math.abs(p0.y - p1.y) < 1e-9 ? '横' : '竖';
+  // 判"首段是不是水平的"就是问它偏竖直轴多少 —— 与门禁 `orthogonal_edges` 同一把尺子(`ORTHO_EPS`)
+  const first = Math.abs(p0.y - p1.y) < ORTHO_EPS ? '横' : '竖';
   if (r.bends <= 1) return `L · 先${first}后${first === '横' ? '竖' : '横'}`;
   const [q, s] = [r.points[1], r.points[2]];
-  return `Z · ${Math.abs(q.x - s.x) < 1e-9 ? '竖腰' : '横腰'}`;
+  return `Z · ${Math.abs(q.x - s.x) < ORTHO_EPS ? '竖腰' : '横腰'}`;
 };
 
 // --- 组装 --------------------------------------------------------------------
@@ -129,7 +135,7 @@ export const scene: Scene = { width: rectRight(g.bounds) + PAD, height: rectBott
 
 // --- 出口(fail-closed; 诊断走 stderr, 图走 stdout) ---------------------------
 
-// 260920 起出口收进 `examples/_runner`: 门禁没过时**草稿仍走同一条通道**(stdout —— 也就是
+// 260920 起出口收进 `scripts/runner.ts`: 门禁没过时**草稿仍走同一条通道**(stdout —— 也就是
 // `> /tmp/port-folds.svg` 重定向的那个文件), 判决落到退出码。于是这个迭代回路在被拦下的那次
 // 也有图可看, 而"带病产物"由 exit 1 拦在 shell 的 `&&` 链上(过去是草稿落 /tmp、stdout 留空)。
 if (import.meta.main) {

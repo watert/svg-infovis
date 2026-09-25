@@ -22,11 +22,12 @@ import { nodeFit } from '../../src/knives/fit';
 import { routeOrthogonal, type PortRef, type Side } from '../../src/knives/route';
 import { edgeLabel } from '../../src/shapes/edge';
 import { fitGroupFrames } from '../../src/scene';
-import type { Rect } from '../../src/geometry/vec';
+import { rectFace } from '../../src/geometry/box';
+import { mid, type Rect } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
 
-const H = 54;           // 版式: 节点高。nodeFit 的内容下限是 39, 高度这一侧没有门禁 —— 节奏由版式说了算
-const PAD_X = 16;       // 版式: 标签左右呼吸位(比 showcase 档的 10 宽 6, 观感更松)
+const H = 54;           // 版式: 节点高。nodeFit 的内容下限是 39(带 PAD_X 的纵向内边距时 51), 高度这一侧没有门禁 —— 节奏由版式说了算
+const PAD_X = 16;       // 版式: 标签呼吸位(比 showcase 档的 10 宽 6, 观感更松)。它同时进 `nodeFit` 的 `padding` —— 横竖两轴同一个数
 const GROUP_PAD = 40;   // 组框均匀 pad(推导见下方 fitGroupFrames 处)
 
 // --- 作者决策: 三层竖排, 层内谁和谁对齐 ---------------------------------
@@ -65,11 +66,11 @@ const run: Array<[string, string, number, number]> = [
 const all = [...boot, ...ctx, ...run];
 const boxes: Record<string, Rect> = {};
 for (const [id, label, cx, y] of all) {
-  // 盒宽 = max(版式宽, nodeFit 反算宽): 后者是"装得下"的地板, 且**档位与出图档位对齐**(showcase)——
-  // 按 standard 算盒再按 showcase 出图会差 4px, 那条边正好在 showcase 档爆 `label_fit`。
-  const fit = nodeFit({ label, level: 'showcase' });
-  const w = Math.max(Math.ceil(fit.labelWidth + 2 * PAD_X), fit.w);
-  boxes[id] = { x: Math.round(cx - w / 2), y, w, h: Math.max(H, fit.h) };
+  // 盒宽: `nodeFit` 的 `padding` 就是版式给的呼吸位(档位与出图档位对齐 —— showcase; 按 standard
+  // 算盒再按 showcase 出图会差 4px, 那条边正好在 showcase 档爆 `label_fit`)。于是"装得下"的地板
+  // 与"观感要更松"这半个作者决策是同一次反算的两个参数, 不再自己写 `labelWidth + 2 * PAD_X`
+  const fit = nodeFit({ label, level: 'showcase', padding: PAD_X });
+  boxes[id] = { x: Math.round(cx - fit.w / 2), y, w: fit.w, h: Math.max(H, fit.h) };
 }
 
 // 组框**只声明成员**(membership 声明制): `rect` 是占位, 框体由下面 `fitGroupFrames` 按
@@ -140,7 +141,7 @@ link('e4', 'USER', 'FLAG', 'right', 'left');
 // 让"注入点"贴近来源, 那条边就从 700px 缩到 400px。**这就是"Mermaid 没有的作者旋钮"**:
 // 端口位置是一个参数, 不是布局算法的运气。
 // 标签落位: 主杆下方 12px(dy=-12) —— 过去它骑在装配层下边线上(下半截戳出框), 是 260918 `text_overlap` 抓到的。
-const corridorLane = (frameOf('boot').y + frameOf('boot').h + frameOf('ctx').y) / 2;
+const corridorLane = mid(rectFace(frameOf('boot'), 'bottom'), rectFace(frameOf('ctx'), 'top')).y;
 link('e5', 'FLAG', { group: 'ctx' }, 'bottom', 'top', {
   text: 'Loader + inject', atTo: 0.9, lane: corridorLane, labelDy: -12,
 });

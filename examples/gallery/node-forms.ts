@@ -1,6 +1,6 @@
 // =====================================================================
 // node-forms · 形状三态出图(菱形 = 判定 / 圆柱 = 数据存储)
-//   bun run examples/node-forms.ts > /tmp/node-forms.svg
+//   bun run examples/gallery/node-forms.ts > /tmp/node-forms.svg
 //
 // 这张图是**能力举证**: 三种形状同框、都带 label + sub, 且 `exportScene` 按 showcase 档
 // **全部门禁零诊断**才出得来(fail-closed —— 出图成功本身就是凭证)。
@@ -8,8 +8,9 @@
 // 形状怎么进图: 形状是 scene 上的**语义槽** `SceneNode.shape`(与 `tone` / `variant` 同族) ——
 // 出口的 `renderNode` 从 scene 读, 覆盖表只在该显式写了值时才顶掉它(`export.ts` 的语义槽三件)。
 //
-// 盒宽盒高一律由 `nodeFit({ shape })` 反算 —— 菱形 / 圆柱的文字可用区比同尺寸矩形小得多
-// (中央一半 / 中央一半), 手定盒宽会装不下字, 而门禁 `label_fit` 只量 rect、看不见形状。
+// 盒宽盒高一律由 `nodeFit({ shape })` 反算 —— 形状收窄的是**文字可用区**: 菱形两轴各收一半
+// (可用区只剩盒面积的 1/4), 圆柱只收高度(宽度不动, 盖子从上下各吃掉一截)。手定盒宽会装不下字,
+// 而门禁 `label_fit` 只量 rect、看不见形状。
 // =====================================================================
 
 import { type Scene } from '../../src/knives/audit';
@@ -47,7 +48,7 @@ export const scene: Scene = {
   ],
 };
 
-// 出口走 `examples/_runner`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
+// 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
 if (import.meta.main) {
   runScene(scene, {
     level: LEVEL,

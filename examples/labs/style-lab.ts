@@ -22,8 +22,8 @@
 // =====================================================================
 
 import {
-  type Descriptor, type GridProps, THEMES, TONES,
-  canvasLayer, edgeShape, group, groupShape, nodeShape, rect, svg, textShape,
+  type Descriptor, type GridProps, type Rect, THEMES, TONES,
+  canvasLayer, edgeShape, group, groupShape, nodeShape, packCol, packRow, rect, rectCenter, rectFace, svg, textShape,
 } from '../../src/index';
 import { gridLayer } from '../../src/shapes/grid-pattern';
 import { routeOrthogonal } from '../../src/knives/route';
@@ -47,12 +47,19 @@ function themeMatrix(mode: 'light' | 'dark'): string {
     groupShape({ x: 12, y: 62, w: W - 24, h: H - 86, radius: 16, label: mode === 'dark' ? 'dark surface' : 'light surface', theme }),
   ];
 
+  // 一列 7 行由 `packCol` 摆(节距 64 = 盒高 44 + 缝 20); 每行那对盒子由 `packRow` 摆(缝 20)。
+  // 行盒的左缘 = 盒子列的左缘, 于是 `rows.rects[i]` 与 `pair[0]` 逐字相同 —— 标签骑行盒中线
+  const CELL = { w: 190, h: 44 };
+  const ROW_X = 120;
+  const rows = packCol({ items: TONES.map(() => CELL), pitch: ROW, x: ROW_X, y0: TOP, align: 'start' });
+
   TONES.forEach((tone, i) => {
-    const y = TOP + i * ROW;
+    const rowRect = rows.rects[i];
+    const [outline, solid] = packRow({ items: [CELL, CELL], gap: 20, y: rowRect.y, x0: ROW_X, align: 'start' }).rects;
     children.push(
-      textShape({ x: 26, y: y + 22, content: tone, size: 12, weight: 600, tone, theme }),
-      nodeShape({ x: 120, y, w: 190, h: 44, radius: 10, label: 'outline', tone, variant: 'outline', theme, fontSize: 12 }),
-      nodeShape({ x: 330, y, w: 190, h: 44, radius: 10, label: 'solid', tone, variant: 'solid', theme, fontSize: 12 }),
+      textShape({ x: 26, y: rectCenter(rowRect).y, content: tone, size: 12, weight: 600, tone, theme }),
+      nodeShape({ ...outline, radius: 10, label: 'outline', tone, variant: 'outline', theme, fontSize: 12 }),
+      nodeShape({ ...solid, radius: 10, label: 'solid', tone, variant: 'solid', theme, fontSize: 12 }),
     );
   });
 
@@ -79,21 +86,28 @@ function gridLab(): string {
   const H = TOP + CH * 2 + GAP + PAD;
 
   /** 一格 = 纸底 + 网格 + 两个节点一条边(格子自己平移, 内容坐标与真实用法一致) */
-  const cell = (col: number, row: number, label: string, grid: GridProps): Descriptor =>
-    group(
+  const cell = (col: number, row: number, label: string, grid: GridProps): Descriptor => {
+    // 两个盒的位置是格内版式(作者给的); 折点全从它们的面现算 —— 出 Ingest 底边中点,
+    // 下到 Store 左边中线那一行, 再横着进 Store 左边(拐角 = 两口各自那根线的交点)
+    const ingest: Rect = { x: 30, y: 52, w: 104, h: 38 };
+    const store: Rect = { x: 166, y: 106, w: 104, h: 38 };
+    const from = rectFace(ingest, 'bottom');
+    const to = rectFace(store, 'left');
+    return group(
       [
         canvasLayer(theme, CW, CH),
         ...gridLayer(CW, CH, grid),
         textShape({ x: 14, y: 18, content: label, size: 10.5, theme, color: theme.label }),
-        nodeShape({ x: 30, y: 52, w: 104, h: 38, radius: 8, label: 'Ingest', tone: 'blue', variant: 'tint', theme, fontSize: 11.5 }),
-        nodeShape({ x: 166, y: 106, w: 104, h: 38, radius: 8, label: 'Store', tone: 'slate', variant: 'outline', theme, fontSize: 11.5 }),
+        nodeShape({ ...ingest, radius: 8, label: 'Ingest', tone: 'blue', variant: 'tint', theme, fontSize: 11.5 }),
+        nodeShape({ ...store, radius: 8, label: 'Store', tone: 'slate', variant: 'outline', theme, fontSize: 11.5 }),
         edgeShape({
-          points: [{ x: 82, y: 90 }, { x: 82, y: 125 }, { x: 166, y: 125 }],
+          points: [from, { x: from.x, y: to.y }, to],
           theme, radius: 8, end: 'arrow-triangle', markerSize: 6,
         }),
       ],
       { transform: `translate(${PAD + col * (CW + GAP)} ${TOP + row * (CH + GAP)})` },
     );
+  };
 
   // ⚠ 四格的 pattern 参数各不相同, 所以**必须各自给 id**: 缺省 id 一律是 `md-grid`, 而重复 id 下
   // `url(#md-grid)` 会全部解析到**第一个**定义 —— 实测(合并前): 四格全渲染成 step 10 的线格,

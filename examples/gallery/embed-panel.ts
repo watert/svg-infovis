@@ -25,10 +25,12 @@ import { fileURLToPath } from 'node:url';
 import { type Scene } from '../../src/knives/audit';
 import { embedAsset } from '../../src/embed/svg-asset';
 import { nodeFit, textFit } from '../../src/knives/fit';
+import { rectFace } from '../../src/geometry/box';
+import { below } from '../../src/geometry/place';
 import { routeOrthogonal } from '../../src/knives/route';
 import { edgeLabel } from '../../src/shapes/edge';
 import { contentBounds } from '../../src/export';
-import { round1, type Rect } from '../../src/geometry/vec';
+import { type Rect } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
 
 export const LEVEL = 'showcase';
@@ -53,7 +55,9 @@ function box(id: string, label: string, x: number, w: number, extra: Partial<Sce
 
 const collect = box('collect', '采集 agent', 40, 200);
 const p95 = box('p95', 'p95 12ms', CHART.x, 216, { tone: 'blue', variant: 'tint' });
-const err = box('err', '错误率 0.4%', PANEL.x + PANEL.w - 32 - 216, 216, { tone: 'blue', variant: 'tint' });
+// 右缘贴面板右缘内 32(`rectFace` 的 offset 负 = 朝内法线, 不用自己写 `PANEL.x + PANEL.w`);
+// 减掉的 216 是它**自己的盒宽** —— 端口给的是右缘, 盒的 x 是左缘, 这一步换算省不掉
+const err = box('err', '错误率 0.4%', rectFace(PANEL, 'right', { offset: -32 }).x - 216, 216, { tone: 'blue', variant: 'tint' });
 const alert = box('alert', '越线告警', 1000, 168, { tone: 'rose' });
 const nodes = [collect, p95, err, alert];
 
@@ -79,6 +83,14 @@ const CAPTION = [
 const CAP_SIZE = 12;
 // 尺寸只由 textFit 给(与渲染逐字同源: 最宽行 + 行块并集高)
 const capFit = textFit({ content: CAPTION.join('\n'), fontSize: CAP_SIZE });
+// 落位: 贴在**内容包围盒底边中点**往下 40px —— `below` 的 align 缺省 `center` 就是"骑底边中点",
+// 于是重心不用手算(内容非空, `contentBounds` 不会给 null)。包围盒含声明框与素材(它们占着版面)
+const before = contentBounds({
+  width: 0, height: 0, nodes, edges, labels,
+  groups: [{ id: 'panel', rect: PANEL, frame: 'declared' }],
+  embeds: [{ id: 'chart', rect: CHART, asset }],
+})!;
+const captionRect = below(before, capFit, 40);
 
 /** 具名导出: 顶层是纯几何(判据在 `test/embed-scene.test.ts`), 出口全在 `import.meta.main` */
 export const scene: Scene = {
@@ -94,19 +106,7 @@ export const scene: Scene = {
   embeds: [{ id: 'chart', rect: CHART, asset }],
   texts: [{
     id: 'caption',
-    rect: (() => {
-      const before = contentBounds({
-        width: 0, height: 0, nodes, edges, labels,
-        groups: [{ id: 'panel', rect: PANEL, frame: 'declared' }],
-        embeds: [{ id: 'chart', rect: CHART, asset }],
-      });
-      return {
-        x: round1((before ? before.x + before.w / 2 : 600) - capFit.w / 2),
-        y: round1((before ? before.y + before.h : PANEL.y + PANEL.h) + 40),
-        w: capFit.w,
-        h: capFit.h,
-      };
-    })(),
+    rect: captionRect,
     text: CAPTION.join('\n'),
     fontSize: CAP_SIZE,
     anchor: 'middle',

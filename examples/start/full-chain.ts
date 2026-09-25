@@ -5,7 +5,7 @@
 //
 // 这条链就是设计稿 §三 说的"core 纯函数链独扛字节 golden"的载体: 不需要浏览器、不需要 React,
 // 固定输入 → 固定字节。blink 路径不进这里(它带来的字体/viewport 漂移会让 golden 必死)。
-// 出口走 `examples/_runner`(260920): 摘要 / 诊断 / 草稿 / exit code 都不再由本文件各守一遍。
+// 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 都不再由本文件各守一遍。
 // =====================================================================
 
 import { type Scene } from '../../src/knives/audit';
@@ -46,7 +46,7 @@ const edgeList: Scene['edges'] = [
   { id: 'loop', from: 'audit', to: 'html', points: loop.points },
 ];
 
-const scene: Scene = {
+export const scene: Scene = {
   width: W,
   height: H,
   nodes: [
@@ -68,7 +68,7 @@ const scene: Scene = {
 // lane 越界时 route 会投影到可行域并置 laneProjected —— 调用方应该看见它, 别当没发生
 const projected = [e1, e2, e3, e4, loop].filter((r) => r.laneProjected).length;
 
-// 出口走 `examples/_runner`(260920): 摘要 / 诊断 / 草稿 / exit code 全在那一处(见该文件头注)。
+// 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 全在那一处(见该文件头注)。
 // 本文件只给"这条链该怎么画", 出口纪律不再由每个示例各守一遍。
 if (import.meta.main) {
   runScene(scene, {

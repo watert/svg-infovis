@@ -63,8 +63,8 @@
 //   · 图例的 6 个色块是 solid —— 若将来落"solid 数 > 2 = 强调通胀"的度量, **这 6 个要在白名单里**
 //     (它们是色卡, 不是语义强调; 全图语义强调位只有 Executing 一个)
 //
-//   bun run examples/lifecycle-agent-run.ts > /tmp/lifecycle.svg
-//   bun run examples/inspect.ts examples/lifecycle-agent-run.ts --showcase --rows=80
+//   bun run examples/gallery/lifecycle-agent-run.ts > /tmp/lifecycle.svg
+//   bun run scripts/inspect.ts examples/gallery/lifecycle-agent-run.ts --showcase --rows=80
 // =====================================================================
 
 import { type Scene, type SceneEdge, type SceneText } from '../../src/knives/audit';
@@ -73,6 +73,7 @@ import { routeOrthogonal } from '../../src/knives/route';
 import { type EdgeProps } from '../../src/shapes/edge';
 import { THEMES, type Tone } from '../../src/theme';
 import { bounds, rectAnchor, rectFace } from '../../src/geometry/box';
+import { rightOf } from '../../src/geometry/place';
 import { grid } from '../../src/geometry/grid';
 import { type Rect, rectRight } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
@@ -133,7 +134,7 @@ const BAND_LABELS = [
 // ⚠ 但**节拍对不齐**: 盒宽是 nodeFit 反算出来的内容下限, 不是作者给的数。宁可让节拍落在
 // 列距 / 行距上、盒宽随内容, 也不要反过来手定盒宽(QUICKREF 误用表最后几行那条)。
 const GAP_X = 48;         // 列距(节点之间的呼吸位)
-const ROW_H = 56;         // 行高。nodeFit 的内容下限是 39, 高度这一侧没有门禁 —— 节奏归版式
+const ROW_H = 56;         // 行高。带 sub 的两行块在 showcase 档**恒 54**(余量只有 2px, 不带 sub 才是 39) —— 节奏归版式
 const BAND_GAP = 104;     // 段落之间的走廊高度(要容下: 段落标签盒 + 分隔线 + 折线横段)
 const X0 = 64;            // 列 0 左缘 = 标签左边槽的宽度(见文件头 坐标纪律)
 const RAISE_RULE = 40;    // 分隔线在本段行顶之上
@@ -285,9 +286,9 @@ const legend = legendOrder
 const LEGEND_TITLE_Y = rectFace(bandRect(2), 'bottom', { offset: 58 }).y;
 const legendNodes: Scene['nodes'] = [];
 {
-  let x = 0;
+  let prev: Rect = { x: -30, y: LEGEND_TITLE_Y + 30, w: 0, h: SWATCH };  // 链首锚盒: 其右缘落在 x = 0(图例左对齐的起点是作者决策)
   for (const e of legend) {
-    const swatch: Rect = { x, y: LEGEND_TITLE_Y + 30, w: SWATCH, h: SWATCH };
+    const swatch: Rect = rightOf(prev, { w: SWATCH, h: SWATCH }, 30);  // align 缺省 center ⇒ 与上一格文字同心中线, y 自己锁在同一行
     legendNodes.push({ id: `legend-${e.type}`, rect: swatch, tone: TYPE_TONE[e.type], variant: 'solid' });
     // 贴色块右缘 8px; `anchor: 'start'` 的 at = 左中, y 取块心(与色块同高)
     const note = textNote({
@@ -298,15 +299,14 @@ const legendNodes: Scene['nodes'] = [];
       color: THEME.label,
     });
     texts.push(note);
-    // 下一格从本段文字右缘起再让 30(宽取 rect, 与检测盒同一个数)
-    x = rectRight(note.rect) + 30;
+    prev = note.rect;   // 下一格从本段文字盒起再让 30(宽取 rect, 与检测盒同一个数)
   }
 }
 
 // --- scene --------------------------------------------------------------
 
 export const scene: Scene = {
-  width: COL_RIGHT - SPINE_X, height: LEGEND_TITLE_Y + 80, // 占位: 出口的 fit 会按内容重算(见 FIT)
+  width: 0, height: 0, // 占位: 出口的 fit 会按内容重算(见 FIT) —— 声明的画布尺寸不参与任何计算
   nodes: [
     ...STATES.map((s) => ({
       id: s.id, rect: boxes[s.id], label: s.label, sub: s.sub,
@@ -326,7 +326,7 @@ export const scene: Scene = {
 export default scene;
 
 if (import.meta.main) {
-  // 出口走 `examples/_runner`(260920): 摘要 / 诊断(含 evidence) / 草稿 / exit code 都在那一处。
+  // 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断(含 evidence) / 草稿 / exit code 都在那一处。
   // 深色画布的细线格仍在这里给 —— dark 主题**刻意不带**底纹, 要就得自己给(与 paper 自带那层同族)。
   runScene(scene, {
     level: LEVEL,
