@@ -122,10 +122,12 @@ emitLayered({
 bun run templates/layered.ts --out=/tmp/arch.svg [--dark]
 ```
 
-内置示例 = `examples/gallery/harness-arch.ts`(15 节点, **手排 166 行**)的**同拓扑同标签**版 ——
+内置示例 = `examples/gallery/harness-arch.ts`(15 节点, **手排 167 行**)的**同拓扑同标签**版 ——
 两边的差值就是"起手骨架"替作者算掉的那部分。
 
-**四条实测出来的坑**(改模板前先读):
+**实测出来的坑 · 调用方视角四条**(改模板前先读)。⚠ 与 `templates/layered.ts` 文件头那三条**不是同一份**:
+文件头按"改这个文件时的落点"记(标题盒 / 走廊腰线落位 / 层框形态归作者), 这里按"调用方会踩的四件事"记 ——
+两处各留一个视角, 条数自然各算各的(此处四条 / 文件头三条), 别把差异读成"哪边漏了"。
 
 1. **端口选面只有一种情形能自动** —— 相邻层之间的**竖直通道**(上端在上层末行 ∧ 下端在下层首行,
    或那一端就是层框)。同层边 / 自环 / 跳层边 / 源在中间行一律**当场抛**。实测: 把 `LOOP` 放到服务层
@@ -178,7 +180,7 @@ emitLifecycle({
 bun run templates/lifecycle.ts --out=/tmp/life.svg [--dark]
 ```
 
-内置示例 = `examples/gallery/lifecycle-agent-run.ts`(**3 段带 + 10 状态 + 10 迁移**, 手排 **341 行**)的
+内置示例 = `examples/gallery/lifecycle-agent-run.ts`(**3 段带 + 10 状态 + 10 迁移**, 手排 **339 行**)的
 **同拓扑**版: 决策只有 **33 行 / 23 条** ⇒ 手排税的 **≈ 1/10**(差值就是"起手骨架"替作者算掉的那部分)。
 
 **门禁口径(别把 warning 当成 0)**: 同拓扑下 showcase 档 **0 error**, 但**不是 0 warning** —— 还剩
@@ -208,8 +210,8 @@ bun run templates/lifecycle.ts --out=/tmp/life.svg [--dark]
 (走 `emitLifecycle` 的 `decorate` 口子进, 那条口子只追加、不改骨架的任何一步)。
 
 **两处 core 缺口(未动, 记账)**: ① 没有"层内自动换行"政策(`nodeFit` 按行数给高, 单行更长只能推宽、
-推不动带间距离) ② `assignLanes` 未用(签名不明, 且 `sequence.ts` 也没用过; 走廊错开现由模板自己的
-`laneStep` 排)。详见文末「已知 core 缺口」。
+推不动带间距离) ② `assignLanes` 本模板未用(走廊错开现由模板自己的 `laneStep` 排; 它在模板层的第一个
+消费者是 `layered.ts` 260922)。详见文末「已知 core 缺口」。
 
 ## 什么时候该新写一个模板
 
@@ -261,7 +263,7 @@ bun run templates/lifecycle.ts --out=/tmp/life.svg [--dark]
   **共同地基**: architecture 的层距 / lifecycle 的跨带列距 / workflow 的秩间隙是**同一个问题**
   (跨多格取 max, 且要能读出「是谁顶开的」)
 - **P1 · lifecycle / 状态机**(`stateMachine(states)`) —— 手排税证据最硬(`examples/gallery/lifecycle-agent-run.ts`
-  **341 行**是全仓最大手写示例, 还专门配了版式判据 `test/lifecycle-agent-run.test.ts`); 骨架最规整
+  **339 行**是全仓最大手写示例, 还专门配了版式判据 `test/lifecycle-agent-run.test.ts`); 骨架最规整
   (三条带 × 列推进); 硬骨头是真骨头 —— **终端态回归 / 回边**, archify 自己也没解决(靠作者手写绝对坐标
   `via`), 而这正是我们 260918 刚补的 `via` + 横腰线候选 + `assignLanes` 能吃掉的一口; 可借口径具体
   (列对齐约定: event / terminal 的 `col: N` ⇔ main 的 `col: N+2`; rail 反推; 通道 padding ±36/±34;
@@ -326,6 +328,7 @@ bun run templates/lifecycle.ts --out=/tmp/life.svg [--dark]
   都**没用上**它 —— 阶段带的分隔线自己拼得动, 分层带压根不需要基准线, 所以缺口仍在: 等真有一张
   图型被它绊住再说, 不提前造抽象。
 - **`lifecycle.ts`(260922)的两处缺口** —— 同上那条**没有换行政策**(同一件事在阶段带里表现为
-  "单行更长只推宽, 带间距离不跟着长"), 以及 **`assignLanes` 在模板层仍无消费者**(签名不明 ——
-  参数是"请求"还是"结果"没定, `sequence.ts` 也没用过; 走廊错开现由模板自己的 `laneStep` 排)。
+  "单行更长只推宽, 带间距离不跟着长"), 以及 **`assignLanes` 在 lifecycle 模板里仍无消费者**(走廊
+  错开现由模板自己的 `laneStep` 排) —— `layered.ts` 260922 已是它在模板层的第一个消费者, 别再拿
+  "模板层没人用"当它不成熟的证据(`sequence.ts` 不用它, 是因为序列图没有腰线要摊)。
   两处都在模板侧规避, 细节见上文 `lifecycle.ts` 契约段。

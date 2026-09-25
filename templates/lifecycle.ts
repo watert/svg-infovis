@@ -18,7 +18,7 @@
 //   ③ **跨列段带声明** ⇒ 列距按累积最小值顶开, 且 `plan.needs[].by` 读得出是谁顶开的
 //   ④ 改一个决策(换段序 / 挪一列) ⇒ 产物**变**; 同 spec 跑两遍 ⇒ 逐字节相同
 //   ⑤ 畸形入参当场抛(`ShapeInputError`, 点名字段 + 已知的带 / 状态 id), 不给半成品 scene
-//   ⑥ 决策行数 ≪ 手排量(手排参照 341 行; 本模板 demo 的 spec **33 行 / 23 条决策 ≈ 1/10**, 见文件尾)
+//   ⑥ 决策行数 ≪ 手排量(手排参照 339 行; 本模板 demo 的 spec **33 行 / 23 条决策 ≈ 1/10**, 见文件尾)
 //
 // ── 从决策到产物: 一条单向流水线 ─────────────────────────────────────
 //
@@ -71,9 +71,11 @@ import {
   bounds,
   edgeLabel,
   labelBoxSize,
+  mid,
   nodeFit,
   rectFace,
   resolveKnobs,
+  rightOf,
   solveAxis,
   textNote,
   tryExport,
@@ -595,7 +597,8 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
   const cxOf = (r: Rect): number => r.x + r.w / 2;
   /** 某列盒的左缘 / 某格列距的**正中间**(回边竖走廊的 x = 两侧盒面的中点, 到两盒等距) */
   const boxLeftOf = (col: number): number => Math.round(columns[col] - colW[col] / 2);
-  const railXOf = (g: number): number => (boxLeftOf(g) + colW[g] + boxLeftOf(g + 1)) / 2;
+  // 中点走 `vec.mid`(同一句话别在两处各写一遍): 左邻盒右面 ↔ 右邻盒左面的中点
+  const railXOf = (g: number): number => mid({ x: boxLeftOf(g) + colW[g], y: 0 }, { x: boxLeftOf(g + 1), y: 0 }).x;
 
   /** 去重 + 去共线: 同列下落必须塌成 **2 点直线**(判据 ②), 折点里的重合点也不许留 */
   const squash = (pts: Array<{ x: number; y: number }>): Array<{ x: number; y: number }> => {
@@ -673,11 +676,24 @@ export function buildLifecycle(spec: LifecycleSpec): { scene: Scene; opts: Expor
     // 边标签: 落位由本模板推导, 显式交给 `edgeLabel`(`at` 一给, core 就不再算它自己那套落位)
     if (!s.size || !s.t.label) continue;
     const h = s.size.height / 2 + labelGap;
-    const at = s.family === 'chain' || s.family === 'same-col' && ka === kb && (a.row ?? 0) === (b.row ?? 0)
-      ? { x: (ca + cb) / 2, y: face(ra, s.family === 'chain' ? 'right' : 'bottom').y - h }
-      : s.family === 'same-col'
-        ? { x: ca + labelGap + s.size.width / 2, y: (ra.y + ra.h + rb.y) / 2 }
-        : { x: (ca + cb) / 2, y: laneY(kb, s.lane) - h };
+    let at: { x: number; y: number };
+    if (s.family === 'chain') {
+      // 前行边: 落在这一条横线的中点上方(自身半高 + labelGap)
+      at = { x: (ca + cb) / 2, y: face(ra, 'right').y - h };
+    } else if (s.family === 'same-col') {
+      // 竖线右侧: x 贴线 + labelGap + 半宽; y 取两盒之间的竖直中点(上盒底 ↔ 下盒顶)
+      at = { x: ca + labelGap + s.size.width / 2, y: mid({ x: 0, y: ra.y + ra.h }, { x: 0, y: rb.y }).y };
+    } else if (s.family === 'via') {
+      // **via 单独一支**: 折点是作者声明的绝对坐标, 与 `lane` / "目标带上方的走廊"毫无关系 ——
+      // `via` 的 `s.lane` 恒为 -1(③ 只给 down / back 发通道), 走下面那条 `laneY(kb, -1)` 只会
+      // 算出目标带分隔线上方的**凭空位置**。落位取声明折点串(`squash` 后)的**中段中点** ——
+      // 与其余族"贴着自己那条段"同一口径; 偶数段时取靠后的那一段(`points` 中点法自然如此)。
+      const k = Math.floor((points.length - 1) / 2);
+      at = mid(points[k], points[k + 1]);
+    } else {
+      // 下行 / 回流: 落在各自那条横向走廊上(走廊 y 由 `laneY` 定, 见 ⑥)
+      at = { x: (ca + cb) / 2, y: laneY(kb, s.lane) - h };
+    }
     // tone 与上面那条边同源(260925): 迁移边有肤色(`s.t.tone`, 上面 `edges.push` 那个值), 标签字色跟着走
     labels.push(edgeLabel({ id: s.id, points, tone: s.t.tone }, s.t.label, { at }));
   }
@@ -817,6 +833,8 @@ export const DEMO_LIFECYCLE: LifecycleSpec = {
     { id: 'e-execution-failed', from: 'executing', to: 'failed', tone: 'rose' },
     { id: 'e-failed-retry', from: 'failed', to: 'executing', tone: 'emerald' },
   ],
+  // ⚠ 这 96 在 demo 上**不上屏**: `fit: true` ⇒ 出口 `fitScene` 按内容重定画布, 它只进 `plan.height`
+  //   (给不 fit 的调用方一个兜底); 想让图下方真留出图例位, 得关掉 fit 或把图例画进 scene。
   legendReserve: 96,
 };
 
@@ -836,13 +854,17 @@ export const decorateDemoLegend = (scene: Scene, plan: LifecyclePlan, theme: The
   const texts = [...(scene.texts ?? [])];
   for (const [tone, n] of counts) {
     const content = `${tone} ${n}`;
-    // 版式量: 图例步进宽; 块心 = 文字块顶贴 swatch 顶那一版(at.y 要给中心不是左上)
     const size = labelBoxSize(content);
-    nodes.push({ id: `legend-${tone}`, rect: { x, y, w: SWATCH, h: SWATCH }, tone, variant: 'solid' });
+    // 落位交给 `rightOf`(图例步进宽 = 版式量, 累加**不换 packRow** —— 加法结合序有 ulp 风险):
+    // "文字块在色块右边隔 8px"只该有一份口径; `align: 'start'` = 文字块**顶**贴色块顶, 而
+    // `at.x` 是文字左缘(`anchor: 'start'`)、`at.y` 要的是**块心** —— 两者不是同一个锚点。
+    const swatch: Rect = { x, y, w: SWATCH, h: SWATCH };
+    const box = rightOf(swatch, { w: size.width, h: size.height }, 8, { align: 'start' });
+    nodes.push({ id: `legend-${tone}`, rect: swatch, tone, variant: 'solid' });
     texts.push(textNote({
       id: `legend-text-${tone}`,
       content,
-      at: { x: x + SWATCH + 8, y: y + size.height / 2 },
+      at: { x: box.x, y: box.y + box.h / 2 },
       fontSize: BAND_LABEL_SIZE,
       anchor: 'start',
       color: theme.label,

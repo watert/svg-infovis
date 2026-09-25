@@ -15,7 +15,7 @@
 // 不含 legend(已立项: 模板层记账里挂着这一条, 等它进模板时再补)。
 // =====================================================================
 
-import { THEMES, type Scene } from '../src/index';
+import { THEMES, bounds, type Scene } from '../src/index';
 import { buildSequence, lifelineStyle, type SequenceSpec } from './sequence';
 import { runScene } from '../scripts/runner';
 
@@ -47,7 +47,9 @@ const spec: SequenceSpec = {
   ],
 };
 
-const { scene, opts, plan } = buildSequence(spec);
+// 顶层导出 `scene`: 读数板(`scripts/inspect.ts`)认 `export default` / `export const scene` ——
+// 不出到顶层, `bun run scripts/inspect.ts templates/sequence-archify-style.ts` 只能退 2(用法错)
+export const { scene, opts, plan } = buildSequence(spec);
 
 // --- 后处理 1: 消息语义分色(id = m<行序>, 模板契约; lifeline 压浅灰) ---
 const INK_RETURN = '#6b7280';
@@ -78,7 +80,14 @@ const buildBands = (rows: number[], colLeft: number, colRight: number): Scene['g
     rect: { x: Math.round(colLeft), y: Math.round(rows[6] - bandPadY), w: Math.round(colRight - colLeft), h: Math.round(rows[7] - rows[6] + 2 * bandPadY) } },
 ];
 
-scene.groups = buildBands(plan.rows, plan.columns[0] - 90 - bandPadX, plan.columns[plan.columns.length - 1] + 90 + bandPadX);
+// 带的左右边界 = **actor 盒的并集 ± `bandPadX`**, 走 `bounds` 现算 —— 原写法是手定的魔数 90
+// ("半个 actor 盒宽"的替身), 而四个盒半宽是 47 / 60.5 / 30.5 / 60.5, 没有一个等于它: 带离盒
+// 于是忽远忽近(本图实测 **左 67 / 右 53.5px**), 而 `noCheck` 让门禁对这一档**一言不发**
+// (组语义豁免整条跳过, 没有任何判据盯着"相带离相框内的盒有多远")。
+// 并集 + pad 是一条与盒数 / 谁更宽都无关的判据 ⇒ 左右两侧离盒恒为 `bandPadX`(本图 24px)。
+const actorIds = new Set(spec.actors.map((a) => a.id));
+const bandBox = bounds(scene.nodes.filter((n) => actorIds.has(n.id)).map((n) => n.rect), { pad: bandPadX })!;
+scene.groups = buildBands(plan.rows, bandBox.x, bandBox.x + bandBox.w);
 
 // band 压浅灰细线(archify 观感; 缺省走 theme.groupStroke 是墨色, 太重)
 opts.groupStyles = Object.fromEntries(['band-request', 'band-fallback', 'band-respond'].map((id) => [id, { stroke: '#9ca3af', strokeWidth: 1, dash: '6 5' }]));

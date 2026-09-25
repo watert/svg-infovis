@@ -78,6 +78,7 @@ import {
   THEMES,
   edgeLabel,
   labelBoxSize,
+  mid,
   nodeFit,
   resolveKnobs,
   solveAxis,
@@ -519,8 +520,11 @@ export function buildSequence(spec: SequenceSpec): { scene: Scene; opts: ExportO
       // 环的标签贴在环右侧: x = 环右缘 + labelGap + 半宽; y 居中对齐环高
       ? { x: cxFrom + msgInset + loopW + labelGap + s.size.width / 2, y: y + loopH / 2 }
       // 标签横向**只落在一个列距内**: 贴源侧那一格的中点(跨列消息居中放必被中间泳道线穿过);
-      // 纵向抬到线上方 —— 自身半高 + labelLift
-      : { x: (cxFrom + (s.dir > 0 ? columns[s.from + 1] : columns[s.from - 1])) / 2, y: y - (s.size.height / 2 + labelLift) };
+      // 纵向抬到线上方 —— 自身半高 + labelLift。中点走 `vec.mid`(同一句话别在两处各写一遍)
+      : {
+          x: mid({ x: cxFrom, y: 0 }, { x: s.dir > 0 ? columns[s.from + 1] : columns[s.from - 1], y: 0 }).x,
+          y: y - (s.size.height / 2 + labelLift),
+        };
     // tone 一并烘进标签(260925): 消息边有肤色, 标签的字色就跟着它走 —— 与上面那条
     // `edges.push({ …, tone: s.tone })` 同一个值, 不许在标签这侧另给一个色
     labels.push(edgeLabel({ id, points, tone: s.tone }, s.label, { at }));
@@ -534,7 +538,8 @@ export function buildSequence(spec: SequenceSpec): { scene: Scene; opts: ExportO
   // ⚠ 260920 实测: `opts.fit: true` 下**这两个声明的数根本不上屏** —— `fitScene` 走
   // `contentBounds`(折点列与标签矩形都在内), 把 width/height 砍成 1×1 后产物仍然逐字节相同
   // (内置示例: 声明 632 / 实际产物 586)。所以这里的价值只剩"给不 fit 的调用方一个兜底 +
-  // `plan.width/height` 可读", 而那个式子与 ④ 逐字重复 —— 重构候选本轮不动(记账见 ROADMAP)。
+  // `plan.width/height` 可读", 而那个式子与 ④ 逐字重复 —— 本轮不动: 它只喂"不 fit 的兜底数",
+  // 产物与门禁都不看这个值(没有立项依据)。
   const tailNeed = slots.reduce(
     (acc, s) => (s.self && s.from === actors.length - 1 && s.size
       ? Math.max(acc, msgInset + loopW + labelGap + s.size.width + labelGap)

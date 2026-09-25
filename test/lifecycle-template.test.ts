@@ -194,4 +194,28 @@ describe('templates/lifecycle · 判据', () => {
     expect(buildLifecycle(DEMO_LIFECYCLE).plan.routes.find((x) => x.id === 'e-failed-retry')!.corridor)
       .toBe('above:main/gap:col1|col2');
   });
+
+  it('附 · via 族的标签落在那条**声明折点串的中段中点**上(不是"目标带上方的凭空位置")', () => {
+    // 实测(260925): `via` 的 `s.lane` 恒为 -1(③ 段只给 down / back 发通道), 旧式落位
+    // `laneY(kb, -1)` 算出的是"目标带分隔线上方 + 一格 laneStep" —— 一个与作者声明折点
+    // **毫无关系**的凭空位置(同一条 via 换一组折点, 标签纹丝不动)。
+    const via = [{ x: 300, y: 900 }, { x: 300, y: 20 }, { x: 746, y: 20 }];
+    const spec: LifecycleSpec = {
+      ...DEMO_LIFECYCLE,
+      transitions: DEMO_LIFECYCLE.transitions.map((t) => (t.id === 'e-failed-retry' ? { ...t, label: 'retry', via } : t)),
+    };
+    // 折线 = [源盒面, ...声明折点, 目标盒面] 去共线后 5 点 ⇒ 中段 = via[1] → via[2]
+    const atOf = (s: LifecycleSpec): { x: number; y: number } => {
+      const l = (buildLifecycle(s).scene.labels ?? []).find((x) => x.id === 'L-e-failed-retry');
+      if (!l) throw new Error('scene 里没有 via 那条迁移的标签 —— 改名了就把判据一起改');
+      return l.at;
+    };
+    expect(atOf(spec)).toEqual({ x: (via[1].x + via[2].x) / 2, y: (via[1].y + via[2].y) / 2 });
+    // 判据的要点是"落位跟着**声明折点**走": 折点挪一截, 标签跟着挪(旧式落位不会动)
+    const moved: LifecycleSpec = {
+      ...spec,
+      transitions: spec.transitions.map((t) => (t.id === 'e-failed-retry' ? { ...t, via: [via[0], via[1], { ...via[2], x: 500 }] } : t)),
+    };
+    expect(atOf(moved)).toEqual({ x: (via[1].x + 500) / 2, y: via[2].y });
+  });
 });

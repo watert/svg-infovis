@@ -87,11 +87,13 @@ import {
   assignLanes,
   contentBounds,
   edgeLabel,
+  expandRect,
   fitGroupFrames,
   groupLabelRect,
   laneSlot,
   nodeFit,
   packRow,
+  rectBottom,
   resolveKnobs,
   routeOrthogonal,
   round1,
@@ -425,8 +427,10 @@ export function buildLayered(spec: LayeredSpec): { scene: Scene; opts: ExportOpt
   // 行的"自然宽"= 盒宽和 + 净空; 全图内容宽 = 最宽的那一行。行的落位是**居中**(骑中轴)
   // —— 这条政策只有一条理由: 层与层之间没有共同的左缘, 居中是唯一与"层序"无关的对称解,
   // 且窄行的两侧留白相等(框不会一边空一边挤)。想左右对齐请改行内成员次序, 别改这里。
+  // 行宽 = **那一行铺出来的长度**: 问 `packRow` 要, 不手抄一遍"Σ盒宽 + 净空"(同一句话写两遍必漂)
   const rowWidth = (row: readonly LayeredNode[]): number =>
-    row.reduce((a, n) => a + boxOf(n.id).w, 0) + nodeGapX * (row.length - 1);
+    (packRow({ items: row.map((n) => ({ w: boxOf(n.id).w, h: boxH })), gap: nodeGapX, x0: 0, y: 0 })
+      .bounds as Rect).w;
   const layerRowW = layers.map((l) => l.rows.map(rowWidth));
   const contentW = Math.max(...layerRowW.flat());
   const centerX = margin + contentW / 2;
@@ -511,10 +515,8 @@ export function buildLayered(spec: LayeredSpec): { scene: Scene; opts: ExportOpt
     labelPlacement: 'inner',
     rect: frameMode === 'derived'
       ? { x: 0, y: 0, w: 0, h: 0 } // 占位: 一律被 fitGroupFrames 覆盖(取不到会当场抛, 见下)
-      : {
-          x: round1(centerX - contentW / 2 - layerPad), y: round1(tops[i] - layerPad),
-          w: round1(contentW + 2 * layerPad), h: round1(contentH[i] + 2 * layerPad),
-        },
+      // 显式铺满: 内容盒四边各让出 `layerPad` —— 外扩走 `expandRect`(别手抄一遍"四元各减/加一次")
+      : expandRect({ x: centerX - contentW / 2, y: tops[i], w: contentW, h: contentH[i] }, layerPad),
     ...(frameMode === 'band' ? { frame: 'declared' as const } : {}),
   }));
   const scaffold: Scene = { width: 0, height: 0, nodes, edges: [], groups };
@@ -620,7 +622,9 @@ export function buildLayered(spec: LayeredSpec): { scene: Scene; opts: ExportOpt
       rows: rowYs[i], members: l.rows.flatMap((row) => row.map((n) => n.id)),
     })),
     gaps,
-    corridors: layers.slice(0, -1).map((l, i) => round1((frames.get(layers[i + 1].id) as Rect).y - (frames.get(l.id) as Rect).y - (frames.get(l.id) as Rect).h)),
+    // 走廊高 = 下一层框顶 − 这一层框底(`rectBottom` 就是"底边"的唯一口径, 别手抄 `y + h`)
+    corridors: layers.slice(0, -1).map((l, i) =>
+      round1((frames.get(layers[i + 1].id) as Rect).y - rectBottom(frames.get(l.id) as Rect))),
     boxes: Object.fromEntries(boxes),
     edges: edgePlan,
     lanes: assigned.plan,
