@@ -4,6 +4,7 @@
 //   bun run scripts/inspect.ts path/to/my-scene.ts           # 只读一张表
 //   bun run scripts/inspect.ts path/to/my-scene.ts --metrics # 连 47 个 metrics 一起
 //   bun run scripts/inspect.ts path/to/my-scene.ts --showcase --rows=80
+//   bun run scripts/inspect.ts path/to/my-scene.ts --fit     # 先按内容定画布再审(出口那一步)
 //
 // 260920 从 `examples/inspect.ts` 搬到 `scripts/`: 它是**读数 CLI**(往 stdout 吐一张表, 不是 SVG),
 // 与"出图示例"不同族 —— 留在 examples/ 里, "示例清单"就得为它写一条"这项不出图"的例外。
@@ -33,10 +34,17 @@ import { GROUP_FIT_PAD } from '../src/knives/cluster';
 import { routeOrthogonal } from '../src/knives/route';
 import { type Scene, audit } from '../src/knives/audit';
 import { describeScene } from '../src/knives/describe';
+import { type FitOptions, fitScene } from '../src/export';
 
-const USAGE = `用法: bun run scripts/inspect.ts [<scene-module.ts>] [--metrics] [--showcase] [--rows=N] [--notes=N]
+const USAGE = `用法: bun run scripts/inspect.ts [<scene-module.ts>] [--fit] [--metrics] [--showcase] [--rows=N] [--notes=N]
 
   <scene-module.ts>  导出场景对象的 TS 模块(export default 或 export const scene); 不给则跑内置演示场景
+  --fit              先按内容重定画布, 再 audit —— **与出口 exportScene 同一次序**(先 fit 再审),
+                     于是 \`0×0 + fit\` 那类场景不会再被报成"内容越出画布"(\`single_svg\`)。
+                     缺省**关**: 不给才回答得了"不 fit 直接交付会不会越界"。
+                     fit 参数取模块导出的 \`FIT\`(没有则走 export 的缺省), 读数板不自带一套数字。
+                     ⚠ fit 会**平移原点**(内容贴住 padding), 于是坐标读数跟着平移 —— 加不加 --fit
+                     读数不同是预期, 不是门禁变松
   --metrics          连 metrics 段一起打(缺省只报条数)
   --showcase         用 showcase 档审计(缺省 standard)
   --rows=N           每段最多 N 行(缺省 40)
@@ -132,6 +140,16 @@ export async function loadRedirecting(path: string): Promise<{ mod: Record<strin
 }
 
 /**
+ * `--fit` 打开时读数表挂在最前面的那一行: 说清"**这份读数是 fit 之后的**", 免得读者把
+ * "single_svg 怎么不报了" 读成"门禁被放松了"。fit 参数原样打出来(模块导出的 `FIT` 还是 export 缺省),
+ * 因为"这份读数凭什么长这样"要能一眼对账 —— 但读数板不替出口复述那几个缺省数字(一处事实一处)。
+ */
+const fitNote = (opts: FitOptions, declared: boolean): string =>
+  '# --fit: 读数基于 fit 后场景(先 fitScene 再 audit, 与出口 exportScene 同一次序) —— 坐标已整体平移,'
+  + ` "内容越出画布"(\`single_svg\`)那类误红由 fit 抹平, 门禁判据一条没松; fit 参数 ${JSON.stringify(opts)}`
+  + (declared ? '(模块导出的 FIT)' : '(export 缺省)');
+
+/**
  * 命令体。**导出**(`export`)给 `scripts/cli.ts` 的 `svginfo inspect` 直接调用 ——
  * 读数的三条出口纪律(读数 stdout / 工具话 stderr / 退出码 1 与 2 分开)全在这里守着,
  * CLI 那一层不再复述一遍。`bun run scripts/inspect.ts` 与 `svginfo inspect` 是同一个实现。
@@ -139,12 +157,14 @@ export async function loadRedirecting(path: string): Promise<{ mod: Record<strin
 export async function main(argv: string[]): Promise<number> {
   const positional: string[] = [];
   let metrics = false;
+  let fit = false;
   let level: 'standard' | 'showcase' = 'standard';
   let maxRows: number | undefined;
   let maxNotes: number | undefined;
 
   for (const arg of argv) {
     if (arg === '--metrics') metrics = true;
+    else if (arg === '--fit') fit = true;
     else if (arg === '--showcase') level = 'showcase';
     else if (arg.startsWith('--rows=')) maxRows = Number(arg.slice(7));
     else if (arg.startsWith('--notes=')) maxNotes = Number(arg.slice(8));
@@ -158,6 +178,8 @@ export async function main(argv: string[]): Promise<number> {
   }
 
   let scene: Scene;
+  /** 模块导出的 `FIT`(作者声明的 fit 口径) —— `--fit` 用它, 读数板不另猜一个 padding */
+  let declaredFit: FitOptions | undefined;
   if (positional.length === 0) {
     scene = DEMO;
     console.error('# (没给路径, 跑内置演示场景 —— 指一个 scene 模块路径进来才是正用)');
@@ -179,10 +201,18 @@ export async function main(argv: string[]): Promise<number> {
       fail(`${target} 里没找到场景: 期望 export default <scene> 或 export const scene = <scene>\n  该模块导出的是: ${names.length ? names.join(', ') : '(没有具名导出)'}`);
     }
     scene = got;
+    // `FIT` 是**作者声明的 fit 口径**(与出口 `runScene(scene, { fit: FIT })` 同一个字面量) ——
+    // 不认别的形状: 不是对象就当没声明, 走 export 缺省, 免得读到一个不是 fit 的东西
+    declaredFit = mod.FIT && typeof mod.FIT === 'object' ? (mod.FIT as FitOptions) : undefined;
   }
 
-  const report = audit(scene, { level });     // 只跑一遍, 读数与退出码共用它
-  process.stdout.write(describeScene(scene, { report, include: { metrics }, maxRows, maxNotes }));
+  // `--fit` = **出口那一步先做一遍**(先 fitScene 再审, 同一对象 / 同一份报告)。缺省关是刻意的:
+  // "不 fit 直接交付会不会越界" 只有关着才回答得了; 开了才回答"内容贴住 padding 后长什么样"
+  const fitOpts: FitOptions = declaredFit ?? {};
+  const prepared = fit ? fitScene(scene, fitOpts) : scene;
+  const report = audit(prepared, { level });     // 只跑一遍, 读数与退出码共用它
+  if (fit) process.stdout.write(`${fitNote(fitOpts, declaredFit !== undefined)}\n`);
+  process.stdout.write(describeScene(prepared, { report, include: { metrics }, maxRows, maxNotes }));
   console.error(report.pass
     ? `✓ 门禁通过(${level})`
     : `✗ 门禁不过(${level}): ${report.metrics.errors} error / ${report.metrics.warnings} warning —— 读数已全量打出`);

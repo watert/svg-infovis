@@ -46,8 +46,10 @@ const USAGE = `svginfo · svg-infovis 命令行入口
         ② 场景模块(export default scene / export const scene ← 这种走门禁出口)
         -o 不给则图走 stdout; 诊断一律走 stderr(别 2>&1)
 
-  inspect <scene.ts> [--metrics] [--showcase] [--rows=N] [--notes=N]
+  inspect <scene.ts> [--fit] [--metrics] [--showcase] [--rows=N] [--notes=N]
         不出图, 只 dump 一张读数表(与 \`bun run scripts/inspect.ts\` 同一个实现)
+        --fit: 先按内容定画布再审(与出口 exportScene 同一次序) —— 抹平 \`0×0 + fit\` 场景在读数里
+        的"内容越出画布"(single_svg)误红; 缺省关, 因为"不 fit 会不会越界"只有关着才回答得了
 
   render <scene.ts> [--png out.png] [--max 1400] [转发参数…]
         SVG + 本地栅格化成 PNG(走 scripts/svg2png.sh)

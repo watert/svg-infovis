@@ -53,7 +53,7 @@
 ⚠ **这两半是特意合成一张的**(260920): 主题那一半核色, 底纹那一半核深浅 —— 同属"画布长什么样"的缺省值,
 而 260920 起网格已进 `Theme.grid` 主缺省, 分两个文件反而把"主题 = 色 + 字体 + 底纹"割裂。
 **这三个 key 都是"非出口示例"**(同一个 `style-lab.ts` 分出三档: light / dark 是主题那一半, grid 是底纹那一半):
-并排对照卡, 直接出图**不过门禁**, 判据归 `test/`(这一档量的是观感, 目前还没有断言看着它)。
+并排对照卡, 直接出图**不过门禁**, 判据归 `test/`(这一档量的是观感 —— 观感还没有断言看着它; 而网格那一半的**产物纪律**已有判据 `test/style-lab-grid.test.ts`: 四格 id 两两不同 + 零 `transform`)。
 
 ### templates · 模板示范(源在 `templates/`, 快照仍在这一处)
 
@@ -101,9 +101,10 @@ scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 �
    ② 非零魔数占位 + fit(`harness-arch` 1400×900 / `node-forms` 640×420) ③ 从 `bounds()` 现算 +
    fit(`port-folds`) ④ 手定常量且**不走** fit, 把画布自己算准(`full-chain` 的 `W`/`H`)
    ⑤ 每个分片各给一个常量、裸 `toSVG`(非出口示例 `audit-demo` 的 560×340 / 420×260)。
-   ⚠ 两条代价: **读数板不走 fit**(`scripts/inspect.ts` 直接 `audit(scene)`), 所以 `0×0` 在它眼里
+   ⚠ 两条代价: **读数板缺省不走 fit**(`scripts/inspect.ts` 直接 `audit(scene)`), 所以 `0×0` 在它眼里
    是"全员越界"(实测 `embed-panel`: `single_svg` 点 11 个 offenders / 画布 `[0,0]`)—— 那是
-   **读数板误红**, 图本身没事; 而声明**非零**画布又**不走 fit** 就是真红: 内容越出声明值 →
+   **读数板误红**, 图本身没事(要看出口那份口径就加 `--fit`: 先 `fitScene` 再审, 与 `exportScene`
+   同一次序); 而声明**非零**画布又**不走 fit** 就是真红: 内容越出声明值 →
    `single_svg` → 出口当场抛 `ExportBlockedError`。要么算准, 要么 `0×0` 交给 fit。
 
 ## images/

@@ -393,7 +393,7 @@ const labels = pairLabels(pair, ['Departed From', 'Arrived To'], { offset: 16 })
 - **图标尺寸是"块"的量, 不是盒的量** —— `cardFit` 的 `iconSize` / `iconGap` 必须与 `SceneNode.icon.size` / `.gap` 是**同一对值**, 否则块高与实际墨迹不符(边就会贴着图标画)
 - **换行归作者** —— `lines` 数组的元素就是一行, core **不替你折行**(文案是人的决定)。一行写多长是排版决策, 写长了盒就宽
 - **成对双线的 `gap` 要放得下标签** —— 两条线中间得塞进一个 11px 的标签 + 两侧呼吸位(`PAIR_GAP` 22 就是这个意思), 标签本身还要再往外挪(`PAIR_LABEL_GAP` 14); 端口贴着盒角 + gap 一大, `pair.onFace` 会报"端点滑出面", 那时要么收 gap 要么把端口往里挪
-- **斜线做不了** —— `orthogonal_edges` 要求折线全程正交, 参照图里 45° 的 "Hub For" 这类边这里走 **L 形**(放开斜线是独立决定, 见 `ROADMAP.md`)
+- **斜线做不了** —— `orthogonal_edges` 要求折线全程正交, 参照图里 45° 的 "Hub For" 这类边这里走 **L 形**。放开斜线是**独立决定** —— 而 `ROADMAP.md` 现在**没有**这一项, 真要开得先按纪律 9 / 11 立项(两个方向的反例 + 作者拿哪个旋钮改)
 
 **门禁档**: `showcase`(实体多、边多, "端带蹭边 / 近平行"这类 warning 正是要看的)。
 
