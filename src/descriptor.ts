@@ -57,9 +57,18 @@ export const text = (x: number, y: number, content: string, attrs?: Attrs): DTex
  * 它是 `shapes/inline.ts` 那个发射器的出口 —— 别在别处手拼 spans(解析层在 `geometry/inline-text`)。
  * `content` 仍然写全(纯文本) —— 它是这一行的"内容", 供对账 / 调试 / 未来可能的纯文本渲染器读;
  * 序列化时以 `spans` 为准。
+ *
+ * ⚠ **`xml:space="preserve"` 钉在这里**(260925, 病: 行内标记接壤的空格被吃掉):
+ * 每个 `<tspan>` 是一段**独立的字符数据 chunk**, 而 `xml:space` 缺省档下渲染器**逐 chunk 剥首尾空白** ——
+ * `Object Type: **Airport**` 拆出来的第一段正是 `"Object Type: "`, 那个尾空格在字节里还在、画出来却没了
+ * (rsvg 实测成 `Object Type:Airport`, 而度量面量的是**含空格**的整串 ⇒ 渲染面少画 ~3.5px)。`&#160;`(NBSP)
+ * **不是**解法: 它换个字形, "被剥"这件事本身没解决。钉在**构造器**而不是调用点, 是因为"走 spans ⇒ 多
+ * chunk ⇒ 会挨剥"是 `richText` 自己的事 —— 将来再有一处上屏路径手拼 spans 也自动吃到, 忘不掉。
+ * 单 run 的 `text()` **不钉**: 那串字的首尾空白是作者亲自写的, 而既有产物(全仓 PNG 快照 + 两条基线)
+ * 正盯着"无 span 的老路径逐字节不变"这一条。
  */
 export const richText = (x: number, y: number, spans: DTextSpan[], attrs?: Attrs): DText =>
-  ({ kind: 'text', x, y, content: spans.map((s) => s.text).join(''), attrs, spans });
+  ({ kind: 'text', x, y, content: spans.map((s) => s.text).join(''), attrs: { ...attrs, 'xml:space': 'preserve' }, spans });
 export const group = (children: Descriptor[], attrs?: Attrs): DGroup => ({ kind: 'group', children, attrs });
 export const svg = (w: number, h: number, children: Descriptor[], attrs?: Attrs): DSvg => ({ kind: 'svg', w, h, children, attrs });
 /** 平铺单元(网格底纹的载体): id 供 `fill="url(#id)"` 引用, w/h 即 tile 尺寸 */

@@ -14,6 +14,10 @@
 //   · 单 run 且无样式的行走**老路**: 一个 `<text>`, `attrs` 原样 + 行字重(见下)
 //   · 走 `<tspan>` 的行, `<text>` 上**不写 `font-weight`** —— 字重已由每个 span 自持,
 //     再在父级写一份就是两处事实打架(这正是 260920 那批既有产物的字节: `<tspan font-weight>` 独占字重)
+//
+// 拆成多 chunk 就带上"首尾空白会被渲染器剥掉"这件事(260925): 接壤空格落在 tspan 行尾时图上会消失。
+// 解法 `<text xml:space="preserve">` **钉在 `descriptor.richText` 一处**(不在本文件写 —— 单 run 那条
+// 老路不过那里, 于是它的字节一动都不动)。
 // =====================================================================
 
 import { type Attrs, type Descriptor, type DTextSpan, richText, text } from '../descriptor';
