@@ -301,7 +301,12 @@ export function sceneChildren(scene: Scene, opts: ExportOptions = {}): Descripto
         ? []
         : [labelBoxShape({
             x: l.at.x, y: l.at.y, w: l.width, h: l.height,
-            content: l.text, fontSize: l.fontSize, rotate: l.rotate, theme: opts.theme,
+            content: l.text, fontSize: l.fontSize, rotate: l.rotate, theme,
+            // 取色(260925): 显式 `color` 最高 → `tone` 的**文字槽**(边线取 border 是因为线是描边,
+            // 字是填充 —— 浅色系 border 当字色看不清) → 缺省 `theme.label`(中立标签老观感不变)。
+            // bg 不表态时 `labelBoxShape` 落 `theme.canvas`: 遮罩与画布同色即隐形。
+            bg: l.bg,
+            color: l.color ?? (l.tone ? theme.tones[l.tone].text : undefined),
           })],
     ),
     ...(scene.texts ?? []).flatMap((t) => {

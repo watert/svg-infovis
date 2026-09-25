@@ -221,6 +221,19 @@ export type SceneLabel = {
    * 会以"很窄"的身份通过所有净空判定 —— 而它斜着占的位置是两倍大。
    */
   rotate?: number;
+  /**
+   * 标签**肤色**(语义槽, 与 `SceneNode.tone` / `SceneEdge.tone` 同一口径): 这块标签属于哪一族,
+   * 字色就跟着哪一族走 —— 出口取 `tones[tone].text`(**文字槽**, 不是边线用的 border 槽:
+   * 线是描边、字是填充, 各吃各槽; 浅色系的 border 当字色看不清)。
+   *
+   * 缺省不写 = 中立标签, 字色回落 `theme.label`。它由 `edgeLabel()` **构建期烘进来**
+   * (边有 tone 则标签继承), 渲染期不回头去 join `scene.edges`。
+   */
+  tone?: Tone;
+  /** 遮罩底色的**显式覆盖**(缺省不写 ⇒ 出口用 `theme.canvas`, 遮罩与画布同色即隐形) */
+  bg?: string;
+  /** 文字色的**显式覆盖**(优先级高于 `tone`, 缺省不写 ⇒ 出口按 `tone` → `theme.label` 取值) */
+  color?: string;
 };
 /**
  * 自由文本块(旁注 / 组框说明这类**不属于任何节点标签**的说明文字)。

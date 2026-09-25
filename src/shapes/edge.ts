@@ -134,8 +134,13 @@ export function edgeGeometry(p: EdgeProps): EdgeGeometry {
 // (`points: [{x:0,y:0},{x:1,y:0}]`)。那是"为拿一个数先伪造一个几何对象", 缺的正是 `labelBoxSize`
 // 这个入口。拆开之后两者仍是**同一个公式**算出来的 —— 各写一份必然漂, 那是本仓最贵的事故。
 
-/** 标签遮罩片的三个样式缺省 —— **尺寸公式的系数只有这一份**(上屏与审计同吃它) */
-export const LABEL_BOX_DEFAULTS = { fontSize: 11, padX: 5, padY: 4 } as const;
+/**
+ * 标签遮罩片的三个样式缺省 —— **尺寸公式的系数只有这一份**(上屏与审计同吃它)。
+ *
+ * 260923 把高换成真行块; 260925 顺手把内边距收一档 **5/4 → 4/2** —— 行盒本身已含上下各 ~0.2em
+ * 空白, 再叠 `2×padY` 是双重计呼吸, 遮罩才显得比字胖。11 号单行标签: 23.6 → **19.6**。
+ */
+export const LABEL_BOX_DEFAULTS = { fontSize: 11, padX: 4, padY: 2 } as const;
 
 export type LabelBoxSizeOptions = {
   /** 字号(缺省 `LABEL_BOX_DEFAULTS.fontSize`; 与 `labelBoxShape` 的缺省同值) */
@@ -190,6 +195,18 @@ export type EdgeLabelOptions = LabelBoxSizeOptions & {
   rotate?: number;
   /** 标签 id(缺省 `L-<edge.id>`) */
   id?: string;
+  /**
+   * 标签**肤色**(语义槽) —— 缺省继承 `edge.tone`(这条边属于哪一族, 标签就跟着读哪一族的字色)。
+   * 显式给了就顶掉继承值; 两边都不表态则不写该字段, 文字色仍走 `theme.label`。
+   */
+  tone?: Tone;
+  /**
+   * **显式覆盖遮罩底色**(逃生口)。缺省不写 —— 出口用 `theme.canvas`, 遮罩与画布同色即**隐形**,
+   * 于是标签只剩"切断穿过的线"这个本职; 要回徽章观感(不透明色块)时才给这个值。
+   */
+  bg?: string;
+  /** **显式覆盖文字色**(逃生口)。缺省不写 —— 有 `tone` 走 `tones[tone].text`, 没有走 `theme.label` */
+  color?: string;
 };
 
 /**
@@ -199,8 +216,12 @@ export type EdgeLabelOptions = LabelBoxSizeOptions & {
  *
  * 外层尺寸 = `labelBoxSize(content, o)`(文本度量 + 内边距), 就是上屏遮罩片的尺寸;
  * audit 的 `labelRect()` 用的也是它。
+ *
+ * 取色同走**构建期烘焙**(260925): `edge.tone` 是场景语义, 标签该跟着它变色, 于是在这里
+ * 就烘成 `SceneLabel.tone` —— 出口渲染不回头去看边(scene 的 `labels` 与 `edges` 是两列数据,
+ * 渲染期再 join 一次就是第二个真相)。`bg`/`color` 只在显式给了才写。
  */
-export function edgeLabel(edge: { id: string; points: Pt[] }, content: string, o: EdgeLabelOptions = {}): SceneLabel {
+export function edgeLabel(edge: { id: string; points: Pt[]; tone?: Tone }, content: string, o: EdgeLabelOptions = {}): SceneLabel {
   const size = labelBoxSize(content, o);
   let at: Pt;
   if (o.at) {
@@ -211,6 +232,7 @@ export function edgeLabel(edge: { id: string; points: Pt[] }, content: string, o
   } else {
     at = labelAnchor(edge.points, o.dy ?? 0);
   }
+  const tone = o.tone ?? edge.tone;
   return {
     id: o.id ?? `L-${edge.id}`,
     at,
@@ -220,6 +242,9 @@ export function edgeLabel(edge: { id: string; points: Pt[] }, content: string, o
     text: content,
     fontSize: size.fontSize,
     ...(o.rotate ? { rotate: o.rotate } : {}),
+    ...(tone ? { tone } : {}),
+    ...(o.bg !== undefined ? { bg: o.bg } : {}),
+    ...(o.color !== undefined ? { color: o.color } : {}),
   };
 }
 

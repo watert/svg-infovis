@@ -1,24 +1,30 @@
 // =====================================================================
-// semantic-slots · `shape` 与 `edge.tone` 进 scene(语义槽最后一公里, 260919)
+// semantic-slots · `shape` / `edge.tone` / **标签字色**进 scene(语义槽最后一公里, 260919 → 260925)
 //
-// 两条症状完全同族("作者写了却不上屏"第五、六次):
+// 三条症状完全同族("作者写了却不上屏"第五、六、七次):
 //   · `SceneNode` 没有 `shape` → 菱形 / 圆柱只能靠 `nodeStyles[id].shape` 逃生口进图,
 //     于是"作者在数据表里声明形状"的写法里, 形状是死数据(与 `tone` 当年一模一样);
 //   · `SceneEdge` 没有 `tone` → `edgeShape` 只认 `color`, 复刻脚本里的 `edgeStyles: { tone }`
-//     同样是死数据(实测 `refs/build-arch-v2.ts` 的 violet 虚线边画出来还是灰的)。
+//     同样是死数据(实测 `refs/build-arch-v2.ts` 的 violet 虚线边画出来还是灰的);
+//   · `SceneLabel` 没有 `tone` → 边有肤色而标签的字永远是中性灰, 于是"这块标签属于哪一族"
+//     只能靠逐条 `labelBoxShape` 手塞色值(260925 补上: `edgeLabel` 构建期烘焙, 出口按文字槽取色)。
 //
 // 口径与 `SceneNode.tone` 一致: 形状 / 肤色是**语义**(这一格在图上是什么角色), 不是可派生的
-// 几何量 —— 语义进 scene, 覆盖表退到逐 id 逃生口(优先级更高)。本文件钉四件事:
+// 几何量 —— 语义进 scene, 覆盖表退到逐 id 逃生口(优先级更高)。本文件钉五件事:
 //   ① 能力: 数据表里写的 shape / tone **真上屏**(几何或色值确实变了)
 //   ② 反面: 缺省不给 → 与"覆盖表显式给缺省值"逐字节相同(新路径的缺省落在旧路径同一点上)
 //   ③ 覆盖优先级: `nodeStyles` / `edgeStyles` 显式给值就赢; 表里没表态(undefined)不算覆盖
 //   ④ 端到端: 产物 SVG 里能直接读到形态标与色值(不看描述符, 看真产出的字符串)
+//   ⑤ 标签: 遮罩缺省隐形(画布色)/ chip 仍显形 / 字色随 `tone` 走**文字槽** —— 三条各自钉死
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
 import { type Scene } from '../src/knives/audit';
 import { exportScene, sceneChildren } from '../src/export';
 import { THEMES } from '../src/theme';
+import { edgeLabel } from '../src/shapes/edge';
+import { labelChip } from '../src/shapes/text';
+import { measureText } from '../src/knives/measure';
 import type { DGroup, Descriptor } from '../src/descriptor';
 
 const T = THEMES.light.tones;
@@ -55,7 +61,7 @@ const TONED_EDGES: Scene = {
   ],
 };
 
-describe('semantic-slots · shape 与 edge.tone 从 scene 上屏, 覆盖表仍是逃生口', () => {
+describe('semantic-slots · shape / tone / 标签字色从 scene 上屏, 覆盖表仍是逃生口', () => {
   it('① SceneNode.shape 上屏: 数据表里写的 diamond / cylinder 真出对应形态', () => {
     const [d, c] = groupEls(sceneChildren(SHAPED), 'node');
     expect(d.attrs?.['data-form']).toBe('diamond');
@@ -110,5 +116,68 @@ describe('semantic-slots · shape 与 edge.tone 从 scene 上屏, 覆盖表仍�
     expect(edges.report.pass).toBe(true);
     expect(edges.svg).toContain(T.violet.border);
     expect(edges.svg).toContain(THEMES.light.edge); // 中性那条仍在
+  });
+
+  // --- 260925: 遮罩隐形 + 标签字色跟随 tone(标签这一族的语义槽) ---------
+
+  /** label-box 那块遮罩矩形 / 那行文字 —— 直接读描述符, 不去整串 SVG 里猜 */
+  const labelBox = (children: Descriptor[]) => {
+    const el = groupEls(children, 'label-box')[0];
+    if (!el) throw new Error('scene 里没有 label-box');
+    const r = el.children.find((c) => c.kind === 'rect');
+    const t = el.children.find((c) => c.kind === 'text');
+    if (!r || r.kind !== 'rect' || !t || t.kind !== 'text') throw new Error('label-box 应当是 rect + text');
+    return { mask: r.attrs?.fill, textFill: t.attrs?.fill };
+  };
+
+  /** 一条 violet 的边 + 它自己那条标签(标签要不要跟色, 由用例决定) */
+  const labelScene = (o: { tone?: boolean } = {}): Scene => {
+    const points = [{ x: 40, y: 60 }, { x: 260, y: 60 }];
+    const tone = o.tone ? ('violet' as const) : undefined;
+    return {
+      width: 300, height: 160, nodes: [],
+      edges: [{ id: 'e', points, tone }],
+      labels: [edgeLabel({ id: 'e', points, ...(tone ? { tone } : {}) }, 'Flown By')],
+    };
+  };
+
+  it('① 遮罩默认隐形: 缺省底色 = 画布色(只剩"切断穿过的线"), 显式 `bg` 才显形', () => {
+    expect(labelBox(sceneChildren(labelScene())).mask).toBe(THEMES.light.canvas);
+    const explicit = labelScene();
+    explicit.labels![0].bg = '#fef3c7'; // 出口的逃生口: 显式底色照旧最高
+    expect(labelBox(sceneChildren(explicit)).mask).toBe('#fef3c7');
+  });
+
+  it('② chip 是**徽章**语义: `labelChip` 的缺省底色仍是 `theme.labelBg`(遮罩改色不许带上它)', () => {
+    // 深色主题: `canvas` 与 `labelBg` 是两个色, 所以"补没补回 labelBg"在断言里分得清
+    const chip = labelChip({ x: 60, y: 40, content: 'v1', width: measureText('v1', { fontSize: 11 }).width, theme: THEMES.dark });
+    expect(labelBox([chip]).mask).toBe(THEMES.dark.labelBg);
+    expect(THEMES.dark.labelBg).not.toBe(THEMES.dark.canvas);
+  });
+
+  it('③ tone 走**文字槽**: 字色取 `tones[tone].text`(不是边线那个 border); `color` 最高; 无 tone 仍 `theme.label`', () => {
+    const toned = labelBox(sceneChildren(labelScene({ tone: true })));
+    expect(toned.textFill).toBe(T.violet.text);
+    expect(toned.textFill).not.toBe(T.violet.border); // 浅色系 border 当字色看不清 —— 各吃各槽
+    // 旧标签(无 tone/bg/color)字色一个字节都不变, 只有遮罩底色换了
+    expect(labelBox(sceneChildren(labelScene())).textFill).toBe(THEMES.light.label);
+    const forced = labelScene({ tone: true });
+    forced.labels![0].color = '#dc2626';
+    expect(labelBox(sceneChildren(forced)).textFill).toBe('#dc2626');
+  });
+
+  it('④ `edgeLabel` 构建期烘焙 tone: 边带 tone 则继承, options 顶掉, 都没表态就不写该字段', () => {
+    const points = [{ x: 0, y: 0 }, { x: 120, y: 0 }];
+    const inherit = edgeLabel({ id: 'e', points, tone: 'violet' }, 'x');
+    expect(inherit.tone).toBe('violet');
+    expect(inherit.bg).toBeUndefined();
+    expect(inherit.color).toBeUndefined();
+    // 继承不是"只有一层": options 显式给的赢
+    expect(edgeLabel({ id: 'e', points, tone: 'violet' }, 'x', { tone: 'rose' }).tone).toBe('rose');
+    // 都不表态 ⇒ 字段本身不写(出口按"没有 tone"走 `theme.label`, 老产物字节不变)
+    const bare = edgeLabel({ id: 'e', points }, 'x');
+    expect('tone' in bare).toBe(false);
+    expect('bg' in bare).toBe(false);
+    expect(edgeLabel({ id: 'e', points }, 'x', { bg: '#fff', color: '#000' })).toMatchObject({ bg: '#fff', color: '#000' });
   });
 });

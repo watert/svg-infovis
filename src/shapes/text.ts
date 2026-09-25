@@ -6,6 +6,10 @@
 //
 // 偷自 Archify 的 c-mask 与 Infographic 的 backgroundColor chip(设计稿 §6.5):
 // 两家都做了 = 遮线是刚需不是装饰。label_clearance 门禁的检测对象是线, 遮罩是成本最低的修法。
+//
+// 遮罩**默认隐形**(260925): `labelBoxShape` 的缺省 `bg` 是 `theme.canvas` —— 与画布同色就只剩
+// "切断穿过的线"这个本职(半透明 / 同色块上压一条线仍读得断), 不再是一块比字大的浅灰徽章。
+// **chip 是另一档语义**(徽章 = 作者要它显形), 所以 `labelChip` 把缺省补回 `theme.labelBg`。
 // =====================================================================
 
 import { type Attrs, type Descriptor, type TextAnchor, type Baseline, anchorAttrs, baselineY, group, rect, text } from '../descriptor';
@@ -91,7 +95,12 @@ export type LabelBoxProps = {
   content: string;
   fontSize?: number;
   weight?: number;
+  /** 文字色(缺省 `theme.label`); 有 `tone` 的标签由出口给成 `tones[tone].text` */
   color?: string;
+  /**
+   * 遮罩底色 —— **缺省 `theme.canvas`**: 与画布同色 ⇒ 遮罩隐形, 只剩"切断穿过的线"的本职。
+   * 要显形的徽章观感(不透明色块 / tint 底)才显式给值, chip 那条路径由 `labelChip` 补上。
+   */
   bg?: string;
   radius?: number;
   /**
@@ -119,7 +128,7 @@ export function labelBoxShape(p: LabelBoxProps): Descriptor {
   const block = rowBlock(lines.length, size * NODE_TEXT_LAYOUT.lineGapEm);
   const box = group(
     [
-      rect(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, p.radius ?? 4, { fill: p.bg ?? theme.labelBg, stroke: 'none' }),
+      rect(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, p.radius ?? 4, { fill: p.bg ?? theme.canvas, stroke: 'none' }),
       ...lines.map((line, i) => text(p.x, baselineY(p.y + block.offsets[i], size, 'central'), line, {
         ...anchorAttrs('middle'),
         'font-size': size,
@@ -143,6 +152,7 @@ export function labelChip(p: ChipProps): Descriptor {
   // width/height 是**必填**的度量结果 —— 缺了它 chip 会变成一个 NaN 宽度的矩形, 被渲染器静默吞掉
   assertFiniteNumber('labelChip', 'width', p.width, '宽度来自 measureText(); 空字符串也会得到 0, 而不是 undefined');
   if (p.height !== undefined) assertFiniteNumber('labelChip', 'height', p.height);
+  const theme = p.theme ?? DEFAULT_THEME;
   const size = p.size ?? 11;
   const h = p.height ?? size + 6;
   const w = p.width + (p.padX ?? 6) * 2;
@@ -151,6 +161,8 @@ export function labelChip(p: ChipProps): Descriptor {
   const left = anchor === 'middle' ? p.x - w / 2 : anchor === 'end' ? p.x - w : p.x;
   return labelBoxShape({
     x: left + w / 2, y: p.y, w, h, content: p.content, fontSize: size,
-    weight: p.weight, color: p.color, bg: p.bg, radius: p.radius, theme: p.theme,
+    // chip 是**徽章语义**(作者要它显形), 所以在这里把缺省补回 `theme.labelBg` ——
+    // `labelBoxShape` 的缺省已改成画布色(遮罩隐形), 本行是唯一让老观感原地不动的地方
+    weight: p.weight, color: p.color, bg: p.bg ?? theme.labelBg, radius: p.radius, theme,
   });
 }
