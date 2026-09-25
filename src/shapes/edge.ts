@@ -157,7 +157,7 @@ export const LABEL_BOX_DEFAULTS = { fontSize: 11, padX: 3, padY: 1 } as const;
  *     也有 1.42× 字号高, 遮线片于是又长回徽章。
  *
  * **行心间距(`gap`)仍取 `fontSize × NODE_TEXT_LAYOUT.lineGapEm`**, 一行不改: 那是渲染时真正的
- * 行间 pitch。11 号下 gap 13.75 > 墨迹高 12.9, 所以多行**不会叠**; 并集高 = `(n−1)×gap + 墨迹高`。
+ * 行间 pitch。11 号下 gap 13.75 > 墨迹高 12.8, 所以多行**不会叠**; 并集高 = `(n−1)×gap + 墨迹高`。
  * 两侧都乘 `ESTIMATE_SAFETY_FACTOR`(与 `measureText` 同源), 免得估窄了字探出遮罩。
  */
 export const MASK_ROW_INK_EM = 1.15;
