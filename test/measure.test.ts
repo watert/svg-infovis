@@ -13,12 +13,13 @@
 import { describe, expect, it } from 'bun:test';
 import {
   ADVANCE_PER_UNIT_EM,
-  BOLD_ADVANCE_GAIN,
   ESTIMATE_SAFETY_FACTOR,
   LINE_HEIGHT_EM,
   measureText,
   textUnits,
 } from '../src/knives/measure';
+// 粗体加宽住在行内标记的表里(度量与渲染同一处读它); 这里只借来当期望值
+import { INLINE_STYLE } from '../src/geometry/inline-text';
 
 /** 按 units 加权的期望宽度: 单位表 × 推进宽度 × 字号, 再乘估算余量 */
 const weightedWidth = (units: number, fontSize: number): number =>
@@ -133,7 +134,7 @@ describe('measure · 字符宽度表与文本估算', () => {
     // 600 与 700 同一档(阈值 600), 都严格宽于常规
     expect(semibold).toBe(bold);
     expect(bold).toBeGreaterThan(normal);
-    expect(bold / normal).toBeCloseTo(1 + BOLD_ADVANCE_GAIN, 2);
+    expect(bold / normal).toBeCloseTo(1 + INLINE_STYLE.bold.advanceGain, 2);
     // 300(light) 走常规档, 不加宽
     expect(measureText('abcd', { ...o, weight: 300 }).width).toBe(normal);
     // 字重不影响高度

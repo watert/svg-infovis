@@ -12,13 +12,15 @@
 // **chip 是另一档语义**(徽章 = 作者要它显形), 所以 `labelChip` 把缺省补回 `theme.labelBg`。
 // =====================================================================
 
-import { type Attrs, type Descriptor, type TextAnchor, type Baseline, anchorAttrs, baselineY, group, rect, text } from '../descriptor';
+import { type Attrs, type Descriptor, type TextAnchor, type Baseline, anchorAttrs, baselineY, group, rect } from '../descriptor';
 import { DEFAULT_THEME, type Theme, type Tone } from '../theme';
 import { assertFiniteNumber } from '../guard';
 import { round1 } from '../geometry/vec';
 // 多行遮罩片(260923): 行心堆叠走共用几何, 行距取与节点标签 / 旁注同一份口径
 import { rowBlock } from '../geometry/text-rows';
 import { NODE_TEXT_LAYOUT } from './node';
+// 行内标记(260925): 遮罩片与旁注的文字**与节点标签同一份发射器** —— 三家各画各的正是双源
+import { inlineTextRow } from './inline';
 
 export type TextProps = {
   x: number;
@@ -58,7 +60,13 @@ export function textShape(p: TextProps): Descriptor {
   if (p.size !== undefined) assertFiniteNumber('textShape', 'size', p.size);
   const size = p.size ?? 12;
   // 把垂直对齐吸收进 y 坐标: 属性里不再出现 dominant-baseline
-  return text(p.x, baselineY(p.y, size, p.baseline ?? 'baseline'), p.content, textAttrs(p));
+  // 上屏走 `shapes/inline` 那唯一一份行发射器 —— 于是**旁注里也能写行内标记**(260925):
+  // 过去这里画纯文本, 而度量面(`measureText`)早按 run 加宽, 旁注的 `**粗**` 就成了
+  // "量的宽度认它、画出来的星号也认它"的双源(`textAttrs` 里那份 `font-weight` 会被发射器接管)
+  return inlineTextRow({
+    x: p.x, y: baselineY(p.y, size, p.baseline ?? 'baseline'),
+    content: p.content, weight: p.weight, theme: p.theme, attrs: textAttrs(p),
+  });
 }
 
 export type ChipProps = TextProps & {
@@ -129,12 +137,10 @@ export function labelBoxShape(p: LabelBoxProps): Descriptor {
   const box = group(
     [
       rect(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, p.radius ?? 4, { fill: p.bg ?? theme.canvas, stroke: 'none' }),
-      ...lines.map((line, i) => text(p.x, baselineY(p.y + block.offsets[i], size, 'central'), line, {
-        ...anchorAttrs('middle'),
-        'font-size': size,
-        'font-weight': p.weight,
-        fill: p.color ?? theme.label,
-        'font-family': 'inherit',
+      ...lines.map((line, i) => inlineTextRow({
+        x: p.x, y: baselineY(p.y + block.offsets[i], size, 'central'), content: line,
+        weight: p.weight, theme,
+        attrs: { ...anchorAttrs('middle'), 'font-size': size, fill: p.color ?? theme.label, 'font-family': 'inherit' },
       })),
     ],
     { 'data-shape': 'label-box' },

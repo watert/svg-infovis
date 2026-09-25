@@ -23,14 +23,14 @@
 // 需要单点例外(如 audit 演示里的违规红)时才用 fill/stroke/textColor 直接覆盖。
 // =====================================================================
 
-import { type Attrs, type DGroup, type Descriptor, anchorAttrs, baselineY, group, path, richText, text } from '../descriptor';
+import { type Attrs, type DGroup, type Descriptor, anchorAttrs, baselineY, group, path } from '../descriptor';
 import { DEFAULT_THEME, type Theme, type Tone, type Variant, toneStyle } from '../theme';
 import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard';
 import { type Tangent, radiusPolygonPath } from '../geometry/rounded-path';
 import { rowBlock } from '../geometry/text-rows';
-import { parseTextRuns } from '../geometry/inline-text';
 import { type Pt, type Rect, fmt, round1 } from '../geometry/vec';
 import { type NodeIcon, iconRect, iconShape } from './icon';
+import { inlineTextRow } from './inline';
 
 /** 形状词表。**运行时值与类型同源**(`NodeShapeKind` 由它推出) —— 加一种形状只改这里一处 */
 export const NODE_SHAPE_KINDS = ['rect', 'diamond', 'cylinder'] as const;
@@ -66,7 +66,8 @@ export type NodeProps = {
    * **主标签的字重**(缺省 600, 即标题档)。**卡片这类"正文块"要显式给 400** ——
    * 400 与 600 的估算宽差 3%, 所以它必须与 `nodeFit` / `cardFit` 算盒时用的那个数同源,
    * 否则又是"盒按一个字重量、字按另一个字重画"。
-   * (行内 `**粗**` 那几截恒取 `max(字重, 600)` —— 与 `measureText` 里那条逐字同源。)
+   * (行内 `**粗**` 那几截恒取 `max(字重, 600)` —— 与 `measureText` 里那条逐字同源; 600 这个数
+   * 住在 `geometry/inline-text` 的 `INLINE_STYLE.bold`, 两处读同一份。)
    */
   weight?: number;
   /**
@@ -363,26 +364,19 @@ export function nodeShape(p: NodeProps): DGroup {
       // 副标签恒 400(它是注释, 不跟主标签的字重走); 主标签行走 `p.weight`(缺省 600 = 老行为)
       const rowWeight = row.rowSize === size ? baseWeight : 400;
       const y = baselineY(lineCy, row.rowSize, 'central');
-      const common: Attrs = {
-        ...anchorAttrs(anchor), 'font-size': row.rowSize, fill: ink,
-        ...(row.dim ? { opacity: 0.72 } : {}), 'font-family': 'inherit',
-      };
-      const runs = parseTextRuns(row.content);
-      // 字重缺省值 400 不输出(老产物字节不变: 过去主标签写 600、次标签一个字都不写)
+      // 字重是 CSS 数值, 不是有限数就当场抛(不许写进产物里变成 `<tspan font-weight="NaN">`)
       if (!Number.isFinite(rowWeight)) {
         throw new ShapeInputError('nodeShape', 'weight', `不是有限数(${rowWeight})`, '字重是 CSS 数值, 缺省 600');
       }
-      if (runs.length === 1 && !runs[0].bold) {
-        children.push(text(anchorX, y, runs[0].text, {
-          ...common, ...(rowWeight === 400 ? {} : { 'font-weight': rowWeight }),
-        }));
-      } else {
-        // 行内 `**粗**`: 走 `<tspan>`(见 descriptor.richText)。粗体档取 `max(行字重, 600)` ——
-        // 与 `measureText` 里逐 run 的加宽判据**逐字同源**, 两边算的是同一段文字
-        children.push(richText(anchorX, y, runs.map((r) => ({
-          text: r.text, weight: r.bold ? Math.max(rowWeight, 600) : rowWeight,
-        })), common));
-      }
+      // 行内标记(加粗 / 斜体 / 删除线 / 着色)的上屏走 `shapes/inline` 那**唯一一份** ——
+      // 边标签与旁注吃的是同一个函数, 于是三处不可能再"量的认、画的不认"
+      children.push(inlineTextRow({
+        x: anchorX, y, content: row.content, weight: rowWeight, theme,
+        attrs: {
+          ...anchorAttrs(anchor), 'font-size': row.rowSize, fill: ink,
+          ...(row.dim ? { opacity: 0.72 } : {}), 'font-family': 'inherit',
+        },
+      }));
     });
   }
   // 废除叉: 两条对角线压在文字**之后**(连文字一起划掉), 端点贴盒角不出盒 —— 装饰线不参与净空审计

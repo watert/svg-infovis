@@ -37,11 +37,16 @@ export function serialize(d: Descriptor, depth = 0): string {
       return `${pad}<rect x="${fmt(round1(d.x))}" y="${fmt(round1(d.y))}" width="${fmt(round1(d.w))}" height="${fmt(round1(d.h))}"${rx}${attrsToStr(d.attrs)} />`;
     }
     case 'text':
-      // 富文本(分段字重)走 `<tspan>`: 只有写了 weight 的那几段输出属性, 其余继承 `<text>`
-      // (260920 卡片的行内 `**粗**`)。无 spans 的老路径输出**逐字节不变**
+      // 富文本(分段样式)走 `<tspan>`: 只有写了属性那几段输出属性, 其余继承 `<text>`
+      // (260920 卡片的行内 `**粗**`, 260925 加斜体 / 删除线 / 行内色)。
+      // `weight` 排在最前且走 `fmt`(2 位小数) —— 首版只有它一位, 那个字节不许动; `attrs` 走
+      // `attrsToStr` 那套键序。无 spans 的老路径输出**逐字节不变**
       if (d.spans) {
         const inner = d.spans
-          .map((s) => `<tspan${s.weight === undefined ? '' : ` font-weight="${fmt(round1(s.weight))}"`}>${escapeXml(s.text)}</tspan>`)
+          .map((s) => {
+            const head = s.weight === undefined ? '' : ` font-weight="${fmt(round1(s.weight))}"`;
+            return `<tspan${head}${attrsToStr(s.attrs)}>${escapeXml(s.text)}</tspan>`;
+          })
           .join('');
         return `${pad}<text x="${fmt(round1(d.x))}" y="${fmt(round1(d.y))}"${attrsToStr(d.attrs)}>${inner}</text>`;
       }

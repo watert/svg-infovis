@@ -22,7 +22,7 @@
 // =====================================================================
 
 import { round1 } from '../geometry/vec';
-import { needsTextParse, parseTextRuns } from '../geometry/inline-text';
+import { INLINE_STYLE, needsTextParse, parseTextRuns } from '../geometry/inline-text';
 
 // --- 度量参数(宽度表的全部可调旋钮) ----------------------------------
 
@@ -44,15 +44,10 @@ export const LINE_HEIGHT_EM = 1.4;
 export const ESTIMATE_SAFETY_FACTOR = 1.015;
 
 /**
- * 粗体加宽: 3%。600 及以上按粗体算。
- * 推断值, 无 Archify 对位 —— 它的渲染侧确实有 `font-weight="600/700"` 的 label
- * (`render-dataflow.mjs:394` / `render-lifecycle.mjs:460`), 但量宽一律用同一个 0.6, 不区分字重。
- * core 不持有字体, 只能在推进宽度上给粗体一个经验加宽; 方向同上: 宁宽不窄。
+ * 粗体加宽与粗体阈值**不在这里** —— 它们是行内标记的一种, 住在 `geometry/inline-text` 的
+ * `INLINE_STYLE.bold`(`advanceGain` / `weight`): 度量与渲染必须读同一份, 各写一个 0.03 或 600
+ * 就是把"量的是这串、画的是另一串"请回来(260925 隐患①)。本次调用点见 `measureText`。
  */
-export const BOLD_ADVANCE_GAIN = 0.03;
-
-/** 粗体阈值(与 CSS font-weight 同档: 600 = semibold 起算) */
-const BOLD_WEIGHT = 600;
 
 // --- East Asian Width (W/F) 区间表 ------------------------------------
 
@@ -109,7 +104,7 @@ export function textUnits(text: string): number {
 export type MeasureOptions = {
   /** 字号(px) */
   fontSize: number;
-  /** 字重(CSS 数值): 600 及以上按粗体加宽 `BOLD_ADVANCE_GAIN` */
+  /** 字重(CSS 数值): 行内粗体取 `max(本值, INLINE_STYLE.bold.weight)` 后按粗体加宽 */
   weight?: number;
   /** 字距(px): 逐渲染字符累加(与 CSS/SVG letter-spacing 的"每字符后加一次"同口径) */
   letterSpacing?: number;
@@ -127,23 +122,27 @@ export type MeasureResult = {
  * 单行文本的估算尺寸(px)。纯函数: 同输入必同输出(不受字体 / 环境 / 时间影响)。
  * 数值走 `round1` 收口, 与 core 其余出口一致(README 契约 3: 字节确定)。
  *
- * **行内加粗(260920)**: 文本里的 `**粗**` 会按 run 逐段累加宽度(粗体那几段吃
- * `BOLD_ADVANCE_GAIN`)。这件事必须在**度量**这一层做而不是各自在渲染/门禁里做 ——
- * 否则 `label_fit` 量的是"带星号的那串字"、画出来的是"粗体那截字", 两边算的不是同一段文字。
+ * **行内样式(260920 加粗, 260925 加斜体 / 删除线 / 着色)**: 文本里的标记会先经
+ * `parseTextRuns` 拆成 run, 再逐 run 累加宽度 —— 这件事必须在**度量**这一层做, 而不是各自在
+ * 渲染 / 门禁里做: 否则 `label_fit` 量的是"带星号的那串字"、画出来的是"粗体那截字"。
+ * 目前只有**粗体**改宽(`INLINE_STYLE.bold.advanceGain`): 斜体在正体字宽上摆动方向不定、
+ * 删除线是 `text-decoration` 属性、着色只换色 —— 三者都不进推进宽度(它们也都不进行高)。
  * 无标记的文本走单 run 快路径, 结果与加 run 支持之前**逐字节相同**(既有 golden 不动)。
  */
 export function measureText(text: string, opts: MeasureOptions): MeasureResult {
   const base = opts.weight ?? 400;
-  const runs = needsTextParse(text) ? parseTextRuns(text) : [{ text, bold: false }];
+  const runs = needsTextParse(text) ? parseTextRuns(text) : [{ text, start: 0, end: text.length }];
   let units = 0;
   let chars = 0;
   let advanceEm = 0;
   for (const run of runs) {
     const scan = scanUnits(run.text);
-    const bold = (run.bold ? Math.max(base, BOLD_WEIGHT) : base) >= BOLD_WEIGHT;
+    // 加宽判据用的字重与渲染面**同一条式子**(`max(行字重, 粗体档位)`), 表也只读同一份
+    const w = run.style?.bold ? Math.max(base, INLINE_STYLE.bold.weight) : base;
+    const gain = w >= INLINE_STYLE.bold.weight ? 1 + INLINE_STYLE.bold.advanceGain : 1;
     units += scan.units;
     chars += scan.chars;
-    advanceEm += scan.units * ADVANCE_PER_UNIT_EM * (bold ? 1 + BOLD_ADVANCE_GAIN : 1);
+    advanceEm += scan.units * ADVANCE_PER_UNIT_EM * gain;
   }
   const width = advanceEm * opts.fontSize + (opts.letterSpacing ?? 0) * chars;
   const height = opts.fontSize * LINE_HEIGHT_EM;

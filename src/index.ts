@@ -7,13 +7,16 @@ export * from './geometry/predicates';
 // 行块几何(260920): 多行文本"居中堆叠"的**唯一一份**公式 —— 节点标签(shapes/node.ts) /
 // 旁注(export.ts) / 反算(knives/fit.ts) 三方共读。排在最前的几何层: 它零依赖
 export * from './geometry/text-rows';
-// 行内文字标记(`**粗**`)的解析(260920): 度量(knives/measure)与渲染(shapes/node)同一份来源。
-// 排在最前的几何层 —— 它零依赖
+// 行内文字标记(`**粗**` / `*斜*` / `~~删~~` / `[字]{accent}`)的解析(260920, 260925 扩到四种)。
+// 度量(knives/measure)与渲染(shapes/inline)同一份来源。排在最前的几何层 —— 它零运行期依赖
 export * from './geometry/inline-text';
 export * from './descriptor';
 export * from './theme';
 export * from './serialize';
 export * from './guard';
+// 行内标记的**唯一上屏器**(260925): 行内容串 → `<text>` ± `<tspan>`。`shapes/node` / `shapes/text`
+// / `export.ts` 三家都吃它 —— 排在它们之前(被依赖的先出)
+export * from './shapes/inline';
 export * from './shapes/node';
 export * from './shapes/edge';
 export * from './shapes/group';

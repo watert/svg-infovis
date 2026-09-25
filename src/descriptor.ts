@@ -17,8 +17,13 @@ export type DCircle = { kind: 'circle'; cx: number; cy: number; r: number; attrs
 export type DRect = { kind: 'rect'; x: number; y: number; w: number; h: number; rx?: number; attrs?: Attrs };
 export type DTextSpan = {
   text: string;
-  /** 字重(CSS 数值)。写了的才输出属性 —— 缺省与 `<text>` 一致 */
+  /**
+   * 字重(CSS 数值)。**单独一位**而不是并进 `attrs`: 它走 `fmt`(2 位小数)口径,
+   * 与 260920 首版 `<tspan font-weight="400.00">` 的字节一致。
+   */
   weight?: number;
+  /** 其余行内样式属性(斜体 / 删除线 / 行内色 …): 键序由序列化器统一排 */
+  attrs?: Attrs;
 };
 export type DText = { kind: 'text'; x: number; y: number; content: string; attrs?: Attrs; spans?: DTextSpan[] };
 export type DGroup = { kind: 'group'; children: Descriptor[]; attrs?: Attrs };
@@ -44,10 +49,12 @@ export const rect = (x: number, y: number, w: number, h: number, rx?: number, at
 export const text = (x: number, y: number, content: string, attrs?: Attrs): DText => ({ kind: 'text', x, y, content, attrs });
 
 /**
- * 富文本: 一行里**分段不同字重**(`**粗**` 那种)。走 `<tspan>` 而不是"每段一个 `<text>` 元素 +
- * 自己累加 x" —— 后者的段间距由 core 的估算宽决定, 而渲染器用的是真字体, 两把尺子必然在
- * 段的接缝处露出破绽(字挤在一起或裂开一条缝)。`<tspan>` 让**渲染器自己接**, 接缝不存在。
+ * 富文本: 一行里**分段不同样式**(`**粗**` / `*斜*` / `~~删~~` / `[字]{accent}`)。走 `<tspan>`
+ * 而不是"每段一个 `<text>` 元素 + 自己累加 x" —— 后者的段间距由 core 的估算宽决定, 而渲染器
+ * 用的是真字体, 两把尺子必然在段的接缝处露出破绽(字挤在一起或裂开一条缝)。`<tspan>` 让
+ * **渲染器自己接**, 接缝不存在。
  *
+ * 它是 `shapes/inline.ts` 那个发射器的出口 —— 别在别处手拼 spans(解析层在 `geometry/inline-text`)。
  * `content` 仍然写全(纯文本) —— 它是这一行的"内容", 供对账 / 调试 / 未来可能的纯文本渲染器读;
  * 序列化时以 `spans` 为准。
  */

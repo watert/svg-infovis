@@ -61,7 +61,8 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 | 成对关系 | `routePair` + `pairLabels` |
 | 组框 | 跟随内容: `fitGroupFrames`。版式本身: `bounds` + `frame: 'declared'`。不要两套都走 |
 | 摆一行 / 一列 / 等距格 | `packRow` / `packCol` / `grid`。签名在 README |
-| 边标签 | `edgeLabel`(`content` 里的 `\n` 拆多行; 遮罩缺省同画布色 = **隐形**, `tone` 跟边的肤色走字)。要宽度只认 `labelBoxSize` |
+| 边标签 | `edgeLabel`(`content` 里的 `\n` 拆多行; `tone` 跟边色走字, 遮罩缺省同画布色 = 隐形)。要宽度只认 `labelBoxSize` |
+| 一行字里**加粗 / 斜体 / 删除线 / 着色** | 内容串里直接写标记: `**粗**` `*斜*` `~~删~~` `[字]{rose}`(或 `[字]{#b91c1c}`) —— 三处文字面(节点标签 / 边标签 / 旁注)同一份解析与发射器。规矩与落单退字面量见 `QUICKREF.md` 的「行内标记」 |
 | 旁注 / 自由文本块 | `textFit` + `placeText`, 一步到位用 `textNote`; 声明归属加 `owner`(只声明归属, 不做落位) |
 | 图标 | `iconAsset` 从 `svg-infovis/icons/lucide` 引 (不进 barrel)。边对着 `iconInkRect` |
 | 整幅外来 SVG | `embedAsset` → `scene.embeds`。不进净空门禁 |

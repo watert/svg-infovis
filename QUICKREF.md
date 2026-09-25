@@ -140,6 +140,33 @@ bun run scripts/inspect.ts /path/to/my-scene.ts --metrics --rows=80 --showcase
 | 这个框是**纯视觉分区**(band / region, 泳道线横穿是常态) | `SceneGroup.noCheck: true`(别写 `contains`) | 写 `contains` 会被 `cluster_border_clearance` 判成"切断分组" |
 | **单点例外**(这一格就是那个颜色) | 出口覆盖表 `nodeStyles` / `edgeStyles` / `groupStyles` | 逃生口, 优先级永远最高 —— 但"角色"该写在 scene 里, 别让"哪一格是什么角色"只活在一张按 id 索引的表里 |
 
+## 行内标记(一行字里的四种样式) — 260925
+
+任何**文字内容串**里都能写字面标记(`label` / `sub` / `SceneText.text` / `edgeLabel` 的 content / 组框标签): 三个渲染面(节点标签 / 边标签遮罩片 / 旁注)与度量面(`measureText` ← `label_fit` / `nodeFit` / `labelBoxSize`)**读同一份 run 表**, 所以量出来的宽就是画出来的宽。
+
+| 写什么 | 效果 | 例 |
+|---|---|---|
+| `**粗**` | 粗体。**唯一会改宽**的标记(推进宽 +3%), 档位 `max(行字重, 600)` | `Object Type: **Airport**` |
+| `*斜*` | 斜体(`font-style`)。最长匹配: 先认 `**` 再认 `*` | `*见附录 B*` |
+| `~~删~~` | 删除线(`text-decoration` 属性, 不画线) | `~~旧接口~~` |
+| `[字]{accent}` | 这段字**着色**: `{…}` 里是 tone 名(`slate` / `blue` / `emerald` / `amber` / `rose` / `violet` / `teal`, 取该族的**文字槽**)或直接写 `#hex` / CSS 色 | `[危险]{rose}` / `[注]{#b91c1c}` |
+
+四条规矩(每条都有反证用例):
+
+1. **成对才作数, 落单退字面量** —— `a ** b` 里的星号**留在图上**(看得见, 于是自己暴露), 不吞字符、不抛错
+2. **标记紧贴内容**(开标记右边、闭标记左边不能是空白) —— 通配符 `agent/* 与 tools/* 瀑布` 是两个星号, **不是**一段斜体。要写紧贴空白的字面星号用 `\*`
+3. **转义**: `\*` `\~` `\[` `\]` `\{` `\}` `\\` 拿掉反斜杠留字符, 且该字符不参与配对
+4. **嵌套只认不交叉** —— `**粗 *斜* 粗**` 两条都在(样式合并); 交叉(`*a **b* c**`)时**内层那个开标记退字面量**
+
+样式**从不改变文本长度**(`runs.join('') === plainText(text)` 是硬不变式), 斜体 / 删除 / 着色也**都不改宽高** —— 只有粗体那截吃掉 3% 推进宽。定位靠 `TextRun.start/end`(原串下标): 报"第几列写歪了"用得上。
+
+```ts
+nodeShape({ x, y, w, h, label: 'Status: **ready** · 见 [附录]{blue}' })
+edgeLabel(edge, '**过审** 才往下走')          // 边标签一样认(旧版这里画的是两个字面星号)
+```
+
+新增一种样式只改 `geometry/inline-text.ts` 的 `INLINE_STYLE` 表一处(标记 / 加宽 / 渲染属性同一处声明)。上屏入口是 `shapes/inline.ts` 的 `inlineTextRow` —— **别再手写第二份 `<tspan>` 拼装**。
+
 ## 诊断怎么读
 
 每条诊断 = `code / severity / message / subject / evidence / supportedFixes`。**`evidence` 里已经是原始数值, 不要手算**:
@@ -259,6 +286,7 @@ UPDATE_BASELINE=1 bun test test/route-pick-equivalence.test.ts
 | 同一对实体上两条关系, 手写两条边各给一个 `at` 偏移 | `routePair({ ..., gap })` + `pairLabels(pair, [关系A, 关系B])` | 手算偏移**必然不平行、间距必然不等**(实测 `at` 差 3px 就能看出来); 成对路由是"中线跑一次 + 沿法线平移 ±gap/2", **凭构造保证平行**。`pair.onFace` 报"端点滑出面"但不替你挪端口(端口是作者决策) |
 | 竖线 / 斜线旁的标签横着写 | `rotate: labelAngle(pts)`(成对标签由 `pairLabels` 内置) | 竖线旁的 "Flown By" 要竖着读才顺。角度归一化到 `[-90, 90)`, **竖线一律 -90°**(文字永不倒着写)。⚠ 旋转是全仓**唯一**用 `transform` 的地方, 且审计取的是旋转后的轴对齐包围盒(`labelRect`)—— 两边读的是同一块地方, 不是双源 |
 | 以为落单的 `**` 也是加粗开关(如 `Object: **JFK** (**推定**)` 之类写歪一处) | 落单的 `**` 是**字面星号**; 只有**成对**的才开关加粗 | 旧解析见 `**` 就切换: `a ** b` 会把星号吞掉、还把后半段误加粗。现在 `runs.join('') === plainText(text)` 是硬不变式(度量与渲染同一份, 见 `geometry/inline-text.ts`) |
+| 想给一行字里某几个字加粗 / 斜体 / 删除线 / 换个色, 于是**拆成多个 `<text>` 元素**自己累加 x | 就在**一个内容串**里写标记: `**粗**` / `*斜*` / `~~删~~` / `[字]{rose}` | 拆成多个 `<text>` 的段间距由你的估算宽决定, 而渲染器用的是真字体 —— 两把尺子必然在接缝处露出破绽(挤在一起或裂开一条缝)。`<tspan>` 让渲染器自己接。⚠ 标记**紧贴内容**才算: `agent/* 与 tools/* 瀑布` 是两个通配符不是斜体(260925 实测: 少了这条判据, 两张既有架构图的星号被吃掉、盒宽跟着变小) |
 | 素材名写 `iconAsset('plane.svg')` / 传个路径 | 名字是**不带扩展名的 kebab-case**: `iconAsset('plane')` | 拿不准概念用 `findIcon('airplane')` 找名字, 全量名字走 `iconNames()`(读包内 `tags.json`); 传错当场抛而不是给你一个空图标 |
 | 自己的 SVG 素材里有 `<g>` / `transform` | 先拍平(Inkscape / `svgo --pretty`), 或换一张 | `parseIconSvg` 见到就抛 —— 静默跳过等于画出一个**少几笔的图标**, 而图上没人看得出丢了一根线 |
 | 一整幅外部 SVG(echarts 图表)也想喂 `parseIconSvg` | 走**素材链**: `embedAsset(svgText)` → `scene.embeds`(嵌套 `<svg>`, 内部标记原样透传) | 那套解析器只认七原语且零 `<g>` / 零 `transform` —— 实测 echarts 四份产物**全在第一个 `class` 属性上抛**。别为一条支路把它撑开 |

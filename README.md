@@ -62,7 +62,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./geometry/rounded-path` — 圆角路径逐角解算 + 端点标记 / 线端内缩
 - `./geometry/predicates` — 几何谓词(相交 / 净空 / 正交 / 自重叠 / 有限性守卫)
 - `./geometry/text-rows` — 多行文本行块堆法(度量与渲染共用)
-- `./geometry/inline-text` — 行内 `**粗**` 标记解析(度量与渲染同一份)
+- `./geometry/inline-text` — 行内标记解析(`**粗**` / `*斜*` / `~~删~~` / `[字]{accent}`; 度量与渲染同一份 run 表 + 一张 `INLINE_STYLE`)
 - `./geometry/box` — 面上的点 / 九点锚 / `bounds` / `placeRect`
 - `./geometry/grid` — 均匀格子(格位 / 格心 / 格面 / 缝中线)
 - `./geometry/pack` — 行 / 列摆放(`packRow` / `packCol`)
@@ -78,6 +78,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./shapes/edge` — 边装配 + `edgeLabel` / `labelBoxSize`(标签遮罩尺寸唯一来源)
 - `./shapes/group` — 分组框 + 标签定位
 - `./shapes/text` — 文本 / 标签遮罩几何
+- `./shapes/inline` — 行内标记的**唯一上屏器**(行内容串 → `<text>` ± `<tspan>`; 节点标签 / 边标签 / 旁注三家共用)
 - `./shapes/grid-pattern` — 画布网格底纹(`line` / `dot`)
 - `./shapes/icon` — 图标槽几何(`iconInkRect` 等)
 - `./shapes/embed` — 整幅外来 SVG 的嵌套 `<svg>` 渲染

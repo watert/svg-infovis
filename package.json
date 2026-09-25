@@ -19,6 +19,7 @@
     "./shapes/edge": "./src/shapes/edge.ts",
     "./shapes/group": "./src/shapes/group.ts",
     "./shapes/text": "./src/shapes/text.ts",
+    "./shapes/inline": "./src/shapes/inline.ts",
     "./shapes/grid-pattern": "./src/shapes/grid-pattern.ts",
     "./shapes/icon": "./src/shapes/icon.ts",
     "./shapes/embed": "./src/shapes/embed.ts",
