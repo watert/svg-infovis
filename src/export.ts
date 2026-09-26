@@ -7,15 +7,15 @@
 // 输出走 serialize 那一层, 所以字节确定性由那边统一保证(本文件不许自己拼字符串)。
 // =====================================================================
 
-import { type Attrs, type Descriptor, svg as svgRoot } from './descriptor';
-import { DEFAULT_THEME, type Theme, canvasLayer } from './theme';
+import { type Attrs, type Descriptor, group, svg as svgRoot } from './descriptor';
+import { DEFAULT_THEME, type Theme, type Tone, type Variant, canvasLayer } from './theme';
 import { type AuditReport, type Scene, SCENE_TEXT_DEFAULTS, audit, groupLabelBox, labelRect } from './knives/audit';
 import { type AuditLevel, THRESHOLDS } from './knives/thresholds';
 import { type SceneDoc, assertFreshForExport, sceneStatus } from './scene';
 import { toSVG } from './serialize';
 import { type EdgeProps, edgeShape } from './shapes/edge';
 import { type GroupProps, groupShape } from './shapes/group';
-import { type NodeProps, nodeShape, NODE_TEXT_LAYOUT } from './shapes/node';
+import { type NodeProps, type NodeShapeKind, DEFAULT_NODE_SHAPE, nodeShape, NODE_TEXT_LAYOUT } from './shapes/node';
 import { iconInkRect } from './shapes/icon';
 import { embedShape } from './shapes/embed';
 import { labelBoxShape, textShape } from './shapes/text';
@@ -81,6 +81,35 @@ export type ExportOptions = {
    */
   fit?: boolean | FitOptions;
   title?: string;
+  /**
+   * **语义 hook 通道**(缺省关): 把 scene 的 id 与语义槽派生到每个元素产物**顶层**的 `data-*` 上
+   * —— 产物里第一次有了**不靠位置**的选择器(`:nth-child` 那种玄学不是抓手)。
+   *
+   * 由来(ROADMAP「动画」条目的隐藏前置): 现状导出链一个抓手都不吐, scene 的 id / tone /
+   * variant / shape 过完渲染映射全不落盘。SMIL 档要的是 **id 透传**(`begin="other.end"` /
+   * `begin="click"`), CSS `@keyframes` 档才要语义 hook —— 两样都从**这一处**派生, 不许作者
+   * 在 styles 覆盖表里手写(那是第二个来源, 五张图五种命名就是又一个 P4)。
+   *
+   * 为什么用 `data-*` 不用 class: class 命名空间会和作者手写的撞; 且与 `data-draft="1"` 同族。
+   * 为什么是布尔而不是细档: id 与语义槽同出一处派生, 拆两档只会让调用方纠结"要不要 id" ——
+   * 真要只取一半, 拿到产物后按属性筛即可。
+   *
+   * 派生表(逐条判据写在 `hookAttrs` 那**唯一一处**):
+   *   · `id` = scene 元素 id, 原样透传(SMIL 的跨元素引用靠它可预测;
+   *     ⚠ 同页多图 / 同图多素材要避开固定 id —— 网格 pattern 的 `md-grid`, 同族事故见
+   *     `GridProps.id` 的注释)
+   *   · `data-kind` = `node` / `edge` / `group` / `label` / `text` / `embed` —— 恒吐
+   *   · `data-tone` / `data-variant` —— 语义槽**有值才吐**(undefined 不落盘; 判据是 undefined 而非
+   *     "与缺省值相等", 作者显式写的 `slate` 照样落盘)。`variant` 只有节点有, `text` / `embed`
+   *     没有可派的槽
+   *   · `data-form` = **节点形态**(`rect` / `diamond` / `cylinder`), 且**恒吐** —— 缺省形态也吐,
+   *     选择器不该猜缺省值(缺省那个词从 `shapes/node` 的 `DEFAULT_NODE_SHAPE` 读, 出口不抄字面量)
+   *
+   * ⚠ **缺省关 = 产物逐字节不变**(判据: `examples/start/full-chain.ts --golden` 的 sha256):
+   * 合并全在 `withHooks` 里, 它在 off 时**原样返回同一个 descriptor**。
+   * 不进 audit: 门禁读 scene 不读产物, 天然碰不到这条通道。
+   */
+  hooks?: boolean;
   /**
    * **逐元素渲染覆盖**(key = id), 优先级**最高** —— 真正的**样式**参数(字号 / 圆角 / dash /
    * 单点 fill·stroke)走这里; 单点例外(如 audit 演示的违规红)也走这里。
@@ -199,6 +228,52 @@ export function fitScene(scene: Scene, opts: FitOptions = {}): Scene {
   });
 }
 
+/** hook 通道的元素种类词表 —— `data-kind` 的取值只此一份 */
+type HookKind = 'node' | 'edge' | 'group' | 'label' | 'text' | 'embed';
+/** `hookAttrs` 认的三位语义槽: 要加第四位只改这里, 别在六个调用点各拼一份 */
+type HookSlots = { id: string; tone?: Tone; variant?: Variant; shape?: NodeShapeKind };
+
+/**
+ * 语义 hook 的**唯一派生点**(一处出处): scene 语义槽 → `id` + `data-*` 属性袋; `hooks` 关时恒 `undefined`。
+ *
+ * 取值的两条判据:
+ *   · `id` / `data-kind` **恒吐** —— 它们是抓手本身, 不是语义槽
+ *   · `tone` / `variant` **有值才吐**: undefined 不落盘(`attrsToStr` 本来也丢 undefined,
+ *     这里不写空位是"不提前给空位"那条纪律)。判据是 `undefined` 而**不是**"与缺省值相等" ——
+ *     作者显式写的 `slate` 照样落盘, 选择器不必猜
+ *
+ * `data-form` 是节点**形态**, 且**恒吐**(缺省形态也吐): 选择器不该猜缺省值。缺省那个词从
+ * `DEFAULT_NODE_SHAPE` 读 —— 形态缺省是 `nodeShape` 的事, 这里再写一遍 `'rect'` 就是第二个真相。
+ * 属性名用它而不用 `data-shape`: 后者已被形状层占着(`node` / `edge` / `label-box` …), 一改就是一词两义;
+ * `data-form` 早就是形态槽的单一出处(形态层"缺省不挂"那条是**产物字节**的历史包袱, 与这里无冲突)。
+ */
+const hookAttrs = (o: ExportOptions, kind: HookKind, el: HookSlots): Attrs | undefined =>
+  o.hooks
+    ? {
+        id: el.id,
+        'data-kind': kind,
+        ...(el.tone === undefined ? {} : { 'data-tone': el.tone }),
+        ...(el.variant === undefined ? {} : { 'data-variant': el.variant }),
+        // 形态只对节点吐(只有 `SceneNode` 有这个槽), 且**恒吐** —— 缺省那个词从常量读, 不抄字面量
+        ...(kind === 'node' ? { 'data-form': el.shape ?? DEFAULT_NODE_SHAPE } : {}),
+      }
+    : undefined;
+
+/**
+ * 把 hook 属性合进产物**顶层** descriptor 的 `attrs`。
+ *
+ * 走 spread 合并而不是改 shapes 的签名: 语义槽的注入点只有出口一处(`sceneChildren` 是渲染面唯一
+ * 映射), 让六个 shape 各加一个 `attrs` 参数 = 六个可以各自漂开的来源。
+ *
+ * ⚠ `extra` 为 undefined 时**原样返回同一个对象** —— 缺省关那条"逐字节不变"就靠这一行。
+ * `defs` 分支与 `if` 拆两条也是刻意的: 它是唯一没有 attrs 位的 descriptor, 窄化掉它之后
+ * 剩下的联合每个都带 attrs, 那行"多余属性"检查才过得去(写成三元表达式 tsc 会报 TS2322)。
+ */
+const withHooks = (d: Descriptor, extra: Attrs | undefined): Descriptor => {
+  if (!extra || d.kind === 'defs') return d;
+  return { ...d, attrs: { ...d.attrs, ...extra } };
+};
+
 /**
  * scene 节点 → nodeShape, **渲染参数唯一的注入点**。
  *
@@ -220,7 +295,9 @@ export function fitScene(scene: Scene, opts: FitOptions = {}): Scene {
  */
 const renderNode = (n: Scene['nodes'][number], o: ExportOptions): Descriptor => {
   const { tone, variant, shape, struck, opacity, ...over } = o.nodeStyles?.[n.id] ?? {};
-  return nodeShape({
+  // 语义槽的**分解值**先落到 const: 渲染与 hook 读的必须是同一个数(各写一遍 `?? ` 就是两个来源)
+  const tone_ = tone ?? n.tone, variant_ = variant ?? n.variant, shape_ = shape ?? n.shape;
+  const desc = nodeShape({
     ...n.rect,
     label: n.label,
     sub: n.sub,
@@ -231,9 +308,9 @@ const renderNode = (n: Scene['nodes'][number], o: ExportOptions): Descriptor => 
     // 左对齐标签的左内边距: 作者的 `padX`(覆盖表) → 该档呼吸位(`label_fit` 用的那个数)。
     // **只有出口知道档位**, 所以这个数只能在这里填 —— 几何层不预扣呼吸位(见 nodeTextArea)
     padX: over.padX ?? THRESHOLDS[o.level ?? 'standard'].labelInset,
-    tone: tone ?? n.tone,
-    variant: variant ?? n.variant,
-    shape: shape ?? n.shape,
+    tone: tone_,
+    variant: variant_,
+    shape: shape_,
     struck: struck ?? n.struck,
     opacity: opacity ?? n.opacity,
     // 字重与对齐是**语义槽**(进 scene), 覆盖表显式给值才顶掉 —— 与 tone / shape 同一口径
@@ -241,6 +318,7 @@ const renderNode = (n: Scene['nodes'][number], o: ExportOptions): Descriptor => 
     align: over.align ?? n.align,
     icon: over.icon ?? n.icon,
   });
+  return withHooks(desc, hookAttrs(o, 'node', { id: n.id, tone: tone_, variant: variant_, shape: shape_ }));
 };
 
 /**
@@ -276,7 +354,8 @@ export function sceneChildren(scene: Scene, opts: ExportOptions = {}): Descripto
     // 外部素材(260920): z 序**在底** —— 紧跟画布与网格底纹之后、组框与节点之前。
     // 素材是这块版式的"底板"(面板里那张图表), 线与标签要压在它**上面**才读得出谁在说什么;
     // 反过来它压住节点, 整张图就没人看得懂了。
-    ...(scene.embeds ?? []).map((e) => embedShape({ asset: e.asset, ...e.rect, opacity: e.opacity })),
+    ...(scene.embeds ?? []).map((e) =>
+      withHooks(embedShape({ asset: e.asset, ...e.rect, opacity: e.opacity }), hookAttrs(opts, 'embed', { id: e.id }))),
     ...(scene.groups ?? []).map((g) => {
       // 缺省字段**不许显式传 undefined**: `groupShape` 认 `?? 'inner'`, 传进去会把覆盖表里的值顶掉
       const placed = g.labelPlacement === undefined && g.labelInset === undefined
@@ -284,23 +363,26 @@ export function sceneChildren(scene: Scene, opts: ExportOptions = {}): Descripto
         : { labelPlacement: g.labelPlacement, labelInset: g.labelInset };
       // 组色与 renderNode 同一口径: scene 的 `tone` 打底, 覆盖表**显式给了值**才顶掉(undefined 不算表态)
       const { tone, ...over } = opts.groupStyles?.[g.id] ?? {};
-      return groupShape({
+      const tone_ = tone ?? g.tone;
+      return withHooks(groupShape({
         ...g.rect, label: g.label, fontSize: g.fontSize, theme: opts.theme,
-        ...over, tone: tone ?? g.tone, ...placed,
-      });
+        ...over, tone: tone_, ...placed,
+      }), hookAttrs(opts, 'group', { id: g.id, tone: tone_ }));
     }),
     ...scene.nodes.map((n) => renderNode(n, opts)),
     // 边的 `tone` 与节点同一口径: scene 打底, 覆盖表**显式给了值**才顶掉它
     // (调用方按整张表 map 出覆盖项时, 未表态的键是 `undefined` —— 铺上去会把 scene 的语义抹回中性灰)
     ...scene.edges.map((e) => {
       const { tone, ...over } = opts.edgeStyles?.[e.id] ?? {};
-      return edgeShape({ points: e.points, radius: opts.edgeRadius ?? 10, theme: opts.theme, ...over, tone: tone ?? e.tone });
+      const tone_ = tone ?? e.tone;
+      return withHooks(edgeShape({ points: e.points, radius: opts.edgeRadius ?? 10, theme: opts.theme, ...over, tone: tone_ }),
+        hookAttrs(opts, 'edge', { id: e.id, tone: tone_ }));
     }),
     // 标签与旁注: 没给文字的不上屏(占位), 计数在 audit 的 metrics.phantom_* 里
     ...(scene.labels ?? []).flatMap((l) =>
       l.text === undefined
         ? []
-        : [labelBoxShape({
+        : [withHooks(labelBoxShape({
             x: l.at.x, y: l.at.y, w: l.width, h: l.height,
             content: l.text, fontSize: l.fontSize, rotate: l.rotate, theme,
             // 取色(260925): 显式 `color` 最高 → `tone` 的**文字槽**(边线取 border 是因为线是描边,
@@ -308,7 +390,7 @@ export function sceneChildren(scene: Scene, opts: ExportOptions = {}): Descripto
             // bg 不表态时 `labelBoxShape` 落 `theme.canvas`: 遮罩与画布同色即隐形。
             bg: l.bg,
             color: l.color ?? (l.tone ? theme.tones[l.tone].text : undefined),
-          })],
+          }), hookAttrs(opts, 'label', { id: l.id, tone: l.tone }))],
     ),
     ...(scene.texts ?? []).flatMap((t) => {
       if (t.text === undefined) return [];
@@ -322,11 +404,16 @@ export function sceneChildren(scene: Scene, opts: ExportOptions = {}): Descripto
       const gap = size * NODE_TEXT_LAYOUT.lineGapEm;
       const midY = round1(t.rect.y + t.rect.h / 2);
       const block = rowBlock(lines.length, gap);
-      return lines.map((line, i) => textShape({
+      const rows = lines.map((line, i) => textShape({
         x, y: round1(midY + block.offsets[i]),
         content: line, size, anchor, baseline: 'central',
         color: t.color ?? theme.label, weight: t.weight, theme: opts.theme,
       }));
+      const hooks = hookAttrs(opts, 'text', { id: t.id });
+      if (!hooks) return rows;
+      // 多行旁注吐 N 个 `<text>` 而只有一个 scene id —— 同一个 id 写两遍是**非法文档**(选择器只会
+      // 命中最先那个, 后面的行没有抓手), 所以多行时套一层 `<g>` 承载 hook; 单行(常态)直合, 不加壳
+      return [rows.length === 1 ? withHooks(rows[0], hooks) : withHooks(group(rows), hooks)];
     }),
   ];
 }

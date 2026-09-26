@@ -34,6 +34,15 @@ import { inlineTextRow } from './inline';
 
 /** 形状词表。**运行时值与类型同源**(`NodeShapeKind` 由它推出) —— 加一种形状只改这里一处 */
 export const NODE_SHAPE_KINDS = ['rect', 'diamond', 'cylinder'] as const;
+/**
+ * 缺省形态 —— `nodeShape` 的回落值, **只此一份**。
+ *
+ * 为什么单独给它一个具名常量(260926): 出口的 `data-form` 要**恒吐**形态(选择器不该猜缺省值),
+ * 而出口能拿到的只有作者表态过的那个值 —— 想补上缺省就得再写一遍字面量。缺省形态是
+ * `nodeShape` 的事, 出口抄一份就有第二个真相, 且这条通道**不进任何门禁**(看不见的漂移)。
+ * 所以缺省值在这里具名, 谁要读谁 import。
+ */
+export const DEFAULT_NODE_SHAPE: NodeShapeKind = 'rect';
 
 /** 标签的水平对齐词表(`nodeShape` 的 `align`); 与形状同规矩: 运行时可查, 写错当场抛 */
 export const NODE_ALIGN_KINDS = ['center', 'start'] as const;
@@ -239,7 +248,7 @@ export function nodeGeometry(p: NodeProps): NodeGeometry {
   if (p.radius !== undefined) assertFiniteNumber('nodeGeometry', 'radius', p.radius);
   assertNodeShape('nodeGeometry', p.shape);
   assertCapRadius('nodeGeometry', p.capRadius);
-  const shape: NodeShapeKind = p.shape ?? 'rect';
+  const shape: NodeShapeKind = p.shape ?? DEFAULT_NODE_SHAPE;
   const rect: Rect = { x: p.x, y: p.y, w: p.w, h: p.h };
   const textRect = nodeTextArea(shape, rect, { capRadius: p.capRadius });
 
@@ -390,7 +399,7 @@ export function nodeShape(p: NodeProps): DGroup {
   // opacity 缺省同样不输出属性(老产物字节不变)
   return group(children, {
     'data-shape': 'node',
-    ...(g.shape === 'rect' ? {} : { 'data-form': g.shape }),
+    ...(g.shape === DEFAULT_NODE_SHAPE ? {} : { 'data-form': g.shape }),
     ...(p.opacity === undefined ? {} : { opacity: p.opacity }),
   });
 }
