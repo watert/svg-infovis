@@ -9,20 +9,22 @@ date: 2026-09-26T20:29:47+08:00
 
 > 这是**操作清单**, 不是设计文档。发布形态的取舍在 `refs/public-api.md`; 立项依据与已知未覆盖在 `ROADMAP.md`。本页只回答"现在差哪几步、每步怎么验"。
 
-## 现状(260926-20:29 实测)
+## 现状(260926-21:30 实测)
 
 - 包名 **`@watert/svg-infovis`** —— 260926 从无 scope 的 `svg-infovis` 改成 scoped(理由: 无 scope 名先到先得、不可回收, 第三方注册走它会让用户误以为那是本包)
 - 版本 `0.1.0`, **尚未发布** —— `npm view @watert/svg-infovis` 实测 E404
-- npm 账号 `watert` 已在本机登录(`npm whoami` 通过, 邮箱 boatwind@gmail.com 已验证); **two-factor auth 当前是关的**
+- npm 账号 `watert` 已在本机登录(`npm whoami` 通过, 邮箱 boatwind@gmail.com 已验证); **two-factor auth = `auth-and-writes`**(260926 21:25 CST 那个时间点起)
+  - ⚠ 后果: 所有写操作(`publish` / `deprecate` / 改设置)都要过一次 OTP —— CLI 在真终端里会**交互式**问, 非交互(脚本 / agent)必须 `--otp=<code>` 否则当场 `EOTP`(实测: `npm deprecate react-native-icloud` 就是这么被拦下的)
+  - 未验证: 这档用的是 passkey/WebAuthn 还是 TOTP(app 里给的就是 6 位码, 两种都能过 `--otp`)
 - 全局链路已通: `~/.bun/install/global/node_modules/@watert/svg-infovis → 本仓`, `svginfo --version` = 0.1.0
 - 消费侧(`~/www/github/my-codes` + 其下两处 htmls 项目)已改吃新包名, 两个 vite 项目 build 绿、出图实测通
 
 ## 待办
 
-- [ ] **push 本仓** —— 本地 `main` ahead 12。`git push origin main` 的副作用: 触发 `.github/workflows/pages.yml` 建站并部署 Pages
+- [ ] **push 本仓** —— 本地 `main` ahead。`git push origin main` 的副作用: 触发 `.github/workflows/pages.yml` 建站并部署 Pages
 - [ ] push my-codes(消费侧那一刀, commit `2fb01f5`)
-- [ ] **开 2FA**(WebAuthn / passkey —— npm 的新 2FA 设置不再接受 TOTP)。不开也能发, 但账号一旦被盗就能发出恶意版本, 而这个包以后要进别人的供应链
-- [ ] **首次手动发布占名**: `npm publish --access public`
+- [x] **开 2FA** —— 260926 已开 `auth-and-writes`; 发布时留意上一条的 OTP 麻烦
+- [ ] **首次手动发布占名**: `npm publish --access public`(真终端里会问一次 OTP)
   - ⚠ scoped 包默认 private, 漏掉 `--access public` 直接失败
   - ⚠ 发布不可逆 —— 只能 `npm deprecate`, 不能删名删版本
 - [ ] **配 trusted publisher**(在 npmjs.com 的包设置页, 不是 CLI): repository = `watert/svg-infovis`、workflow 文件名 = `publish.yml`、environment 建议留一个
