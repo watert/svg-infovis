@@ -47,7 +47,8 @@ date: 2026-09-26T01:15:00+08:00
 - **断言**: 禁 `Date.now` / `Math.random`; 几何数过 `round1`; 集合按 codepoint 序;
   属性键按 codepoint 序; 同输入 → 逐字节相同输出。产物进 git 可以肉眼对账。
 - **代价**: 做不了"生成时间戳"、做不了"每次不一样的随机抖动"这类小恩小惠。
-- **收益**: `examples/images/*` 与 `refs/*.svg` 变成可回归的断言物 —— 改内核时"输出是否变了"一眼可判。
+- **收益**: `refs/*.svg` 与 `assets/hero.svg` 变成可回归的断言物 —— 改内核时"输出是否变了"一眼可判
+  (hero 有 `test/hero-svg.test.ts` 的字节等式守着; 示例产物全量回归走 website prerender 的 SVG 文本 diff)。
 
 ### P4 · 一处事实一处
 

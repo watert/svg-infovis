@@ -67,7 +67,7 @@ fi
 # 外来产物(archify 的 viewer 导出就是)在 rsvg 下会把填充与描边一并丢掉 —— 产物是"深底黑块",
 # 而它同样能过上面的守卫、同样 exit 0。这条把"看着像成功"的那一类也喊出来。
 # ⚠ 只警告、不改判决: 展平是**可选**的一步(起 Chrome 截图那条路不需要它), 也免得把
-#   既有调用方(cli.ts / build-example-pngs.sh)的退出码语义改掉。
+#   既有调用方(`scripts/cli.ts`)的退出码语义改掉。
 if grep -q 'var(--' "$in"; then
   {
     echo "⚠ $in 用了 CSS 自定义属性(var(--…)), 而 rsvg-convert / qlmanage 都不认 —— 栅格化结果会是黑底黑块, 且不报错。"

@@ -128,8 +128,8 @@ export const scene: Scene = { width: W, height: H, nodes, edges, groups, texts, 
 // --- 出口(fail-closed + 诊断走 stderr) -----------------------------------------
 //
 // 260920 起出口**统一到 stdout**(过去本文件自己 `writeFileSync('/tmp/academic-figure.svg')`)——
-// 它是全仓唯一一个"图不走 stdout"的出图示例, 于是 `build-example-pngs.sh` 得为它单独登记一条
-// 产物路径; **出口不统一本身就是一处纪律裂缝**(清单里多一个特例, 就多一个漏登记的机会)。
+// 它曾是全仓唯一一个"图不走 stdout"的出图示例, 出图清单得为它单独登记一条产物路径;
+// **出口不统一本身就是一处纪律裂缝**(清单里多一个特例, 就多一个漏登记的机会)。
 if (import.meta.main) {
   runScene(scene, { level: 'showcase', theme, fit: true, nodeStyles, edgeStyles });
 }

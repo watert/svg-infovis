@@ -103,7 +103,7 @@ opts.groupStyles = Object.fromEntries(['band-request', 'band-fallback', 'band-re
 
 // 出口走 `scripts/runner`(260920)。两处顺手收口:
 //   ① 出口**统一到 stdout**(过去本文件自己 `writeFileSync('/tmp/sequence-archify.svg')`) ——
-//      "少数示例的图不吐 stdout" 是 `build-example-pngs.sh` 清单里的一处特例, 特例少一个是一个;
+//      "少数示例的图不吐 stdout" 曾是出图清单里的一处特例, 特例少一个是一个;
 //   ② 出口收进 `import.meta.main` —— 此前本文件顶层**无条件**跑 export + 写盘, 于是它被 import
 //      (读数板 / 将来的 web 展示)时会当场落一个 /tmp 文件。出图示例的顶层必须是纯几何。
 if (import.meta.main) {

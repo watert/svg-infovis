@@ -80,7 +80,7 @@ describe('inline-space-preserve · 接壤空白在产物里保留', () => {
     const out = cardSvg('Object Type: **Airport**');
     const { attrs, chunks } = rowOf(out);
     expect(attrs).toContain('xml:space="preserve"');
-    // 段边界上的空格仍在字节里 —— 这正是栅格化后读得出来的那一格(目视见 examples/images/ontology-icons.png)
+    // 段边界上的空格仍在字节里 —— 这正是栅格化后读得出来的那一格(目视见网站画廊的 `ontology-icons` 一张)
     expect(chunks).toEqual(['Object Type: ', 'Airport']);
     expect(out).toContain('<tspan font-weight="400.00">Object Type: </tspan>');
   });

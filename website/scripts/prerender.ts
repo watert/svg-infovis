@@ -1,7 +1,7 @@
 // =====================================================================
 // prerender · 示例预渲染管线(网站侧) 260926
 //
-// 干什么: 逐条跑 `examples/manifest.ts` 里的**全部出图入口**(条数以清单为准, 现 23 条),
+// 干什么: 逐条跑 `examples/manifest.ts` 里的**全部出图入口**(条数以清单为准, 别在这里写死个数),
 //   把 stdout 的 SVG 落成 `website/public/svg/<key>.svg`, 汇总成 `website/src/generated/examples.json`
 //   (给网站 UI 查: 图在哪 / 过没过门禁 / 字节数 / 指纹)。
 //

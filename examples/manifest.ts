@@ -1,26 +1,27 @@
 // =====================================================================
 // manifest · examples/ 的**单一清单**(260920)
 //
-// 为什么要它: 合并前"有哪些示例"这件事散在三处 —— `scripts/build-example-pngs.sh` 里一份
-// ITEMS 表、`SKILL.md` 文件地图里一串逗号、人脑子里一份。三份必然漂(新增示例忘了登记就跑不到图,
-// 而脚本**刻意**不扫目录猜 —— 见它文件头)。这里收成一份, 别处只许引用它。
+// 为什么要它: 合并前"有哪些示例"这件事散在三处 —— 批量出图脚本里一份 ITEMS 表(那个脚本
+// `scripts/build-example-pngs.sh` 已于 260926 连同 PNG 快照一起退役)、`SKILL.md` 文件地图里
+// 一串逗号、人脑子里一份。三份必然漂(新增示例忘了登记就跑不到图)。这里收成一份, 别处只许引用它。
 //
 // 人读:  `bun run examples/manifest.ts`
-// 机读:  `bun run examples/manifest.ts --tsv`   → key<TAB>file<TAB>arg(给 build-example-pngs.sh)
+// 机读:  `bun run examples/manifest.ts --tsv`   → key<TAB>file<TAB>arg(shell 侧 `read` 得动。
+// 仓内现在没有消费者 —— 全量出图归 `website/scripts/prerender.ts`, 它直接 import 本文件)
 //
 // 三条纪律:
-//   · **`key` 就是 PNG 名**(`examples/images/<key>.png`), 改名 = 改产物名 —— 不许同义两名
+//   · **`key` 就是产物名**(`website/public/svg/<key>.svg`), 改名 = 改产物名 —— 不许同义两名
 //   · `group` 是**桶**: start(起手) / checks(机制对照) / gallery(能力举证) / labs(样式矩阵)
 //     / templates(模板示范)
 //   · `what` 一句话说清"这张图证明什么" —— 没有这句话的示例不该存在
 //
 // ⚠ 清单**覆盖全部出图入口**, 不只有 `examples/` 下的: `templates/sequence-archify-style.ts`
-// 的源跟着模板层搬了家(260920), 但它的 PNG 快照仍集中在 `examples/images/` —— 快照只留**一个**
-// 目录(两个抽屉就会漂), 于是清单的范围是"出图入口"而不是"examples 目录"。`file` 因此是路径。
+// 的源跟着模板层搬了家(260920), 但它照样是出图入口 —— 判据是这条命令会往 stdout 吐一张图,
+// 不是文件躺在哪个目录。`file` 因此是相对仓根的路径。
 //
 // ⚠ 模板**自带的冒烟示例**同样是出图入口(260925 补登 `sequence-demo` = `templates/sequence.ts` 的
-// `DEMO_SEQUENCE`): 它当时是唯一没登记的入口, 于是登记面全绿、而快照重出链整整看不见它 ——
-// "出图入口"判据是"这条命令会往 stdout 吐一张图", 不是"文件躺在哪个目录"。
+// `DEMO_SEQUENCE`): 它当时是唯一没登记的入口, 于是登记面全绿、而全量出图链整整看不见它 ——
+// 那一次漏的是网站画廊里的一张卡。
 //
 // 不进清单的: `scripts/inspect.ts`(它是读数 CLI, 不出图)、`scripts/runner.ts`(出口工具 ——
 // 它给所有示例提供出口, 自己不出图)。
@@ -30,7 +31,7 @@
 export type ExampleGroup = 'start' | 'checks' | 'gallery' | 'labs' | 'templates';
 
 export type ExampleEntry = {
-  /** PNG 名 = `examples/images/<key>.png`; 也是 `build-example-pngs.sh` 的选择器 */
+  /** 产物名 = `website/public/svg/<key>.svg`; 也是桶表 / 网站卡片的选择器 */
   key: string;
   group: ExampleGroup;
   /** 相对 skill 根; 必须能 `bun run` */
@@ -105,7 +106,7 @@ export const EXAMPLES: ExampleEntry[] = [
   { key: 'style-lab-grid', group: 'labs', file: 'examples/labs/style-lab.ts', arg: 'grid',
     what: '底纹对照: 线格 / 点阵 × 两档密度(opacity 缺省就是这么量出来的)' },
 
-  // ── templates(源在 templates/, 快照仍集中在 examples/images/) ──────────
+  // ── templates(源在 templates/, 出图入口照样登记在这份清单里) ──────────
   { key: 'sequence-demo', group: 'templates', file: 'templates/sequence.ts',
     what: '模板层示范: 4 泳道 × 8 消息 + 3 条激活条(一次带缓存的读请求) —— 缺省主题下的模板原生观感, 对照 archify-style 那一档' },
   { key: 'sequence-archify-style', group: 'templates', file: 'templates/sequence-archify-style.ts',
@@ -133,6 +134,6 @@ if (import.meta.main) {
       console.log(`  ${e.key.padEnd(20)} ${e.file}${e.arg ? ` ${e.arg}` : ''}`);
       console.log(`  ${' '.repeat(20)} ${e.what}`);
     }
-    console.log(`\n共 ${EXAMPLES.length} 项(key 即 examples/images/<key>.png)`);
+    console.log(`\n共 ${EXAMPLES.length} 项(key 即网站产物名 website/public/svg/<key>.svg)`);
   }
 }

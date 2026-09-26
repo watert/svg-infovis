@@ -60,7 +60,6 @@
     "manifest": "bun run examples/manifest.ts",
     "template": "bun run templates/sequence.ts",
     "ontology": "bun run examples/gallery/ontology-icons.ts",
-    "pngs": "scripts/build-example-pngs.sh",
     "test": "bun test",
     "verify": "bun test && tsc --noEmit"
   },

@@ -22,6 +22,12 @@
 - 唯一要重新 `bun link` 的场景: 本仓**路径变更 / 重命名**, 或 `~/.bun/install/global` 被清 —— 那时本仓 `bun link` 重注册, 各消费者再 `bun link svg-infovis` 重建本地链
 - 若将来引入构建产物(`dist/` 或真发 npm), 本节整段作废: 流程改成「commit 后重新构建 + 同步全局」, 并同步改本文件
 
+## 产物(260926 起): 仓库不囤图片
+
+- PNG 快照那一套已退役(`examples/images/` 整目录 + `scripts/build-example-pngs.sh` 一并删除, `package.json` 的 `pngs` 也随之撤): 出图产物就是 SVG 文本, 全量出图归网站管线(→ `website/public/svg/`, gitignored), 回归对账走 **SVG 文本 diff**(同输入 → 同字节, 比 PNG 像素精确)
+- 唯一 committed 的图是 `assets/hero.svg`(README 首图): `bun run examples/start/full-chain.ts > assets/hero.svg` 重出(**别 `2>&1`**), 字节守卫在 `test/hero-svg.test.ts` —— 内核改了字节而它没重出, `bun test` 当场红
+- 栅格化仍走 `scripts/svg2png.sh`(通用工具, 产物落在调用方指定的地方); 别再立新的产物目录
+
 ## 验证链路三件套
 
 ```bash
@@ -35,7 +41,7 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 展示站(Vite + React + TS, 纯静态 → GitHub Pages)。**独立 package**: 自己的 `package.json` / `tsconfig.json` / `node_modules`, 框架依赖全关在这个目录 —— 内核的零运行时依赖与「不上 build step」红线只管 `src/`, 不管这里; 依赖方向单向(website → src 只读 import, 内核不许回头)。
 
 - 数据链: `bun run --cwd website prerender`(= `website/scripts/prerender.ts`)跑 `examples/manifest.ts` 全部出图入口 → `website/public/svg/<key>.svg` + `website/src/generated/examples.json`(产物 gitignored, 连跑逐字节一致)。**新增示例只要登记 manifest, 站点自动多一张卡**, 不许在 website 里维护第二份清单
-- 画廊 SVG 一律**内联直出**, 不用 `<img>` / 不引 PNG; hero 图是内核在浏览器里现场算的(活证据, 别换成静态产物)
+- 画廊 SVG 一律**内联直出**, 不用 `<img>` / 不引 PNG; 站点 hero 图是内核在浏览器里现场算的(活证据, 别换成静态产物) —— ⚠ 与 README 首图 `assets/hero.svg`(committed, 守卫在 `test/hero-svg.test.ts`)**不是同一张**, 别互相替换
 - dev: `bun run --cwd website dev`(默认端口 **5180**, 不是 vite 的 5173 —— 那口撞别的项目); build: `bun run --cwd website build`
 - 部署: `.github/workflows/pages.yml`(push main → prerender + build → deploy-pages); 需要仓库 Settings → Pages 的 Source = GitHub Actions
 - 根 `tsconfig.json` 的 `include` **刻意不含** `website/`(它有自己的 DOM lib 配置); website 侧验证走 `bun run --cwd website check` + `build`

@@ -7,9 +7,10 @@ date: 2026-09-23T16:00:00+08:00
 
 # svg-infovis · diagramming 几何内核
 
-![full chain](examples/images/full-chain.png)
+![full chain](assets/hero.svg)
 
-*上图由本仓自己生成: `bun run examples/start/full-chain.ts` 的产物(showcase 档门禁)。*
+*上图由本仓自己生成, 就是仓里这份 `assets/hero.svg`: `bun run examples/start/full-chain.ts` 的产物(showcase 档门禁)。
+`test/hero-svg.test.ts` 断言它与该示例的当前导出**逐字节一致** —— 内核改了字节而这张图没重出, 测试当场红(重生命令见该测试文件头)。*
 
 ## 30 秒起手
 
@@ -32,7 +33,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 三条口吻贯穿全部文档: **零运行时依赖 · 字节确定性 · 一处事实一处**。
 
 - 库本体 0 dependency; 图标素材 `lucide-static` 是构建期读盘, 不进运行时链
-- 禁 `Date.now` / `Math.random`, 同输入 → 逐字节相同输出, `examples/images/*` 可做肉眼对账
+- 禁 `Date.now` / `Math.random`, 同输入 → 逐字节相同输出 —— 于是回归对账是 SVG **文本** diff(比 PNG 像素准), 仓库里也不再囤图片快照
 - 每个数字只有一个权威出处, 文档不互相抄一份
 
 ## 它是什么 / 不是什么

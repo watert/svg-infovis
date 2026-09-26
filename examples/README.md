@@ -6,11 +6,11 @@
 ## 桶表
 
 `bun run examples/<file>` 逐条可跑;**键名**(下面表格第一列)就是 `bun run examples/manifest.ts` 的名字,
-也是 `scripts/build-example-pngs.sh <键名>` 的选择器 —— 一处改名三处同步是过去的老毛病, 现在只有一份清单
-(`examples/manifest.ts`, 机读走 `--tsv`)。
+也是这张图在网站上落盘的名字(`website/public/svg/<键名>.svg`, 每次构建全量重出) ——
+一处改名三处同步是过去的老毛病, 现在只有一份清单(`examples/manifest.ts`, 机读走 `--tsv`)。
 
-> ⚖ **本表与清单的同步由 `test/examples-manifest.test.ts` 看着**(逐键一致 / 文件落盘 / 快照已出 /
-> 脚本里没有第二份 ITEMS 表)。改清单不加这一表、或加了表不登记清单, `bun test` 当场红。
+> ⚖ **本表与清单的同步由 `test/examples-manifest.test.ts` 看着**(逐键一致 / 文件落盘 /
+> 网站管线不带第二份 key 表)。改清单不加这一表、或加了表不登记清单, `bun test` 当场红。
 
 ### start · 起手教学 —— 抄这个开新图
 
@@ -63,8 +63,9 @@
 - `anim-progress` —— 非继承属性 `width` 的 href 寻址 + 逐格 `visibility` 的 `keyTimes` 错峰
 - `anim-interactive` —— 事件轨(`begin="click"` + `fill="freeze"`)与 CSS 轨(悬停 / `@keyframes`)的分工
 
-⚠ **PNG 快照只有第一帧**(rsvg 不跑 SMIL/CSS 动画), 静态消费看到的是"末态 / 常态"—— 这正是"静态帧即末态"
-那条设计的用意(产物离开播放器仍是一张完整的图)。动起来什么样写在各自的文件头; 判据在
+⚠ **静态消费只看得见末态**: 网站画廊/首屏把 SVG 内联直出, 不跑 SMIL 也不跑内嵌 CSS(与过去 PNG 快照只有
+第一帧同理), 静态看到的就是"末态 / 常态" —— 这正是"静态帧即末态"那条设计的用意(产物离开播放器仍是一张
+完整的图)。动起来什么样写在各自的文件头; 判据在
 `../test/anim-examples.test.ts`(SMIL 关键词在场 / XML 结构合法 / 两次导出逐字节全等)。
 
 ### labs · 样式矩阵 —— 缺省值就是这样定档的
@@ -80,7 +81,7 @@
 **这三个 key 都是"非出口示例"**(同一个 `style-lab.ts` 分出三档: light / dark 是主题那一半, grid 是底纹那一半):
 并排对照卡, 直接出图**不过门禁**, 判据归 `test/`(这一档量的是观感 —— 观感还没有断言看着它; 而网格那一半的**产物纪律**已有判据 `test/style-lab-grid.test.ts`: 四格 id 两两不同 + 零 `transform`)。
 
-### templates · 模板示范(源在 `templates/`, 快照仍在这一处)
+### templates · 模板示范(源在 `templates/`)
 
 | 键名 | 文件 | 这张图证明什么 |
 |---|---|---|
@@ -94,7 +95,7 @@
 ```bash
 bun run examples/manifest.ts                          # 清单(键名 / 桶 / 这张图证明什么)
 bun run scripts/inspect.ts examples/gallery/harness-arch.ts --showcase   # 布局看不清 → 读一张表(不出图)
-scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 → examples/images/*.png
+bun run --cwd website prerender                       # 全部出图入口跑一遍 → website/public/svg/(站点管线, 产物不上 git)
 ```
 
 ## 出口纪律(每个示例都守, 别再各写一遍)
@@ -116,9 +117,10 @@ scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 �
 2. 放对桶: `start/`(起手) · `checks/`(机制对照) · `gallery/`(能力举证) · `labs/`(样式矩阵)。
 3. 出口走 `scripts/runner.ts` 的 `runScene(scene, {...})`, 调用收在 `import.meta.main` 里。
    顶层保持**纯几何**(`export const scene`), 这样读数板与 web 都能直接 import。
-4. 登记进 `examples/manifest.ts`(key = PNG 名, 不许同义两名), **并补上本文件的桶表那一行** ——
-   桶表是人读面、manifest 是机读面, **两处必须同一次改**(否则又长回"三份清单"那个老毛病), 最后跑
-   `scripts/build-example-pngs.sh <key>` 出快照。
+4. 登记进 `examples/manifest.ts`(key 是产物名, 不许同义两名), **并补上本文件的桶表那一行** ——
+   桶表是人读面、manifest 是机读面, **两处必须同一次改**(否则又长回"三份清单"那个老毛病)。本地不必
+   出什么快照: 单跑 `bun run <你的文件>` 确认它往 stdout 吐一张图即可, 全链自检走
+   `bun run --cwd website prerender`(站点管线会把它一起出图; CI 每次构建也跑这条)。
 5. 要断言就写进 `test/` —— **判据归 test, 示例只负责展示**(断言长在示例内部时, 只有人真的跑那一次才生效)。
 6. **画布按约定声明: `width: 0, height: 0` + 出口 `fit`** —— 声明值不上屏(`fitScene` 按
    `contentBounds` 重算), 手算画布是白算。现状**五种写法并存**, 这就是教训(**同一个语义五种字面量**,
@@ -132,8 +134,14 @@ scripts/build-example-pngs.sh [键名...]                # 全量/指定出图 �
    同一次序); 而声明**非零**画布又**不走 fit** 就是真红: 内容越出声明值 →
    `single_svg` → 出口当场抛 `ExportBlockedError`。要么算准, 要么 `0×0` 交给 fit。
 
-## images/
+## 产物(260926 起: 没有 PNG 快照)
 
-`examples/images/*.png` 是本仓**全部出图入口**的 PNG 快照, 由 `scripts/build-example-pngs.sh` 全量重出 ——
-**别手改**(改 core 后重出一遍就是对回归的检查)。快照只留这一个目录: 源搬了家(如 `templates/`)快照也不跟走,
-两个抽屉迟早漂。
+出图产物**就是 SVG 文本本身**, 仓库里不囤图片: ① 网站上那份由站点管线每次构建全量重出
+(`website/public/svg/<key>.svg`, gitignored, 连跑逐字节一致); ② 唯一 committed 的图是
+`../assets/hero.svg`(README 首图), 它有字节守卫 —— `../test/hero-svg.test.ts` 断言它与
+`start/full-chain.ts` 的当前导出逐字节一致, 过时了当场红。回归对账因此走 **SVG 文本 diff**:
+同输入 → 同字节, 比 PNG 像素对账精确, 也不留二进制生成物。
+
+> 曾经的 `examples/images/*.png` 与 `scripts/build-example-pngs.sh` 就是这一职能的上一形态, 已退役 ——
+> 别再立一个新产物目录: 要人眼看的走站点(`bun run --cwd website dev`), 要栅格图走
+> `./scripts/svg2png.sh <in.svg> [out.png]`(通用工具, 产物落在你指定的地方)。

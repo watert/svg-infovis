@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="400.00" viewBox="0 0 640.00 400.00" aria-label="几何内核工具环" font-family="ui-sans-serif, system-ui, &quot;PingFang SC&quot;, sans-serif">
+  <rect x="0.00" y="0.00" width="640.00" height="400.00" rx="0.00" fill="#ffffff" stroke="none" />
+  <g data-shape="node">
+    <path d="M 250.00 50.00 A 10.00 10.00 0 0 1 260.00 40.00 L 390.00 40.00 A 10.00 10.00 0 0 1 400.00 50.00 L 400.00 76.00 A 10.00 10.00 0 0 1 390.00 86.00 L 260.00 86.00 A 10.00 10.00 0 0 1 250.00 76.00 L 250.00 50.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="325.00" y="67.60" fill="#0f172a" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">HTML 骨架</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 250.00 150.00 A 10.00 10.00 0 0 1 260.00 140.00 L 390.00 140.00 A 10.00 10.00 0 0 1 400.00 150.00 L 400.00 176.00 A 10.00 10.00 0 0 1 390.00 186.00 L 260.00 186.00 A 10.00 10.00 0 0 1 250.00 176.00 L 250.00 150.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="325.00" y="167.60" fill="#0f172a" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">blink 量框</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 250.00 250.00 A 10.00 10.00 0 0 1 260.00 240.00 L 390.00 240.00 A 10.00 10.00 0 0 1 400.00 250.00 L 400.00 276.00 A 10.00 10.00 0 0 1 390.00 286.00 L 260.00 286.00 A 10.00 10.00 0 0 1 250.00 276.00 L 250.00 250.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="325.00" y="267.60" fill="#0f172a" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">audit 门禁</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 90.00 340.00 A 10.00 10.00 0 0 1 100.00 330.00 L 230.00 330.00 A 10.00 10.00 0 0 1 240.00 340.00 L 240.00 366.00 A 10.00 10.00 0 0 1 230.00 376.00 L 100.00 376.00 A 10.00 10.00 0 0 1 90.00 366.00 L 90.00 340.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="165.00" y="357.60" fill="#0f172a" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">README 冻结图</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 410.00 340.00 A 10.00 10.00 0 0 1 420.00 330.00 L 550.00 330.00 A 10.00 10.00 0 0 1 560.00 340.00 L 560.00 366.00 A 10.00 10.00 0 0 1 550.00 376.00 L 420.00 376.00 A 10.00 10.00 0 0 1 410.00 366.00 L 410.00 340.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="485.00" y="357.60" fill="#0f172a" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">HTML 看板</text>
+  </g>
+  <g data-shape="edge">
+    <path d="M 325.00 86.00 L 325.00 133.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 325.00 140.00 L 321.85 133.00 L 328.15 133.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 325.00 186.00 L 325.00 233.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 325.00 240.00 L 321.85 233.00 L 328.15 233.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 295.00 286.00 L 295.00 295.00 A 9.00 9.00 0 0 1 286.00 304.00 L 174.50 304.00 A 9.50 9.50 0 0 0 165.00 313.50 L 165.00 323.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 165.00 330.00 L 161.85 323.00 L 168.15 323.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 355.00 286.00 L 355.00 300.00 A 10.00 10.00 0 0 0 365.00 310.00 L 478.50 310.00 A 6.50 6.50 0 0 1 485.00 316.50 L 485.00 323.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 485.00 330.00 L 481.85 323.00 L 488.15 323.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 250.00 263.00 L 241.00 263.00 A 9.00 9.00 0 0 1 232.00 254.00 L 232.00 68.50 A 5.50 5.50 0 0 1 237.50 63.00 L 243.00 63.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 250.00 63.00 L 243.00 66.15 L 243.00 59.85 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="label-box">
+    <rect x="305.30" y="105.60" width="39.50" height="14.80" rx="4.00" fill="#ffffff" stroke="none" />
+    <text x="325.00" y="116.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="middle">route</text>
+  </g>
+  <g data-shape="label-box">
+    <rect x="305.30" y="205.60" width="39.50" height="14.80" rx="4.00" fill="#ffffff" stroke="none" />
+    <text x="325.00" y="216.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="middle">audit</text>
+  </g>
+  <g data-shape="label-box">
+    <rect x="215.60" y="155.60" width="32.80" height="14.80" rx="4.00" fill="#ffffff" stroke="none" />
+    <text x="232.00" y="166.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="middle">loop</text>
+  </g>
+</svg>

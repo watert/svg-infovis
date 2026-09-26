@@ -8,14 +8,13 @@
 //   run      → **文件自己的出口优先**: 原样跑它自己(`bun run <file>`, 它的门禁档 / 读数 / 退出码说了算)
 //              它没吐图 ⇒ 当成纯场景模块, 交 `runner.ts` 的 `runScene`(门禁 / 诊断 / 草稿 / 退出码都在那里)
 //   inspect  → `inspect.ts` 的 `main`(读数表; 不给路径就跑它的内置演示场景)
-//   render   → 上面那条链 + `svg2png.sh` 栅格化; `--all` 交 `build-example-pngs.sh`
+//   render   → 上面那条链 + `svg2png.sh` 栅格化(单张出 PNG)
 //   new      → 拷 `templates/sequence.ts`
 //   icons    → `src/icons/lucide.ts` 的 `findIcon`(按概念找名字)
 //
-// **为什么 `--all` 是"转交给 shell 脚本"而不是在这里重写一遍**: 批量出图那一整套策略 ——
-// 清单校验(点名不存在的 key 当场拦下) / 逐项判决汇总 / 三步退出码 —— 已经在
-// `scripts/build-example-pngs.sh` 里咬过钉子写好了, 而它的清单来源就是 `examples/manifest.ts`
-// (260920 起收成一份)。在这儿照抄一份 = 多一处会漂的口径。CLI 只负责把 `--max` 翻成 `MAX` 环境变量。
+// ⚠ 曾经的 `render --all`(按清单批量出 PNG 到 `examples/images/`)随 `scripts/build-example-pngs.sh`
+// 与 PNG 快照一起于 260926 退役 —— 一次删干净, 不留半兼容的过渡档(过渡层 = 第二权威)。
+// 全量出图现在归网站管线(`website/scripts/prerender.ts`, 产物 `website/public/svg/`, 不上 git)。
 //
 // 出口纪律(与仓内其余出口同一条):
 //   · 图走 stdout / 文件, 工具自己的话**只走 stderr** —— 别 `2>&1`(混进来会烂在 SVG 头部)
@@ -35,7 +34,6 @@ import { runScene } from './runner';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const SVG2PNG = join(ROOT, 'scripts/svg2png.sh');
-const BUILD_PNGS = join(ROOT, 'scripts/build-example-pngs.sh');
 
 const USAGE = `svginfo · svg-infovis 命令行入口
 
@@ -53,8 +51,7 @@ const USAGE = `svginfo · svg-infovis 命令行入口
 
   render <scene.ts> [--png out.png] [--max 1400] [转发参数…]
         SVG + 本地栅格化成 PNG(走 scripts/svg2png.sh)
-  render --all [key…] [--max N]
-        按 examples/manifest.ts 全量出 PNG 到 examples/images/(走 build-example-pngs.sh)
+        批量出图不在这里 —— 那归网站管线: bun run --cwd website prerender
 
   new <name> [--force]
         脚手架: 拷 templates/sequence.ts 起手, 写成 ./<name>.ts
@@ -160,14 +157,7 @@ async function cmdRender(args: string[]): Promise<number> {
   const png = takeFlag(args, '--png');
   const max = takeFlag(png.rest, '--max');
   const size = positive('--max', max.value ?? '1400');
-  const all = max.rest.includes('--all');
-  const rest = max.rest.filter((a) => a !== '--all');
-
-  if (all) {
-    if (png.value) fail('render --all 的产物固定是 examples/images/<key>.png, 不给 --png');
-    const r = spawnSync('bash', [BUILD_PNGS, ...rest], { stdio: 'inherit', env: { ...process.env, MAX: String(size) } });
-    return r.status ?? 1;
-  }
+  const rest = max.rest;
 
   const file = targetOf(rest, 'render');
   const passthrough = rest.filter((a) => a !== file);

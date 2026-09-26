@@ -110,10 +110,10 @@ refs/aesthetics.md   美学研究草案(含目标函数选边), 不是操作手�
 refs/architecture.md + build-arch*.ts   v0.1 五层管线的演进史存档; 现状图 = architecture-v3
 templates/      序列 / 分层 / 阶段带三套骨架。宪章见 templates/README.md
 examples/       五桶, 清单 examples/manifest.ts
-assets/embeds/  图表底板 4(Apache 2.0)
+assets/          hero.svg(README 首图, test/hero-svg.test.ts 守字节) · embeds/ 图表底板 4(Apache 2.0)
 docs/           theme / mermaid-geometry / blink-archive / infograph-roadmap
 ROADMAP.md      立项依据与后续方向
-src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, svg-varflatten.ts, build-example-pngs.sh}
+src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, svg-varflatten.ts}
 ```
 
 ```bash
