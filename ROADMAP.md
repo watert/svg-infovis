@@ -127,8 +127,13 @@ date: 2026-09-26T00:00:00+08:00
   `QUICKREF.md` / `SKILL.md`(`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
   `prepare` 保证 link / git URL 安装时自动构建。消费侧 `bun` / `vite` / `esbuild` / `tsc(bundler|nodenext)`
   零配置可用(实测)。**已知未覆盖**(别当支持): ① `moduleResolution: node`(node10 老档)不认;
-  ② CJS `require` 不支持(ESM-only); ③ 浏览器侧算源指纹 `decisionDigest` 不支持(那一步要 sha256,
-  走 bun 或 node 内置); ④ `engines >= 20.16`(20.16 起 `getBuiltinModule` 回移可用), 更低版本的纯 node 用户跑不动源指纹那档。代价记账见 `refs/public-api.md`
+  ② CJS `require` 不支持(ESM-only; 但 node ≥22.12 的 `require(ESM)` 能拿到它, 实测 269 个 key);
+  ③ 浏览器侧算源指纹 `decisionDigest` 不支持(那一步要 sha256,
+  走 bun 或 node 内置); ④ `engines >= 20.16`(20.16 起 `getBuiltinModule` 回移可用), 更低版本的纯 node 用户跑不动源指纹那档;
+  ⑤ `refs/build-arch*.ts` 与 `test/*-probe.ts` 里还留着 bun 专有的 `import.meta.main`(两者都不进包、也不参与门禁,
+  留作演进史与夹具的追认, 不跟着改); ⑥ `./icons/lucide` 在浏览器打包下两家行为不同 —— esbuild 硬失败(分层预期),
+  vite 只给 warning 并把 `node:fs` 换成空壳对象, 要到运行时才炸成 `readFileSync is not a function`(vite 的规矩, 不是包的)。
+  代价记账见 `refs/public-api.md`
 - **美学度量校准** —— 攒够 ≥3 张真实图的踩坑样本后才谈把警告升级为判据(现在启发式一律 warning)
 - **一维约束账本之上的列心求解 / 回吐重解、跳线(line jump)** —— 按证据排期
 - **整幅外来素材不进净空门禁** —— 图标 / 网格底纹 / `embedAsset` 同档, 边与标签压在图表上眼下无人管; 要收口得先按纪律 9 举证 + 纪律 11 给旋钮, 现在靠作者留位(见 `QUICKREF.md` 误用表)
