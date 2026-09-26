@@ -77,6 +77,21 @@ descriptor · serialize · embed · scene · export · theme · guard · barrel 
   所以加码的汇报里要带上新码名, 别只说"加了个门禁"。
 - **删码 / 改码 = L2**: 码是对外契约, 改名要同时改下游分流。
 
+## 给 `Descriptor` 联合加一个新 kind
+
+与加诊断码同族, 但**后果更阴**, 单独立一节。`./descriptor` 是公共面的一条子路径, 裸 TS 直出下
+**类型本身也是承诺面**; 而 `Descriptor` 是判别联合(`kind` 字段), 消费方几乎必然写 `switch (d.kind)`。
+
+- **分级: 名义 L0(纯增量), 对下游是破坏** —— 旧代码若带 exhaustiveness 检查会**编译失败**(那反而是好事,
+  炸得响); 若没带(常见的 `default` 兜底), 新 kind 会**静默漏渲染** —— 图上少一块东西、退出码 0、
+  `audit` 全绿(它审的是 scene, 不是 descriptor)。这比加诊断码危险: 加码最多是下游分流认不出,
+  加 kind 是**渲染面不是 descriptor 的满射**, 与「渲染面 = 审计面」同族的老病。
+- **所以新 kind 的汇报口径**: 不许只说"加了种新形状", 要点名 ① 新 kind 名 ② `serialize` 的 case
+  已同步 ③ **上屏路径认它**(`sceneChildren` / `tryExport` / React 薄壳三处都要过一遍)④ 存量消费方里
+  哪些 `switch` 缺 `default` 分支。
+- **判据**: 一个 kind 只有**全部上屏路径都认它**才算真的存在。所以加 kind 与加码一样, 归 L0 但要在
+  commit 里显式喊; 若为它改动已有 `Descriptor` 消费方的控制流, 那就是 L2。
+
 ## 什么时候该停止裸 TS 直出
 
 判据只有一条: **开始有人不能承受"源码一存盘就生效"**。目前不该动, 因为:

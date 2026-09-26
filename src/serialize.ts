@@ -4,12 +4,28 @@
 // 同一份 descriptor 在任何机器上必须产出同一串字节 —— 否则 golden 无从谈起。
 // =====================================================================
 
-import type { Attrs, Descriptor, DSvg } from './descriptor';
+import { easingSpline, type Attrs, type Descriptor, type DSvg } from './descriptor';
 import { fmt, round1 } from './geometry/vec';
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const escapeXml = (s: string): string => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 export const escapeAttr = escapeXml;
+
+/**
+ * `<style>` 的内容是**元素文本**(不是属性值): XML 字符数据里必须转的只有 `<` 与 `&`
+ * (`>` 合法, 引号更是普通字符) —— 所以**不整份复用 `escapeXml`**: 它多转 `>` 与引号, 平白多字节,
+ * "原样插入"这条承诺也打了折。
+ *
+ * 决定(260926, 在 CDATA 与转义之间选): **转义**, 不用 `<![CDATA[ … ]]>`。两者都是合法 XML,
+ * 分岔在产物**离开独立文件**的时候 —— 把 `<style>` 内联进 HTML 页时, HTML 解析器对 `<style>` 走
+ * rawtext(不认 CDATA 标记), `<![CDATA[` 会当字面量粘进第一条规则的前导, 把整段 `@keyframes` 吞掉;
+ * 而转义那一版最坏只是宿主不还原实体(`<` / `&` 在 CSS 里近乎不存在, 唯一常见的场合是 CSS 嵌套的 `&`)。
+ * 两害相权取 **XML 正确**: 产物是带 XML 声明的独立 .svg, rsvg / resvg / 浏览器按 XML 解析时逐字精确。
+ * ⚠ 代价记在这儿: 若将来要"按宿主口吻序列化"(内联进 HTML 那一版), 加一层显式开关,
+ * 别在这里偷偷改成 CDATA。
+ */
+const STYLE_TEXT_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;' };
+export const escapeStyleText = (s: string): string => s.replace(/[&<]/g, (c) => STYLE_TEXT_ESCAPES[c]);
 
 /** 属性序列化: 键 codepoint 序, 数值 round1, undefined 丢弃 */
 export function attrsToStr(attrs?: Attrs): string {
@@ -68,6 +84,41 @@ export function serialize(d: Descriptor, depth = 0): string {
         ` viewBox="${fmt(round1(d.viewBox.x))} ${fmt(round1(d.viewBox.y))} ${fmt(round1(d.viewBox.w))} ${fmt(round1(d.viewBox.h))}"` +
         ` preserveAspectRatio="xMidYMid meet"${attrsToStr(d.attrs)}>\n${d.markup}\n${pad}</svg>`
       );
+    case 'animate': {
+      // SMIL 属性走**同一个属性袋**再交给 attrsToStr(与 path / circle 同一把尺子): 键序由它排,
+      // 同一个键因此不可能出现两次(重复属性 = XML 不合法) —— 这也是本 case 不学 pattern 那种
+      // "固定属性 + attrsToStr" 写法的原因。
+      // `keyTimes="0;1"` 是**一个区间**(from/to 或只给一端)的显式表达: 规范允许省略, 但省略了
+      // 读者就得自己去背"缺省 = 等分"; 产物要能自解释。多段 values 的逐段 keyTimes 内核不猜 ——
+      // 所以 easing 与 values 互斥(构造器已拦)。
+      const ease: Attrs =
+        d.easing === undefined ? {} : { calcMode: 'spline', keyTimes: '0;1', keySplines: easingSpline(d.easing) };
+      const tag = d.type === undefined ? 'animate' : 'animateTransform';
+      return (
+        `${pad}<${tag}` +
+        attrsToStr({
+          attributeName: d.attributeName,
+          begin: d.begin,
+          dur: d.dur,
+          from: d.from,
+          to: d.to,
+          values: d.values,
+          type: d.type,
+          // 数字档: `String()` 的输出由 ECMAScript 规范定死, 它不是几何量, 不过 round1
+          repeatCount: d.repeatCount === undefined ? undefined : String(d.repeatCount),
+          ...ease,
+          // 作者的 attrs **最后**合并 = 覆盖(与"覆盖表永远赢"同一条), 也是手写 calcMode /
+          // keySplines(多段 values 逐段缓动)的逃生舱
+          ...d.attrs,
+        }) +
+        ' />'
+      );
+    }
+    case 'style':
+      // 内容**原样插入**(与 embed 的 markup 同一条原则: 不重排 / 不缩进 / 不插换行) ——
+      // 多行 CSS 自带缩进, 内核再加一层就是替作者排版, 还会改 CSS 里的空白语义。
+      // `type="text/css"` 放进属性袋而不是写死前缀: 免得作者也在 attrs 里写一次(重复属性 = XML 不合法)。
+      return `${pad}<style${attrsToStr({ type: 'text/css', ...d.attrs })}>${escapeStyleText(d.css)}</style>`;
   }
 }
 
