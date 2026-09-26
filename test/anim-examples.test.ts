@@ -69,9 +69,8 @@ describe('anim-examples · 三张动画示例的产物判据', () => {
     expect(count(svg, 'attributeName="stroke-dashoffset"')).toBe(4);
     expect(count(svg, 'href="#ant-')).toBe(4);
     for (const id of ['ant-e1', 'ant-e2', 'ant-e3', 'ant-e-loop']) expect(svg).toContain(`id="${id}"`);
-    // 位移量 = 一个 dash 周期(12), 方向两档: 正向 −12 / 回滚 +12
-    expect(count(svg, 'values="0;-12"')).toBe(3);
-    expect(count(svg, 'values="0;12"')).toBe(1);
+    // 位移量 = 一个 dash 周期(12), 四条一律顺着箭头(负号顺 path 方向爬)
+    expect(count(svg, 'values="0;-12"')).toBe(4);
     expect(count(svg, 'repeatCount="indefinite"')).toBeGreaterThanOrEqual(5);   // 4 条蚂蚁线 + 末环呼吸
     // 时序链: 第 n 环接第 n−1 环的结尾(第一环起于 0.4s)
     expect(svg).toContain('id="lit1"');

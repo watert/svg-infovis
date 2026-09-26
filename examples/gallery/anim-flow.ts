@@ -16,7 +16,7 @@
 //   · **命名缓动**: 曲线一律从 `EASING_SPLINES` 点名, 本文件一个贝塞尔字面量都不自带
 //
 // 动起来什么样(浏览器打开产物; PNG 快照只有第一帧 —— 静帧就是"未点亮"的那张流程图):
-//   ① 三条主线 + 一条回流的虚线**蚂蚁线**恒在跑(回滚那条逆向跑: values 取正号)
+//   ① 三条主线 + 一条回流的虚线**蚂蚁线**恒在跑(一律顺着箭头方向爬)
 //   ② 四个阶段环自左向右依次亮起(0.4s 起, 每环 0.34s)
 //   ③ 末环亮完开始**呼吸**(1 → 0.45 → 1, 2.2s 一轮, 无限循环) —— "进行中"停在最后一格
 //
@@ -51,8 +51,7 @@ const BLOCK_GAP = 62;    // 副题 → 流水线那一行(换话题了, 缝比 H
 const FOOT_GAP = 36;     // 内容底 → 页脚第一行; 页脚两行之间再用 HEAD_GAP
 const ROW_GAP = 48;      // 阶段之间的缝: 边与箭头住在这条缝里(缝就是箭头的地皮)
 const NODE_PAD: [number, number] = [16, 20];   // 盒的内边距 [左右, 上下] —— 流水线的盒子要站得住
-const STUB = 20;         // 出盒的第一小段直线 —— 折点磨圆要有它垫着
-const LOOP_DEPTH = 112;  // 回流走廊比盒底再低多少
+const LOOP_DEPTH = 112;  // 回流走廊比盒底再低多少(竖段本身就是 stub, 不再另设)
 const LOOP_RADIUS = 14;  // 回流折点磨圆半径
 const NODE_RADIUS = 10;  // 节点圆角(**同一份**给盒与高亮环: 环是从盒外扩出来的, 同心靠这个数)
 const RING_PAD = 5;      // 高亮环离盒边多远(正值向外)
@@ -67,7 +66,7 @@ const ACCENT = toneStyle(DEFAULT_THEME, 'blue', 'solid').stroke;   // 动画层�
 const TITLE = 'CI 流水线 · 运行中';
 const SUB = '同一张版图, 多一条时间轴 —— 虚线在跑、环在亮; 产物仍是静态 SVG, 零 JS';
 const FOOT = [
-  '动起来: ① 四条蚂蚁线恒动(回滚那条逆向跑) ② 四环依次点亮 ③ 末环亮完开始呼吸',
+  '动起来: ① 四条蚂蚁线顺箭头恒动 ② 四环依次点亮 ③ 末环亮完开始呼吸',
   '分工: 蚂蚁线走 href 指名 path 自己(不可继承属性, 挂组上不动), 环走时序链',
 ] as const;
 
@@ -105,16 +104,18 @@ const rings = boxes.map((r) => insetRect(r, -RING_PAD));   // 高亮环的外廓
 
 // --- 边: 三条主线(面对面 = 一条直线)+ 一条回流(下绕, 折点磨圆)------------------
 
-/** 一条边: 端点列 + 箭头(+ 折点磨圆半径)。`d` 与 `edgeShape` 内部那份**同源**(同一个纯函数、同一份入参) */
+/** 一条边: 端点列 + 磨圆半径。`d` 取**无端点裁切**的整杆(`end: 'none'` —— 缺省会按箭头深度内缩
+ *  ~7px, 那是给箭头让位的; 蚂蚁线没有箭头, 要一路爬到盒边, 不留缺口) */
 const edgeOf = (id: string, points: Pt[], radius?: number) =>
-  ({ id, points, radius, d: edgeGeometry({ points, radius, end: 'arrow-triangle' }).d });
+  ({ id, points, radius, d: edgeGeometry({ points, radius, end: 'none' }).d });
 const mains = boxes.slice(0, -1).map((a, i) => edgeOf(`e${i + 1}`, [rectFace(a, 'right'), rectFace(boxes[i + 1], 'left')]));
 
-// 回流: 从末盒底绕到第二盒底(方向是"往回走", 蚂蚁线也逆向跑)。走廊 y 由 `below` 从整行底下推
+// 回流: 从末盒底绕到第二盒底。**端点贴盒边**(rectFace 不加 offset —— 从盒面到走廊的竖段本身就是
+// stub, 再 offset 线就悬空了); 走廊 y 由 `below` 从整行底下推
 const last = boxes[boxes.length - 1];
 const build = boxes[1];
-const downFrom = rectFace(last, 'bottom', { offset: STUB });
-const downTo = rectFace(build, 'bottom', { offset: STUB });
+const downFrom = rectFace(last, 'bottom');
+const downTo = rectFace(build, 'bottom');
 const loopY = below(rowBox, { w: 0, h: 0 }, LOOP_DEPTH).y;
 const loopPts: Pt[] = [downFrom, { x: downFrom.x, y: loopY }, { x: downTo.x, y: loopY }, downTo];
 const loop = edgeOf('e-loop', loopPts, LOOP_RADIUS);
@@ -135,8 +136,8 @@ for (const content of FOOT) {
 // --- 动画层 ---------------------------------------------------------------
 //
 // ① 蚂蚁线: 一段虚线 overlay 钉在**边自己的 d** 上(不是第二条几何), 靠 href 指名道姓动它的
-//    `stroke-dashoffset`。位移量恰好一个 dash 周期 ⇒ 循环处无缝; 位移的方向就是"流的朝向"
-const ants = (e: { id: string; d: string }, backward: boolean): Descriptor => {
+//    `stroke-dashoffset`。位移量恰好一个 dash 周期 ⇒ 循环处无缝; 0→负 = 顺 path 方向(顺着箭头)爬
+const ants = (e: { id: string; d: string }): Descriptor => {
   const dashId = `ant-${e.id}`;
   return group([
     path(e.d, {
@@ -145,7 +146,7 @@ const ants = (e: { id: string; d: string }, backward: boolean): Descriptor => {
     }),
     animate({
       attributeName: 'stroke-dashoffset',
-      values: backward ? `0;${DASH_PERIOD}` : `0;-${DASH_PERIOD}`,   // 正号 = 逆着箭头跑
+      values: `0;-${DASH_PERIOD}`,                                    // 负号 = 顺着箭头跑
       dur: `${ANT_CYCLE}ms`, repeatCount: 'indefinite',
       attrs: { href: `#${dashId}` },                                  // ⚠ 逃生舱: 目标 = 那条 path 自己
     }),
@@ -191,14 +192,14 @@ const content: Descriptor[] = [
   canvasLayer(DEFAULT_THEME, W, H),
   line(title, DEFAULT_THEME.tones.slate.text),
   line(sub, DEFAULT_THEME.label),
-  // 静态版式: 边(实线 / 虚线 + 箭头)→ 节点
+  // 静态版式: 边(实线 + 箭头)→ 节点。**回流也是实线底子** —— 虚线底 + 蚂蚁线 overlay 是两条
+  // 错开的虚线互相打架(实测观感), "往回走"由方向、标签与箭头说, 不靠底子换花样
   ...mains.map((e) => edgeShape({ points: e.points, end: 'arrow-triangle' })),
-  // 回流那条的**底子**是虚线(它是"往回走"的那条), 实墨仍由上面那层蚂蚁线跑
-  edgeShape({ points: loop.points, radius: LOOP_RADIUS, end: 'arrow-triangle', dash: '4 4' }),
+  edgeShape({ points: loop.points, radius: LOOP_RADIUS, end: 'arrow-triangle' }),
   ...boxes.map((r, i) => nodeShape({ ...r, ...STAGES[i], radius: NODE_RADIUS })),
   // 动画层: 蚂蚁线 + 高亮环(整层排在静态版式之上 —— 两层墨谁都盖不着谁)
-  ...mains.map((e) => ants(e, false)),
-  ants(loop, true),
+  ...mains.map((e) => ants(e)),
+  ants(loop),
   ...boxes.map(ring),
   // 标签与页脚**压在动画层之上**: 遮罩片的本职就是切断穿过的线 —— 蚂蚁线也不许糊住字
   labelBoxShape({ x: loopRect.x + loopRect.w / 2, y: loopRect.y + loopRect.h / 2, w: loopRect.w, h: loopRect.h, content: '失败回滚' }),
