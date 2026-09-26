@@ -48,7 +48,8 @@ npx skills add watert/svg-infovis -g     # 装到全局(跨项目可见)
 npx skills add watert/svg-infovis --list # 只看看仓里有什么 skill
 ```
 
-- 装出来的 skill 目录 = `SKILL.md` + `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md`, **全是真身** —— 不靠软链解析, 换哪个版本的 CLI 都装得对
+- 装出来的 skill 目录 = `SKILL.md` + `QUICKREF.md` + `refs/{recipes,aesthetics}.md`, **全是真身** —— 不靠软链解析, 换哪个版本的 CLI 都装得对
+- **skill 只装"画图现场用得上"的**: 分层契约 / 设计意图 / 公共面 / 架构史(`refs/{layering,principles,public-api,architecture}.md`)受众是改内核与发布的人, 留在仓内不进 skill —— 只装 skill 的 agent 手上没有源码, 那些契约对它无用
 - 不装 skill 也能用: 文档随包发布 —— 包根有 `README.md`, `QUICKREF.md` 与 SKILL 那份真身在 `node_modules/@watert/svg-infovis/skills/svg-infovis/`
 - ⚠ 三条实测坑, 动仓结构前先看: ① 仓库**根目录刻意不放** `SKILL.md` —— skills CLI 的规则是"根目录的 SKILL.md 盖住 `skills/` 下的", 且会把**整仓**当成 skill 拷进去(实测 3.3 MB、连 `test/` 与 `website/` 一起); ② skill 目录里若放软链, 安装时会被物化成真文件(默认 symlink 与 `--copy` 两种模式都实测过), 但那是未文档化行为 —— 所以真身一律放 `skills/svg-infovis/`, 仓根只留指向它的软链; ③ 验证发现结果用 `--list`, 别猜
 
@@ -178,17 +179,17 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 > ⚠ **npm 页面 vs 仓库里**: 发布的包只带 `dist/` · `src/` · `blocks/` · `scripts/` · `templates/` · `assets/` · `skills/` 与 `README.md` / `LICENSE`(`files` 白名单, 逐条在 `package.json`); `refs/` · `docs/` · `examples/` · `website/` **与 `ROADMAP.md`** 都不进包 —— 下面指向这些文件的相对链接只在**仓库里**有效, 在 npm 页面读就换 [GitHub 仓库](https://github.com/watert/svg-infovis) 看同一份。
 >
-> ⚠ 仓根的 `QUICKREF.md` 与 `refs/{recipes,layering,principles,public-api,aesthetics}.md` 是**软链**: 真身在 `skills/svg-infovis/` 里(与 SKILL.md 同装一份, 随包也发), 仓内留软链只为旧路径不失效 —— GitHub 网页 / 编辑器 / node 读文件都跟随软链, npm 包内则只有真身那份(软链不进包)。
+> ⚠ 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**软链**: 真身在 `skills/svg-infovis/` 里(与 SKILL.md 同装一份, 随包也发), 仓内留软链只为旧路径不失效 —— GitHub 网页 / 编辑器 / node 读文件都跟随软链, npm 包内则只有真身那份(软链不进包)。下面 `refs/layering.md` 等四份则**不是**软链: 它们的真身就在仓根 `refs/`(不进 skill, 也不进包)。
 
 - [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问(真身 `skills/svg-infovis/QUICKREF.md`)
 - [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律(可 `npx skills add` 装, 见上)
 - [`refs/layering.md`](./refs/layering.md) —— **现行分层契约与边界规则**: 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 [`architecture-v3.svg`](./refs/architecture-v3.svg), core 自画自审)
 - [`refs/principles.md`](./refs/principles.md) —— 设计意图与第一性原则: 每条断言、它的代价、逼它出来的实跑事故、冲突时怎么裁
 - [`refs/public-api.md`](./refs/public-api.md) —— 公共承诺面: exports 子路径即 API、变更分级、破坏性改动四步、诊断码兼容面
-- [`refs/recipes.md`](./refs/recipes.md) —— 十三条图型与风格配方
+- [`refs/recipes.md`](./refs/recipes.md) —— 十三条图型与风格配方(随 skill 走, 真身 `skills/svg-infovis/refs/recipes.md`)
 - [`refs/architecture.md`](./refs/architecture.md) —— v0.1 产品管线五层的**演进史存档**(决策层 / blink 已废弃; 别拿它回答现状问题)
-- [`refs/aesthetics.md`](./refs/aesthetics.md) —— 美学评估研究草案(全警示级, 不是操作手册)
-- [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md) · [`docs/infograph-roadmap.md`](./docs/infograph-roadmap.md) · [`docs/avatar-lab-parity.md`](./docs/avatar-lab-parity.md)(外部对账: 解析式 3D 剪影渲染器)
+- [`refs/aesthetics.md`](./refs/aesthetics.md) —— 美学评估研究草案(全警示级, 不是操作手册; 随 skill 走, 真身 `skills/svg-infovis/refs/aesthetics.md`)
+- [`docs/`](./docs/) —— `npm-release.md`(发布待办与验收) · `theme.md`(主题系统) · `mermaid-geometry.md`(外部几何内核借鉴清单) · `blink-archive.md`(废弃路线归档) · `infograph-roadmap.md`(跨向 infograph 的路线) · `animation-roadmap.md` + `animation-parity.md`(动效两条腿与 Remotion 对账) · `avatar-lab-parity.md`(3D 剪影渲染器对账)
 - [`examples/README.md`](./examples/README.md) —— 五桶示例与出口纪律
 - [`ROADMAP.md`](./ROADMAP.md) —— 立项依据与后续方向
 

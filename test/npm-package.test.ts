@@ -138,7 +138,9 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     //    连 test/ 与 website/ 一起), 还会盖住 skills/ 下的真身 —— 这条是"别人装得对不对"的前提。
     expect(existsSync(join(ROOT, 'SKILL.md'))).toBe(false);
     // skill 目录里必须全是真身: CLI 会不会物化软链是它**未文档化**的实现细节, 不能当成安装前提
-    const real = ['SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/layering.md', 'refs/principles.md', 'refs/public-api.md', 'refs/aesthetics.md'];
+    // ⚠ 这里只列"画图现场用得上"的四份。改内核 / 发布才用的 refs/{layering,principles,public-api}.md
+    //    刻意**不在** skill 里(它们的受众是 clone 过的内核开发者), 真身在仓根 refs/ —— 别顺手搬进来
+    const real = ['SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/aesthetics.md'];
     for (const f of real) {
       const p = join(ROOT, 'skills/svg-infovis', f);
       expect(existsSync(p), `skill 真身缺了: skills/svg-infovis/${f}`).toBe(true);
@@ -149,6 +151,12 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
       const p = join(ROOT, f);
       expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 应是软链(真身在 skills/svg-infovis/ 下)`).toBe(true);
       expect(readFileSync(p, 'utf8').length, `仓根 ${f} 的软链读不到内容`).toBeGreaterThan(0);
+    }
+    // 反向: 受众不在 skill 的那三份, 真身留在仓根(软链 = 又把它们塞回 skill 了, 分治白做)
+    for (const f of ['refs/layering.md', 'refs/principles.md', 'refs/public-api.md']) {
+      const p = join(ROOT, f);
+      expect(existsSync(p), `仓根缺了 ${f}`).toBe(true);
+      expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 成了软链 —— 它的真身该留在仓根, 不随 skill 走`).toBe(false);
     }
   });
 });

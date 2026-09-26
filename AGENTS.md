@@ -28,11 +28,12 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 
 ## skill 与文档的真身在哪(260926 起)
 
-- **`SKILL.md` 的真身在 `skills/svg-infovis/`**(与 `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md` 同装一份), 仓根的 `QUICKREF.md` 与那 5 份 refs 是**指向它的软链** —— 改内容一律改真身, 对着软链原子写会把链替换成普通文件
+- **分治原则**: skill 只装**画图现场用得上**的四份 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,aesthetics}.md`, 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓根 `refs/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用
+- 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**指向真身的软链** —— 改内容一律改真身(`skills/svg-infovis/`), 对着软链原子写会把链替换成普通文件
 - ⚠ **根目录永远不许放 `SKILL.md`**: skills CLI 的发现规则是"根目录的 SKILL.md 盖住 `skills/` 下的"(实测: 根那份会把 `skills/` 里的顶掉), 且会把**整仓**当成 skill 拷给消费者(实测 3.3 MB, 连 `test/` 与 `website/` 一起); 真身只可能在 `skills/svg-infovis/`
 - 软链方向选"真身在 skill、仓根留链", 因为反方向会让 `npx skills add` 的**软链物化**成为外部用户能否拿到文档的前提 —— 那是 CLI 未文档化的实现细节; 现在的方向下 skill 目录里全是真身, 换哪个版本都装得对
-- Windows 上 `core.symlinks=false` 的 checkout 会把仓根这几条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
-- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill
+- Windows 上 `core.symlinks=false` 的 checkout 会把仓根那 3 条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
+- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill; 装出来应是**四份真身**, 多了就是又把仓内 refs 塞进 skill 了。布局守卫在 `test/npm-package.test.ts`(双向: 该真身的不能是软链, 该留仓根的不能变软链)
 
 ## 产物
 

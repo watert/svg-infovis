@@ -9,9 +9,9 @@ date: 2026-09-26T18:45:14+08:00
 
 README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该拿它画图、画图时守什么**。
 
-**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md` —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
+**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,aesthetics}.md` —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
+**每层的受众分得开**: 本 skill 只装"画图现场用得上"的四份; 分层契约 / 设计意图 / 公共面(改内核与发布才用)在**仓内 `refs/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
 **运行时优先 bun**: 场景文件是 `.ts`, `bun run scene.ts` 直跑零配置; 没有 bun 时 `svginfo` 退回 node ≥22.6 的类型剥离, 产物逐字节相同。
-仓里另有 `README.md`(API 索引) / `ROADMAP.md` / `templates/` / `examples/` / `src/` —— **不随 skill 走**, 全在 clone 的仓里(npm 装的那份见包内 `node_modules/@watert/svg-infovis/`)。
 
 ## 何时用 / 何时别用
 
@@ -25,19 +25,19 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 | 你在做 | 只读 |
 |---|---|
 | 画一张图 | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
-| 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts` |
+| 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内) |
 | 查函数 / 门禁判据 / 模块在哪 | `README.md` 的 API 索引(仓内; 装包则在 `node_modules/@watert/svg-infovis/`) |
 | 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
-| 拿不准某件东西该放哪层 / 哪条边界规则管它 | [`refs/layering.md`](./refs/layering.md) —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`, 仓内) |
-| 想知道为什么这么切 | [`refs/principles.md`](./refs/principles.md) —— 原则、代价、逼它出来的实跑事故 |
-| 要动公共面(exports 子路径 / 门禁码) | [`refs/public-api.md`](./refs/public-api.md) —— 变更分级与破坏性改动四步 |
+| 拿不准某件东西该放哪层 / 哪条边界规则管它 | 仓内 `refs/layering.md` —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`) |
+| 想知道为什么这么切 | 仓内 `refs/principles.md` —— 原则、代价、逼它出来的实跑事故 |
+| 要动公共面(exports 子路径 / 门禁码 / 发布形态) | 仓内 `refs/public-api.md` —— 变更分级与破坏性改动四步 |
 | 看未做项 | `ROADMAP.md`(仓内) |
 
 ## 三步
 
 起手代码只有一份, 在 QUICKREF「30 秒起手」(`nodeFit` + `tryExport` + 自己 `writeFileSync`)。不要再写一份不过门禁的 `toSVG`。
 
-⚠ **三条路别混**: ① **仓内开发**(本节这些 `bun run examples/...` / `scripts/*.ts` 命令)只在 clone 的本仓里成立; ② **装包消费**(`bun add @watert/svg-infovis`)从包名引子路径, 包里既没有 `examples/` 也没有 `test/` —— 起手照抄 QUICKREF 那一段, 别去 `bun run` 本仓的示例; ③ **只装了本 skill**(既没 clone 也没装包)时手上只有这几份文档 —— 真要画图先 `bun add @watert/svg-infovis` 拿到 API, 再照 QUICKREF 起手, 别对着文档里的 `bun run examples/...` 发愣。
+⚠ **三条路别混**: ① **仓内开发**(本节这些 `bun run examples/...` / `scripts/*.ts` 命令)只在 clone 的本仓里成立; ② **装包消费**(`bun add @watert/svg-infovis`)从包名引子路径, 包里既没有 `examples/` 也没有 `test/` —— 起手照抄 QUICKREF 那一段, 别去 `bun run` 本仓的示例; ③ **只装了本 skill**(既没 clone 也没装包)时手上只有那四份文档 —— 真要画图先 `bun add @watert/svg-infovis` 拿到 API, 再照 QUICKREF 起手, 别对着文档里的 `bun run examples/...` 发愣。
 
 ```bash
 bun run examples/start/full-chain.ts > /tmp/d.svg     # 抄 full-chain 开新图
@@ -115,31 +115,18 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 
 ## 目录
 
-**本 skill 目录**(仓内 `skills/svg-infovis/`; 也可 `npx skills add watert/svg-infovis` 装进任何认 skill 的 agent):
+**本 skill = 这四份**(仓内 `skills/svg-infovis/`; 也可 `npx skills add watert/svg-infovis` 装进任何认 skill 的 agent):
 
 ```
-SKILL.md         本文件
-QUICKREF.md      画图时只读这份 —— 缺省值表在它手里
+SKILL.md          本文件
+QUICKREF.md       画图时只读这份 —— 缺省值表在它手里
 refs/recipes.md         十三条图型 / 风格配方
-refs/layering.md        现行分层契约 + 边界规则(七层 / 依赖方向 / 三条边界轴)
-refs/principles.md      设计意图与第一性原则(代价与事故出处)
-refs/public-api.md      公共面 / 变更分级 / 破坏性改动 SOP
-refs/aesthetics.md      美学研究草案(含目标函数选边), 不是操作手册
+refs/aesthetics.md      美学评估草案(含目标函数选边), 不是操作手册
 ```
 
-**clone 的本仓另有的**(不随 skill 走; 装包时 `templates/` / `src/` / `dist/` 那份在 `node_modules/@watert/svg-infovis/`):
-
-```
-README.md       API 索引 / 门禁判据导读
-ROADMAP.md      立项依据与后续方向
-templates/      序列 / 分层 / 阶段带三套骨架。宪章见 templates/README.md
-examples/       五桶, 清单 examples/manifest.ts
-assets/         hero.svg(README 首图, test/hero-svg.test.ts 守字节) · embeds/ 图表底板 4(Apache 2.0)
-docs/           theme / mermaid-geometry / blink-archive / infograph-roadmap
-refs/architecture.md + build-arch*.ts   v0.1 五层管线的演进史存档; 现状图 = refs/architecture-v3.svg
-src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, svg-varflatten.ts}
-```
+**改内核 / 发布用得上的**(仓内 `refs/`, 不随 skill 也不进 npm 包): `layering.md` 分层契约 · `principles.md` 意图与事故出处 · `public-api.md` 公共面与破坏性改动 SOP · `architecture.md` 演进史存档。
+本仓其余那堆(`templates/` `examples/` `src/` `test/` `docs/` `assets/` …)同理 —— 完整清单与"该读哪份"看仓内 `AGENTS.md`, 本文件不复述。
 
 ```bash
-bun run verify
+bun run verify      # 在 clone 的本仓里改完内核: 构建 + 全量测试 + 类型检查, 全绿才算完
 ```
