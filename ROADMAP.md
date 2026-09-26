@@ -27,6 +27,14 @@ date: 2026-09-23T16:00:00+08:00
 
 ## 后续方向
 
+- **契约归属三处错位(260926 审计, 动它们全是破坏性变更, 别顺手改)** —— 现状与判据见
+  `refs/layering.md`「契约归属」: ① `Scene` / `SceneNode` / `SceneGroup` 契约住在 `knives/audit.ts`,
+  `scene.ts` 只做加法扩展, 致 `scene` 运行时依赖 `audit`(正解是契约住 scene、audit 反读; 要同时动
+  audit / scene / export 三个文件与类型出口, 性价比得单独算) ② `knives/measure` 是纯函数零依赖却被
+  6 个形状/块件消费, 按"≥2 消费者"判据更像 `geometry/` 原语, 但搬家要改 `exports` 子路径 = L3 破坏
+  ③ `theme` 反向依赖 `shapes/grid-pattern` 的 `GridDefaults`(纯 `import type`, 运行时无环) ——
+  正解是该类型下沉到 `descriptor`, 小改但要连带 import 调整
+
 - **行内标记的第二档** —— v1(260925)只有四种样式: `**粗**` / `*斜*` / `~~删~~` / `[字]{tone|#hex}`。未做且已知: ① 等宽 `code`(加一种 `InlineKind` + `INLINE_STYLE` 一行即可: 样式袋 / `DTextSpan.attrs` 都吃得下 `font-family` —— 刻意**没**预置空字段, 见 QUICKREF「边界」那条"不提前给空位"); ② 链接 / 上标 / 名字引用(`name` / `link` / `sup`); ③ 着色的 **tint 底**(现在只改文字色, 给底就得同时动 `labelBoxShape` 的背景片); ④ **落单标记的报位诊断**(`TextRun.start/end` 已经带出来了, 门禁还没拿它指路); ⑤ `knives/describe.ts` 的读数板走 `textUnits(原串)` —— 带标记的标签在终端里会多算那几个标记字符(`cells(plainText(s))` 一行可收, 但那会改 `describe` 的既有输出字节, 等下次一并做)。前三项都要"先有真需求再开", 第四项等下一次"作者写歪了却没人喊"的实例
 - **web playground / 薄壳演示页** —— 另立项(原记作 "v0.2", 而 v0.2 这个号 260925 起归排版层, 编号待重定 —— 判据是 `docs/infograph-roadmap.md` 的"划界"); core 不引前端框架, 依赖单向
 - **npm 发包** —— 另立项; 在此之前 `bun link` 或 git URL 引入

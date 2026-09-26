@@ -44,13 +44,32 @@ date: 2026-09-26T01:10:00+08:00
   作者声明的 bounds ──▶ knives/(audit 判决) ──▶ export 决定出不出图 ──▶ 作者改旋钮
 ```
 
-- **几何层不知道形状层**: `geometry/` 不得 import `shapes/` / `blocks/` / `knives/`(例外只有一条, 见下)。
+- **几何层不知道形状层**: `geometry/` 不得 import `shapes/` / `blocks/` / `knives/`(例外见下)。
 - **形状层不知道块层**; `blocks/` 只组合 `src/` 的刀, 不引第三方。
 - **`knives/` 不写 scene**: 判决是读数, 旋钮归作者(`assignLanes` 不显式调用就完全不发生分配)。
 - **core 永不引 React / vite / 浏览器**; 依赖方向永远是 `core ← 薄壳 ← 上层`, 反向即破。
-- ⚠ **一个已存在的例外, 别当规律抄**: `geometry/box` 复用 `knives/route` 的 `portPoint` / `sideDir`
-  (面上的点只许一份公式)。它是"纯函数"但**不是零内部依赖** —— 纯函数 ≠ 无依赖。
-  新增几何件若也需要 `route` 的东西, 先问"能不能把那份公式提到更底下的地方", 别再加一个反向 import。
+
+### 已知越层(现状, 不是设计意图 —— 别当规律抄)
+
+"无环"不等于"单向"。全仓**没有真正的 import 环**, 但下列反向依赖确实存在, 查依赖图时按"已备案"读:
+
+- ⚠ **`geometry/{box,grid,place}` → `knives/route`(三处, 不是一处)**: 都为复用 `portPoint` / `sideDir`
+  (面上的点只许一份公式)。三者的文件头都自称"README 分层段记的那条有意例外", 而 README 只在
+  `geometry/box` / `geometry/grid` 两行零散提到 —— **以本节为准**。它们是"纯函数"但**不是零内部依赖**,
+  纯函数 ≠ 无依赖。新增几何件若也要 `route` 的东西, 先问"能不能把那份公式提到更底下", 别再叠一个反向 import。
+- **`knives/fit` → `shapes/node` / `shapes/icon`**(值导入 `NODE_TEXT_LAYOUT` / `assertNodeShape` /
+  `nodeOuterSize` / `ICON_DEFAULTS`): 盒反算与上屏共用同一份字号与外径公式, 是**有意的同源**,
+  方向为 knives → shapes。
+- **`scene` → `knives/audit` / `knives/cluster`**(值导入 `groupLabelBox` / `GROUP_FIT_PAD` /
+  `declaredMemberIds` …): 缓存层依赖判决层。根因见下"契约归属"。
+- **`export` → `scene`**(值导入 `assertFreshForExport` / `sceneStatus`): 但 `src/index.ts` 里
+  `export` 的 barrel 行号(86)**排在** `scene`(90)之前, 违反"读 barrel 的顺序即依赖顺序"。
+  不会 TDZ 崩(引用在函数体内, 调用发生在运行时), 属**纪律擦伤**而非 bug。
+- **`geometry/inline-text` → `descriptor`**: geometry 内向根层回引。"geometry 是零依赖底层"这条对
+  `inline-text` 不成立(它 barrel 里排最前, 自称零依赖)。
+- **两处类型层擦边**(靠 `import type` + 注释守住运行时无环, 不算违规但要知道):
+  `theme` → `shapes/grid-pattern`(`GridDefaults`, 最底层反向依赖形状层的类型 —— 正解是该类型下沉到
+  `descriptor`); `shapes/edge` → `knives/audit`(`SceneLabel`, 为契约同源)。
 
 ## 准入门槛: 什么时候一个新件配得上进某一层
 
@@ -64,7 +83,10 @@ date: 2026-09-26T01:10:00+08:00
   (数值语义关在这一层, 走独立子路径)。
 - `templates/` —— **不在 `exports` 里**, 仓内按路径引。它是骨架不是库件, 出公共面要付版本债。
 - 一个文件**一个主出口**。别开 `xShape` / `xFit` / `xBlock` 五件套 —— 读数盒可以多吐, 主出口只许一个。
-- 判据写进 `test/`, 隔壁 `.test.ts`(一个 describe); `examples/` 只展示, 清单只有 `examples/manifest.ts` 一份。
+- **测试住哪**: 判据写进 `.test.ts`, **新件与源旁**(一个 describe 块)—— 这是 v0.2 起的规矩,
+  `blocks/` 全员与 `shapes/{stat,badge,heading}` 遵守; 内核既有件仍在 `test/`(`test/*.test.ts`, 82 个文件)。
+  两套并存是历史分层, **新件不许再进 `test/`**; 改既有件时顺手搬不搬随意, 别为了"统一"制造大 diff。
+- `examples/` 只展示, 清单只有 `examples/manifest.ts` 一份。
 
 ## 块契约(blocks/ 的宪法)
 
@@ -78,6 +100,18 @@ type Block = { shape: DGroup; bounds: Rect };   // 主出口恒返回这两位
   (盒高是推导结果, 吃掉它就会画出 36 高的条而不报错)。
 - 契约是结构型, **暂不设共享类型模块**: 少一个公共 import 点, 层还在长, 别急着立宪法。
 - 细则与现役成员表 → `blocks/README.md`(一处事实一处, 本篇不抄)。
+
+## 契约归属: 三处已知错位(现状记录, 动它们是破坏性变更)
+
+- **`Scene` 契约住在 `knives/audit.ts`**, `scene.ts` 只做 `SceneNode = AuditSceneNode & { bounds_source? }`。
+  事实上的单一来源成立(渲染面与审计面读同一个类型), 但**住错了文件**: 场景契约该住在 `scene.ts`
+  或独立契约模块, 由 audit 反过来读它。现在 `scene` 因此运行时依赖 `audit`。
+- **`knives/measure` 位置可疑**: 纯函数、零依赖、被 6 个形状/块件消费(`badge` / `edge` / `group` /
+  `heading` / `stat` / `progress`)—— 按"≥2 消费者 + 无数值语义 + 纯函数"的判据, 它更像 `geometry/`
+  的原语, 住在 `knives/` 是历史位置。搬家要改 `exports` 子路径 = **L3 破坏**(见 `public-api.md`),
+  收益中等, 别顺手改。
+- **`guard` 是零依赖根层横切**, 但异常名 `ShapeInputError` 暗示 shapes 层, 实际 `geometry/pack` 与
+  `geometry/place` 也抛它。命名债, 不影响分层。
 
 ## 三条边界轴
 
