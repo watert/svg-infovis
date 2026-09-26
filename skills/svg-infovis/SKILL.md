@@ -11,7 +11,7 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 
 **本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md` —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
 **运行时优先 bun**: 场景文件是 `.ts`, `bun run scene.ts` 直跑零配置; 没有 bun 时 `svginfo` 退回 node ≥22.6 的类型剥离, 产物逐字节相同。
-仓里另有 `README.md`(API 索引) / `ROADMAP.md` / `templates/` / `examples/` / `src/` —— **不随 skill 走**, 全在 clone 的仓里(npm 装的那份见包内 `node_modules/svg-infovis/`)。
+仓里另有 `README.md`(API 索引) / `ROADMAP.md` / `templates/` / `examples/` / `src/` —— **不随 skill 走**, 全在 clone 的仓里(npm 装的那份见包内 `node_modules/@watert/svg-infovis/`)。
 
 ## 何时用 / 何时别用
 
@@ -26,7 +26,7 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 |---|---|
 | 画一张图 | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
 | 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts` |
-| 查函数 / 门禁判据 / 模块在哪 | `README.md` 的 API 索引(仓内; 装包则在 `node_modules/svg-infovis/`) |
+| 查函数 / 门禁判据 / 模块在哪 | `README.md` 的 API 索引(仓内; 装包则在 `node_modules/@watert/svg-infovis/`) |
 | 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
 | 拿不准某件东西该放哪层 / 哪条边界规则管它 | [`refs/layering.md`](./refs/layering.md) —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`, 仓内) |
 | 想知道为什么这么切 | [`refs/principles.md`](./refs/principles.md) —— 原则、代价、逼它出来的实跑事故 |
@@ -37,7 +37,7 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 
 起手代码只有一份, 在 QUICKREF「30 秒起手」(`nodeFit` + `tryExport` + 自己 `writeFileSync`)。不要再写一份不过门禁的 `toSVG`。
 
-⚠ **三条路别混**: ① **仓内开发**(本节这些 `bun run examples/...` / `scripts/*.ts` 命令)只在 clone 的本仓里成立; ② **装包消费**(`bun add svg-infovis`)从包名引子路径, 包里既没有 `examples/` 也没有 `test/` —— 起手照抄 QUICKREF 那一段, 别去 `bun run` 本仓的示例; ③ **只装了本 skill**(既没 clone 也没装包)时手上只有这几份文档 —— 真要画图先 `bun add svg-infovis` 拿到 API, 再照 QUICKREF 起手, 别对着文档里的 `bun run examples/...` 发愣。
+⚠ **三条路别混**: ① **仓内开发**(本节这些 `bun run examples/...` / `scripts/*.ts` 命令)只在 clone 的本仓里成立; ② **装包消费**(`bun add @watert/svg-infovis`)从包名引子路径, 包里既没有 `examples/` 也没有 `test/` —— 起手照抄 QUICKREF 那一段, 别去 `bun run` 本仓的示例; ③ **只装了本 skill**(既没 clone 也没装包)时手上只有这几份文档 —— 真要画图先 `bun add @watert/svg-infovis` 拿到 API, 再照 QUICKREF 起手, 别对着文档里的 `bun run examples/...` 发愣。
 
 ```bash
 bun run examples/start/full-chain.ts > /tmp/d.svg     # 抄 full-chain 开新图
@@ -127,7 +127,7 @@ refs/public-api.md      公共面 / 变更分级 / 破坏性改动 SOP
 refs/aesthetics.md      美学研究草案(含目标函数选边), 不是操作手册
 ```
 
-**clone 的本仓另有的**(不随 skill 走; 装包时 `templates/` / `src/` / `dist/` 那份在 `node_modules/svg-infovis/`):
+**clone 的本仓另有的**(不随 skill 走; 装包时 `templates/` / `src/` / `dist/` 那份在 `node_modules/@watert/svg-infovis/`):
 
 ```
 README.md       API 索引 / 门禁判据导读

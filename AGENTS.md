@@ -7,11 +7,11 @@
 本仓经 `bun link` 注册为全局包 `svg-infovis` + 全局 CLI `svginfo`, 全链是 symlink, 没有副本:
 
 ```text
-~/.bun/bin/svginfo  →  ../install/global/node_modules/svg-infovis/dist/scripts/cli.js
-~/.bun/install/global/node_modules/svg-infovis  →  <本仓>(~/github 是 ~/www/github 的软链)
+~/.bun/bin/svginfo  →  ../install/global/node_modules/@watert/svg-infovis/dist/scripts/cli.js
+~/.bun/install/global/node_modules/@watert/svg-infovis  →  <本仓>(~/github 是 ~/www/github 的软链)
 ```
 
-消费侧另有自己 `node_modules/` 里的一条 link 指回本仓 —— 裸 import(`from 'svg-infovis/knives/fit'`)只在这种已 `bun link svg-infovis` 的项目里可解析; 全局 CLI `svginfo` 只要 PATH 命中就能用。⚠ **链的末端落在 `dist/`**: link 只负责把包目录接过来, 解析走 `exports` —— 所以"链通"≠"最新", 判据见下节。
+消费侧另有自己 `node_modules/` 里的一条 link 指回本仓 —— 裸 import(`from '@watert/svg-infovis/knives/fit'`)只在这种已 `bun link @watert/svg-infovis` 的项目里可解析; 全局 CLI `svginfo` 只要 PATH 命中就能用。⚠ **链的末端落在 `dist/`**: link 只负责把包目录接过来, 解析走 `exports` —— 所以"链通"≠"最新", 判据见下节。
 
 CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH 里的 `bun` 跑用户的 `.ts` 场景文件, 没有 bun 则走 node ≥22.6 的类型剥离, 两者都没有则退出码 2 并说明装 bun。
 
@@ -24,7 +24,7 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 - 源码里的相对 import 一律带显式 **`.js` 扩展名**(磁盘上仍是 `.ts`, 靠 TS 的 `.js → .ts` 映射)—— 消费侧 `moduleResolution: nodenext` 认的就是它, 新文件漏了这条, 构建产物在 node 侧直接解析不到
 - 半成品没有版本号兜底、没有回滚窗口, 会当场炸到所有下游(vault 的画图 skill / vite 项目 / htmls 脚本); 发布版更狠 —— 装上就坏, 变更分级见 `refs/public-api.md`
 - verify 红就是没完成, 不许交付; 汇报里附命令与结果(exit code / 通过数)
-- 唯一要重新 `bun link` 的场景: 本仓**路径变更 / 重命名**, 或 `~/.bun/install/global` 被清, 或 **`package.json` 的 `bin` 目标变了** —— 那时本仓 `bun link` 重注册, 各消费者再 `bun link svg-infovis` 重建本地链。⚠ 第三条 260926 真炸过一次: `bin` 改指 `dist/scripts/cli.js` 后, 旧链还指着 `scripts/cli.ts`, 而 shebang 已换成 node, 于是全局 `svginfo` 当场 `ERR_UNKNOWN_FILE_EXTENSION: ".ts"` —— 只改 `bin` 而不重注册 = CLI 直接死, 而且只在"真去调它"时才暴露
+- 唯一要重新 `bun link` 的场景: 本仓**路径变更 / 重命名**, **包名变更**(260926: `svg-infovis` → `@watert/svg-infovis`), 或 `~/.bun/install/global` 被清, 或 **`package.json` 的 `bin` 目标变了** —— 那时本仓 `bun link` 重注册, 各消费者再 `bun link @watert/svg-infovis` 重建本地链。⚠ 第三条 260926 真炸过一次: `bin` 改指 `dist/scripts/cli.js` 后, 旧链还指着 `scripts/cli.ts`, 而 shebang 已换成 node, 于是全局 `svginfo` 当场 `ERR_UNKNOWN_FILE_EXTENSION: ".ts"` —— 只改 `bin` 而不重注册 = CLI 直接死, 而且只在"真去调它"时才暴露
 
 ## skill 与文档的真身在哪(260926 起)
 
@@ -44,8 +44,8 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 ## 验证链路三件套
 
 ```bash
-readlink ~/.bun/bin/svginfo                             # → ../install/global/node_modules/svg-infovis/dist/scripts/cli.js
-readlink ~/.bun/install/global/node_modules/svg-infovis  # → 本仓真实路径
+readlink ~/.bun/bin/svginfo                             # → ../install/global/node_modules/@watert/svg-infovis/dist/scripts/cli.js
+readlink ~/.bun/install/global/node_modules/@watert/svg-infovis  # → 本仓真实路径
 cd /tmp && svginfo --help                                # 能出用法表即链路通
 ```
 

@@ -135,7 +135,7 @@ export function Home() {
           ))}
         </ul>
         <p className="home-note">
-          子路径即 API: <code>import {'{ nodeFit }'} from 'svg-infovis/knives/fit'</code>; 仓内开发用相对路径引
+          子路径即 API: <code>import {'{ nodeFit }'} from '@watert/svg-infovis/knives/fit'</code>; 仓内开发用相对路径引
           <code> ./src/…</code>。函数签名以源码为单一来源, 本页只做"什么在哪一层"的地图。
         </p>
       </section>

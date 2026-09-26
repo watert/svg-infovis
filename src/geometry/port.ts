@@ -6,7 +6,7 @@
 // `shapes/node` 与 `shapes/group`(audit 已经值导入它们)一旦改用 `rectFace`,
 // 合法的「形状依赖几何」会收成环。
 //
-// 这里零 knives 依赖。`route` 再导出同一绑定, `from 'svg-infovis/knives/route'` 不用改。
+// 这里零 knives 依赖。`route` 再导出同一绑定, `from '@watert/svg-infovis/knives/route'` 不用改。
 // barrel 不要另写一条 `export *`: 与 route 的 `export *` 同名, 这些名字会从 barrel 消失。
 // =====================================================================
 

@@ -53,7 +53,7 @@
 //   · **不做避障 / 不自动挪标签** —— 折线与标签的落位是推导, 绕行是作者权威(那是 `via` 的活)。
 //   · **不做换行** —— `\\n` 是作者写下的换行(与 `nodeFit` 同源); 文案是人的决定, 几何不算命。
 //
-// 用法(库): 模板**不在包的 `exports` 白名单里** —— `import 'svg-infovis/templates/layered.ts'` 解析不到
+// 用法(库): 模板**不在包的 `exports` 白名单里** —— `import '@watert/svg-infovis/templates/layered.ts'` 解析不到
 // (模板源码随包发布, 但没进白名单)。拷本文件到你项目里再 import 本地那份(import 换成包名: 内核对
 // `svg-infovis`, 出口对 `svg-infovis/runtime`)—— `svginfo new` 只带 sequence 那份脚手架, 这份手动拷:
 //   import { buildLayered, emitLayered } from './my-arch.ts';

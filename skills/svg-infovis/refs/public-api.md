@@ -16,7 +16,7 @@ date: 2026-09-26T01:20:00+08:00
 
 - `exports` 指向 **`dist/`**(编译产物): 每条子路径是 `types` / `import` / `default` 三条件映射,
   **逐条列举、不用通配**(通配会让内部文件自动变成公共面 —— 白名单纪律); **ESM-only**, 不给 CJS。
-  裸 import(`from 'svg-infovis/knives/fit'`)在仓内走 `bun link` 的 symlink, 对外走 npm 装的包 ——
+  裸 import(`from '@watert/svg-infovis/knives/fit'`)在仓内走 `bun link` 的 symlink, 对外走 npm 装的包 ——
   两条链解析到的都是**构建产物**, 所以改完源码不构建 = 下游跑的仍是上一版(`../AGENTS.md`「铁律」)。
   全局 CLI `svginfo` 走 `bin` → `dist/scripts/cli.js`(shebang 是 `node`), 只要 PATH 命中就能用。
 - **不在公共面里**: `templates/*`(仓内按路径引)、`examples/*`、`scripts/*`、`refs/*`、`test/*`。

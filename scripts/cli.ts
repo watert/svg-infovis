@@ -17,7 +17,7 @@
 // 全量出图现在归网站管线(`website/scripts/prerender.ts`, 产物 `website/public/svg/`, 不上 git)。
 //
 // 两处**跨运行时**的机关(260926 起本文件不再绑 bun):
-//   · 包根 ROOT 从本文件所在目录**逐级向上**找 `name: 'svg-infovis'` 的 `package.json` ——
+//   · 包根 ROOT 从本文件所在目录**逐级向上**找 `name: '@watert/svg-infovis'` 的 `package.json` ——
 //     源码态(`scripts/cli.ts`)与 `tsc` 产物态(`dist/scripts/cli.js`)都落在包根底下, 于是
 //     `templates/` 与 `scripts/svg2png.sh` 这两份**住包根的资源**在两种形态下算出同一个路径
 //     (只按 `..` 猜层级的话, 产物态会指到 `dist/` 里那个不存在的 templates/)
@@ -40,7 +40,7 @@ import { isMainModule } from '../src/runtime.js';
 import { main as inspectMain } from './inspect.js';
 
 /**
- * 包根 = 从本文件所在目录向上找到的第一个 `name === 'svg-infovis'` 的 package.json 所在目录。
+ * 包根 = 从本文件所在目录向上找到的第一个 `name === '@watert/svg-infovis'` 的 package.json 所在目录。
  * 校验 name 而不是"第一个 package.json"是刻意的: 产物态 `dist/` 底下若混进别的 package.json
  * (打包/复制出来的), 只认"第一个"会当场指错包根, 而这里的错法全是静默的路径错。
  */
@@ -49,12 +49,12 @@ function findRoot(from: string): string {
     const pkg = join(dir, 'package.json');
     if (existsSync(pkg)) {
       try {
-        if ((JSON.parse(readFileSync(pkg, 'utf8')) as { name?: string }).name === 'svg-infovis') return dir;
+        if ((JSON.parse(readFileSync(pkg, 'utf8')) as { name?: string }).name === '@watert/svg-infovis') return dir;
       } catch { /* 不是合法 JSON 的 package.json 不算锚, 继续往上 */ }
     }
     const up = dirname(dir);
     if (up === dir) {
-      throw new Error(`从 ${from} 向上找不到 name 为 svg-infovis 的 package.json —— `
+      throw new Error(`从 ${from} 向上找不到 name 为 @watert/svg-infovis 的 package.json —— `
         + '本 CLI 要用包根下的 templates/ 与 scripts/svg2png.sh, 装到别处就先确认包根还在');
     }
     dir = up;
@@ -304,8 +304,8 @@ function cmdNew(args: string[]): number {
   // 模板在仓内用相对路径 import 内核, 起手文件可能落在仓外 ⇒ 一律改认包名(仓内也解析得到自己)。
   // 两处都要换: `../src/index` → 包出口, `../src/runtime` → 同名的 `./runtime` 子路径
   const body = readFileSync(join(ROOT, 'templates/sequence.ts'), 'utf8')
-    .replaceAll("'../src/index'", "'svg-infovis'")
-    .replaceAll("'../src/runtime'", "'svg-infovis/runtime'");
+    .replaceAll("'../src/index'", "'@watert/svg-infovis'")
+    .replaceAll("'../src/runtime'", "'@watert/svg-infovis/runtime'");
   try {
     writeFileSync(target, body, 'utf8');
   } catch (e) {

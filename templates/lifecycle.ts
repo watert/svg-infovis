@@ -49,7 +49,7 @@
 //   · **`via` 永远赢**: spec 显式给折点时按声明原样走, 不静默改写; `plan` 里标 `declarative: true`。
 //
 // 用法一(库):
-//   import { buildLifecycle, emitLifecycle } from 'svg-infovis/templates/lifecycle.ts';
+//   import { buildLifecycle, emitLifecycle } from '@watert/svg-infovis/templates/lifecycle.ts';
 //   const { scene, opts, plan } = buildLifecycle(spec);  // 想接着改停在这
 //   emitLifecycle({ ...spec, out: '/tmp/life.svg' });    // 一步到产物
 //

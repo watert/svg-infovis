@@ -36,7 +36,7 @@
 //   · **样式永远走覆盖表** —— 模板给的 lifeline 缺省样式只是"没意见时的样子",
 //     调用方的 `edgeStyles` / `nodeStyles` 一个字都优先于它(SKILL.md 纪律 10)。
 //
-// 用法(库): 模板**不在包的 `exports` 白名单里** —— `import 'svg-infovis/templates/sequence.ts'` 解析不到
+// 用法(库): 模板**不在包的 `exports` 白名单里** —— `import '@watert/svg-infovis/templates/sequence.ts'` 解析不到
 // (模板源码随包发布, 但没进白名单)。先把它拷成你自己项目里的一份, 再 import 本地那份; 要改就改本地:
 //   svginfo new my-seq.ts          # 拷本文件到 ./my-seq.ts, 并把 import 换成包名 / `svg-infovis/runtime`
 //   import { buildSequence, emitSequence } from './my-seq.ts';

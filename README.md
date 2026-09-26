@@ -15,13 +15,13 @@ date: 2026-09-23T16:00:00+08:00
 ## 装到你的项目里
 
 ```bash
-bun add svg-infovis        # 首选 —— 运行时推荐 bun, 见下
-npm i svg-infovis          # 或 pnpm add / yarn add
+bun add @watert/svg-infovis        # 首选 —— 运行时推荐 bun, 见下
+npm i @watert/svg-infovis          # 或 pnpm add / yarn add
 ```
 
 ```ts
-import { nodeFit } from 'svg-infovis/knives/fit';   // 子路径即 API, 清单见下面「API 索引」
-import { exportScene } from 'svg-infovis';          // 也可从 barrel 引(纯函数侧)
+import { nodeFit } from '@watert/svg-infovis/knives/fit';   // 子路径即 API, 清单见下面「API 索引」
+import { exportScene } from '@watert/svg-infovis';          // 也可从 barrel 引(纯函数侧)
 ```
 
 **运行时: 推荐 bun**(这条链是 TS-first 的)
@@ -49,7 +49,7 @@ npx skills add watert/svg-infovis --list # 只看看仓里有什么 skill
 ```
 
 - 装出来的 skill 目录 = `SKILL.md` + `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md`, **全是真身** —— 不靠软链解析, 换哪个版本的 CLI 都装得对
-- 不装 skill 也能用: 文档随包发布 —— 包根有 `README.md`, `QUICKREF.md` 与 SKILL 那份真身在 `node_modules/svg-infovis/skills/svg-infovis/`
+- 不装 skill 也能用: 文档随包发布 —— 包根有 `README.md`, `QUICKREF.md` 与 SKILL 那份真身在 `node_modules/@watert/svg-infovis/skills/svg-infovis/`
 - ⚠ 三条实测坑, 动仓结构前先看: ① 仓库**根目录刻意不放** `SKILL.md` —— skills CLI 的规则是"根目录的 SKILL.md 盖住 `skills/` 下的", 且会把**整仓**当成 skill 拷进去(实测 3.3 MB、连 `test/` 与 `website/` 一起); ② skill 目录里若放软链, 安装时会被物化成真文件(默认 symlink 与 `--copy` 两种模式都实测过), 但那是未文档化行为 —— 所以真身一律放 `skills/svg-infovis/`, 仓根只留指向它的软链; ③ 验证发现结果用 `--list`, 别猜
 
 ## 30 秒起手(仓内开发)
@@ -92,7 +92,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 ## API 索引(按 `package.json` `exports` 子路径分组)
 
-全部子路径从包名引(`import { nodeFit } from 'svg-infovis/knives/fit'`); 仓内开发也可相对路径引 `./src/...`。签名细节与判据以源码为单一来源, 本表只做"什么在哪个子路径"的地图。
+全部子路径从包名引(`import { nodeFit } from '@watert/svg-infovis/knives/fit'`); 仓内开发也可相对路径引 `./src/...`。签名细节与判据以源码为单一来源, 本表只做"什么在哪个子路径"的地图。
 
 ### 总入口
 

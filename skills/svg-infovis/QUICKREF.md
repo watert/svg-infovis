@@ -9,7 +9,7 @@
 ```ts
 import { writeFileSync } from 'node:fs';
 // 安装后从包名引; 在本仓内开发时也可相对路径引 `./src/index.ts`。这是唯一的起手代码。
-import { THEMES, nodeFit, routeOrthogonal, tryExport } from 'svg-infovis';
+import { THEMES, nodeFit, routeOrthogonal, tryExport } from '@watert/svg-infovis';
 
 const f = nodeFit({ label: 'A', sub: 'note', level: 'showcase' });   // 盒宽走反算, 不手定
 const a = { x: 40, y: 40, w: f.w, h: f.h }, b = { x: 40, y: 200, w: f.w, h: f.h };
