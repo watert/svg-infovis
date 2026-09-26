@@ -14,9 +14,8 @@
 //     `cols` / `rows` 是**正整数**; `gap` 缺省 0 = 密铺(那时"缝中线"就是相邻格共用的那条线)
 //   · 不做 flex / grid 规范式 API(justify / minmax / auto-flow) —— 洞见文档 §六 第 2 条
 //
-// 依赖: `vec`(Rect / Pt / round1)与 `box`(`face` 复用 `rectFace`, 格心复用 `rectAnchor`) ——
-// 后者又只读 `knives/route` 的 `portPoint` / `sideDir`, 即 README 分层段记的那条"有意例外"
-// (面上的点只许一份; 锚点定义只许一份)。
+// 依赖: `vec`(Rect / Pt / round1)与 `box`(`face` 复用 `rectFace`, 格心复用 `rectAnchor`)。
+// `Side` 取 `geometry/port`(与 `portPoint` 同一处)。面上的点不经 route。
 //
 // ⚠ 别与 `shapes/grid-pattern.ts` 混: 那个 `grid` 是**画布底纹**(SVG pattern, 不进 scene),
 // 本文件的 `grid` 是**版式格子查询**(纯几何)。260920 底纹那份已改名 `grid-pattern` 让路。
@@ -24,7 +23,7 @@
 
 import { type Pt, type Rect, round1 } from './vec';
 import { type Size, rectAnchor, rectFace } from './box';
-import type { Side } from '../knives/route';
+import type { Side } from './port';
 
 export type GridOptions = {
   /** `cell(0, 0)` 的**左上角**(绝对坐标) */

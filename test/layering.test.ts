@@ -18,6 +18,11 @@
 import { describe, expect, it } from 'bun:test';
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
+import { PIERCE_MIN as barrelPierce, STUB_MIN as barrelStub, THRESHOLDS as barrelThresholds, portPoint as barrelPortPoint, sideDir as barrelSideDir } from '../src/index';
+import { portPoint, sideDir } from '../src/geometry/port';
+import { PIERCE_MIN as auditPierce, STUB_MIN as auditStub, THRESHOLDS as auditThresholds } from '../src/knives/audit';
+import { portPoint as routePortPoint, sideDir as routeSideDir } from '../src/knives/route';
+import { PIERCE_MIN, STUB_MIN, THRESHOLDS } from '../src/knives/thresholds';
 
 const ROOT = join(import.meta.dir, '..');
 
@@ -90,8 +95,7 @@ const findCycle = (mods: Mod[], deps: (m: Mod) => Mod[]): Mod[] => {
   return [];
 };
 
-/** ② geometry/ 是纯几何原语: 禁依赖 shapes/ 与 blocks/; 依赖 knives/ 的只在备案名单里 */
-const GEOMETRY_KNIVES_ALLOWLIST = new Set(['box', 'grid', 'place']);   // 见 refs/layering.md「已知越层」
+/** ② geometry/ 是纯几何原语: 禁依赖 shapes/、blocks/、knives/(连类型依赖也算) */
 const findGeometryViolations = (files: Mod[]): string[] => {
   const bad: string[] = [];
   for (const f of files.filter((p) => p.startsWith('src/geometry/'))) {
@@ -100,8 +104,8 @@ const findGeometryViolations = (files: Mod[]): string[] => {
       if (!to) continue;
       if (/^(src\/shapes|blocks|src\/blocks)\//.test(to)) {
         bad.push(`${f} → ${to}${typeOnly ? '(type-only, 仍需解禁备案)' : ''}`);
-      } else if (to.startsWith('src/knives/') && !GEOMETRY_KNIVES_ALLOWLIST.has(f.slice('src/geometry/'.length, -3))) {
-        bad.push(`${f} → ${to}  (geometry 依赖 knives, 只 box/grid/place 在备案)`);
+      } else if (to.startsWith('src/knives/')) {
+        bad.push(`${f} → ${to}  (geometry 依赖 knives)`);
       }
     }
   }
@@ -136,8 +140,22 @@ describe('refs/layering.md · 准入门槛的机器判决', () => {
     expect(findCycle(mods, runtime), '依赖图成环 —— 找一找谁把谁拉回来了').toEqual([]);
   });
 
-  it('② geometry/ 不依赖 shapes/ 与 blocks/(依赖 knives 的只在备案名单)', () => {
+  it('② geometry/ 不依赖 shapes/、blocks/、knives/', () => {
     expect(findGeometryViolations(srcMods())).toEqual([]);
+  });
+
+  it('端口公式与门禁尺子各只有一份绑定, 旧路径与 barrel 仍导得出', () => {
+    // 再导出必须是同一函数 / 同一对象。另写一份 `export *` 会让 barrel 上的同名消失, 这里会红
+    expect(routePortPoint).toBe(portPoint);
+    expect(routeSideDir).toBe(sideDir);
+    expect(barrelPortPoint).toBe(portPoint);
+    expect(barrelSideDir).toBe(sideDir);
+    expect(auditPierce).toBe(PIERCE_MIN);
+    expect(auditStub).toBe(STUB_MIN);
+    expect(auditThresholds).toBe(THRESHOLDS);
+    expect(barrelPierce).toBe(PIERCE_MIN);
+    expect(barrelStub).toBe(STUB_MIN);
+    expect(barrelThresholds).toBe(THRESHOLDS);
   });
 
   it('③ blocks/ 只组合 src/ 的刀(零第三方、零 node:、不走 barrel)', () => {

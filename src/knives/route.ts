@@ -37,7 +37,7 @@
 //   `via` 点**不含两端端口点**: 两端仍走端口协议(出盒沿法线一个 stub), 首末段长度不受 via 影响。
 // ======================================================================
 
-import { type Pt, type Rect, add, rectBottom, rectCenter, rectRight, scl } from '../geometry/vec';
+import { type Pt, type Rect, add, rectBottom, scl } from '../geometry/vec';
 import {
   normalizeRoutePoints, firstBacktrackIndex, selfOverlapIndex,
 } from '../geometry/predicates';
@@ -45,13 +45,11 @@ import { ShapeInputError, assertFiniteNumber } from '../guard';
 // 代价向量(260919): 候选之间的**择优**改走它 —— 审美从此是"维度表里的行序", 不再是 if 分支。
 // 只 import 比较器与量化器, 不把维度表整个搬进来(route 不该管"还有哪些维度")
 import { type RouteCostDimension, compareRouteCost, routeCost } from './route-cost';
-// 半像素口径从门禁那边取, 不在这里另定一个数 —— 判决与排序必须同一把尺子
-import { PIERCE_MIN } from './audit';
-
-export type Side = 'top' | 'right' | 'bottom' | 'left';
-
-/** 沿边位置: t 是 0..1 的比例, at 是绝对像素(优先) */
-export type PortRef = { side: Side; t?: number; at?: number };
+// 半像素尺子在 thresholds。值导入 audit 会把整座门禁求值进来
+import { PIERCE_MIN } from './thresholds';
+// 面上的点只许一份, 实现在几何层。再导出同一绑定, `knives/route` 的旧路径不变
+export { type Side, type PortRef, portPoint, sideDir } from '../geometry/port';
+import { type Side, type PortRef, portPoint, sideDir } from '../geometry/port';
 
 export type RouteRequest = {
   from: Rect;
@@ -109,28 +107,6 @@ export type RouteResult = {
    */
   viaInfeasible?: boolean;
 };
-
-/** 面 → 朝外单位向量 (y-down) */
-export function sideDir(side: Side): Pt {
-  switch (side) {
-    case 'top': return { x: 0, y: -1 };
-    case 'bottom': return { x: 0, y: 1 };
-    case 'left': return { x: -1, y: 0 };
-    case 'right': return { x: 1, y: 0 };
-  }
-}
-
-/** 面上的端口点: at(绝对) 优先于 t(比例), 默认取面中点 */
-export function portPoint(r: Rect, port: PortRef): Pt {
-  const c = rectCenter(r);
-  switch (port.side) {
-    case 'top': return { x: port.at ?? r.x + r.w * (port.t ?? 0.5), y: r.y };
-    case 'bottom': return { x: port.at ?? r.x + r.w * (port.t ?? 0.5), y: rectBottom(r) };
-    case 'left': return { x: r.x, y: port.at ?? r.y + r.h * (port.t ?? 0.5) };
-    case 'right': return { x: rectRight(r), y: port.at ?? r.y + r.h * (port.t ?? 0.5) };
-    default: return c;
-  }
-}
 
 const isVertical = (s: Side) => s === 'top' || s === 'bottom';
 
@@ -405,7 +381,7 @@ export function routeOrthogonal(req: RouteRequest): RouteResult {
  *   · 等长时取**先枚举的**(绕顶排在绕底前) —— 由 `ordinal` 破平显式承担, 不靠比较的副作用
  *   · 两轮都空 ⇒ 返回 null, 调用方据此**不追加**候选(旧版 `pick(true) ?? pick(false)` 同义)
  * 其余维度(弯数 / 穿盒 / 走廊 / 交叉)在本场景恒为 0 或不参与 —— 一旦放开排序就会变, 那是
- * "更优解", 但要单独拍板 + 重出 golden, 见 `route-cost.ts` 文件头的两阶段说明。
+ * "更优解", 但要单独拍板 + 重出 golden, 见 `route-cost.ts` 文件头的接线状态。
  * 等价证据: `test/route-pick-equivalence.test.ts`(288 组合逐字节扫描, 随 `bun run verify` 跑)。
  */
 const TRANSPOSED_PICK_COST: readonly RouteCostDimension[] = ['backtrackPx', 'endpointBitePx', 'stretchMilli'];

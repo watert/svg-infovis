@@ -31,8 +31,7 @@
 //   **不拦**(与 `box` / `grid` 同纪律: 算出来是多少就是多少, 由 `audit` / `finite_svg` 现形)。
 //
 // 依赖: `vec`(Rect / round1)、`box` 的 `bounds`(并集只许一份公式)与 `guard` 的守卫原语
-// (结构性错误的报错口径与 `resolveKnobs` / `assertFiniteRect` 同源)。于是与 `grid` 一样继承
-// README 分层段记的那条"有意例外" —— pack 自己不碰 route。
+// (结构性错误的报错口径与 `resolveKnobs` / `assertFiniteRect` 同源)。pack 自己不算面上的点。
 // =====================================================================
 
 import { type Rect, round1 } from './vec';

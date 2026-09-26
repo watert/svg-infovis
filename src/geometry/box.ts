@@ -29,7 +29,7 @@
 // =====================================================================
 
 import { type Pt, type Rect, rectBottom, rectRight, round1 } from './vec';
-import { type Side, portPoint, sideDir } from '../knives/route';
+import { type Side, portPoint, sideDir } from './port';
 
 /** 边界与内容之间的空档: 单值 = 四边同值, `[x, y]` = 左右 / 上下(与 `nodeFit` 的 `padding` 同序) */
 export type Pad = number | [x: number, y: number];

@@ -8,9 +8,10 @@
 // 故它已从纪律降级为**阅读导航**("大致按依赖分段"), 不再有任何约束力, 也不值得为它重排本文件。
 //
 // 真正有后果、且由 `test/layering.test.ts` 守着的只有两条:
-//   ① 运行时依赖图**无环**            ② **分层不越界**(geometry 不碰 shapes/blocks; blocks 只吃 src/ 的刀)
-// 而底层刀反过来吃高层东西的那些(例: `knives/route` 值导入 `knives/audit` 的 `PIERCE_MIN` 阈值)
-// 不是顺序问题, 是**层次倒置** —— 记在 `ROADMAP.md` 的契约归属待办里, 别拿重排顺序糊过去。
+//   ① 运行时依赖图**无环**            ② **分层不越界**(geometry 不碰 shapes/blocks/knives; blocks 只吃 src/ 的刀)
+// 端口公式在 `geometry/port`, 门禁尺子在 `knives/thresholds`。route / audit 再导出同一绑定。
+// 本文件**不要**再 `export *` 这两份: 与 route / audit 的 `export *` 同名, 名字会从 barrel 消失。
+// 仍在的层次倒置是 Scene 契约住在 audit, 见 `ROADMAP.md`。别拿重排顺序糊过去。
 
 export * from './geometry/vec';
 export * from './geometry/rounded-path';
@@ -52,9 +53,8 @@ export * from './shapes/grid-pattern';
 export * from './knives/measure';
 export * from './knives/fit';
 export * from './knives/route';
-// 盒查询(260920): 面 / 锚 / 内缩 / 并集 / 摆放 —— 构建期算位置, 产物照旧是写死的绝对坐标。
-// 它归几何层(纯函数, 不判任何事), 但**不是零依赖**: `rectFace` 复用 route 的 `portPoint` /
-// `sideDir`(面上的点只许一份), 所以按"读 barrel 的顺序即依赖顺序"排在 route 之后
+// 盒查询: 面 / 锚 / 内缩 / 并集 / 摆放。面上的点在 `geometry/port`(route 再导出同一绑定),
+// 本文件不经 route。`port` 不单独 `export *`, 见文件头。
 export * from './geometry/box';
 // 均匀格子(260920): box 的格位糖 —— `face` 复用 `rectFace`、格心复用 `rectAnchor`, 故排在 box 之后
 export * from './geometry/grid';
@@ -90,9 +90,9 @@ export * from './knives/cluster';
 // nudge 的 align / distribute / snap 是裸名(与 TODO 措辞一致) —— 已核当前无重名;
 // 将来若与其他刀撞名, 改后来者, 别在这里加前缀把 API 直觉弄丢
 export * from './knives/nudge';
-// 代价向量(260919): 候选折线的**量化读数 + 字典序比较**。依赖 `audit` 的阈值(判决与排序同一把尺子),
-// 所以必须排在 audit 之后。它是**读数不是门禁** —— 不返回 pass/fail、不抛异常、不新增阈值;
-// 现阶段的定位是"把审美从控制流里提出来", route 尚未消费它(接线分两阶段, 见文件头)
+// 代价向量: 候选折线的量化读数 + 字典序比较。尺子在 `thresholds`(与门禁同一份), 不经 audit。
+// 读数不是门禁。横腰线择优已经在用它(等价三维); 其余候选仍是控制流。见 route-cost 文件头。
+// `thresholds` 不单独 `export *`, 见文件头。
 export * from './knives/route-cost';
 
 // scene 的 SceneNode 与 audit 同名(它是 audit 的扩展, 多了 bounds_source) ——

@@ -10,7 +10,7 @@
 // 第一种收成本文件的五个入口: 四方向 `rightOf` / `leftOf` / `below` / `above` + `centeredOn`。
 //
 // ── 这是**糖面**, 不是第二个几何层 ─────────────────────────────────────
-//   内部一次都不自己算坐标: 面上的点走 `box.rectFace`(它又走 `route.portPoint`), 落点走
+//   内部一次都不自己算坐标: 面上的点走 `box.rectFace`(它走 `geometry/port` 的 `portPoint`), 落点走
 //   `box.placeRect` —— 面上的点与锚点定义全仓各只有一份。本文件只加两样东西:
 //   ① 方向 →(面, 面上的 `t`, 交叉轴锚)的映射表 ② 入参守卫(仓内"当场抛"那一档)。
 //   与 `box` 的分工: `box` 查**一个**盒(面 / 锚 / 内缩 / 并集 / 摆放), 本文件说**两个**盒的关系。
@@ -25,7 +25,7 @@
 
 import { type AnchorName, type Size, placeRect, rectAnchor, rectFace } from './box';
 import type { Rect } from './vec';
-import type { Side } from '../knives/route';
+import type { Side } from './port';
 import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard';
 
 /** 交叉轴对齐三档(与 `pack` 同一套词): `start` 贴交叉轴起点侧 · `center` 骑中线 · `end` 贴终点侧 */
