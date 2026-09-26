@@ -112,5 +112,5 @@ date: 2026-09-26T01:20:00+08:00
 
 ## 相关
 
-- 分层与准入 → `refs/layering.md` · 原则 → `refs/principles.md` · API 索引(什么在哪个子路径)→ `../README.md`
+- 分层与准入 → `refs/layering.md` · 原则 → `refs/principles.md` · API 索引(什么在哪个子路径)→ `../docs/api-index.md`(一览在 `../README.md`)
 - 纪律与验证 → `SKILL.md` / `AGENTS.md`(仓内) · 未做项 → `ROADMAP.md`(仓内)

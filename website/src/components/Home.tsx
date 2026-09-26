@@ -1,5 +1,5 @@
 // 首页: hero(内核实时渲染的活证据) + 是什么/不是什么 + 30 秒起手 + API 分层地图
-// 文案提炼自仓根 README(不整段抄): 说法只留一份, 详细口径回链文档。
+// 文案提炼自仓根 README 与 docs/contributing.md(不整段抄): 说法只留一份, 详细口径回链文档。
 import { renderHero } from '../lib/liveDemo';
 
 /** hero 上那段"活证据"的 import 原文 —— 就是本模块旁边那个 lib 里跑的东西(逐字同名) */
@@ -12,7 +12,7 @@ bun run examples/start/basic.ts > /tmp/basic.svg        # descriptor 层最小�
 bun run examples/start/full-chain.ts > /tmp/chain.svg   # scene → route → audit → export 全链
 ./scripts/svg2png.sh /tmp/chain.svg                     # 可选: 本地栅格化(毫秒级, 零浏览器)`;
 
-/** 常用入口(键名与命令取自 README 的同一张表) */
+/** 常用入口(键名与命令取自 docs/contributing.md 的同一张表) */
 const ENTRIES = [
   { cmd: 'bun run examples/manifest.ts', desc: '全部示例清单: 键名 / 桶 / 这张图证明什么' },
   { cmd: 'bun run scripts/inspect.ts <scene.ts>', desc: '布局读数板, 不出图 —— 退出码 0 通过 / 1 门禁不过 / 2 用法错' },

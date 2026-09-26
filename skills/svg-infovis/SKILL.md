@@ -1,6 +1,6 @@
 ---
 name: svg-infovis
-description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; API 索引 README.md。"
+description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; API 一览 README.md。"
 tags: [svg-infovis, svg, diagram, geometry, layout, bun]
 date: 2026-09-26T18:45:14+08:00
 ---
@@ -26,7 +26,7 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 |---|---|
 | 画一张图 | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
 | 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内) |
-| 查函数 / 门禁判据 / 模块在哪 | `README.md` 的 API 索引(仓内; 装包则在 `node_modules/@watert/svg-infovis/`) |
+| 查函数 / 门禁判据 / 模块在哪 | 子路径一览在 `README.md`, 逐条在 `docs/api-index.md`(仓内; 包内只有 `README.md` 那份一览) |
 | 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
 | 拿不准某件东西该放哪层 / 哪条边界规则管它 | 仓内 `refs/layering.md` —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`) |
 | 想知道为什么这么切 | 仓内 `refs/principles.md` —— 原则、代价、逼它出来的实跑事故 |

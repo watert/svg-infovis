@@ -67,7 +67,7 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 ## 读哪一份
 
 - 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `templates/*.ts`
-- 改内核 → `skills/svg-infovis/SKILL.md` 的「纪律」+ 源码; API 索引在 `README.md`; 未做项在 `ROADMAP.md`
+- 改内核 → `skills/svg-infovis/SKILL.md` 的「纪律」+ 源码; 子路径一览在 `README.md`、逐条在 `docs/api-index.md`; 未做项在 `ROADMAP.md`
 - **拿不准某件东西该放哪层 / 哪条边界规则管它** → `refs/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
 - **想知道为什么这么切** → `refs/principles.md`(每条原则的代价与逼它出来的实跑事故)
 - **要动公共面(exports 子路径 / 门禁码 / 发布形态: dist · files · engines)** → `refs/public-api.md`(变更分级 + 破坏性改动四步 + 下游清单)

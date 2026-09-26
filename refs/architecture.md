@@ -107,7 +107,7 @@ v1 的问题恰恰是"门禁说没事、看图发现是错的"。这次按
 
 ## 相关
 
-- 何时用 / 纪律 → `../skills/svg-infovis/SKILL.md`。画图 → `../QUICKREF.md`。API 索引 → `../README.md`
+- 何时用 / 纪律 → `../skills/svg-infovis/SKILL.md`。画图 → `../QUICKREF.md`。API 索引 → `../docs/api-index.md`
 - 动手前的问题在 `../QUICKREF.md`。`aesthetics.md` 只剩理论草案, 不再是操作清单(它随 skill 走; `layering` / `principles` / `public-api` 留在本目录, 不随 skill)
 - 待办与方向 → `../ROADMAP.md`
 - 生成脚本 → `build-arch-v2.ts`（v1: `build-arch.ts`）
