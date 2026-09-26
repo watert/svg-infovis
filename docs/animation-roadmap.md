@@ -187,5 +187,5 @@ anim.at(0.5);              // → 普通 Scene, 走现有 exportScene 管线
 ## 相关
 
 - 外部对账(可搬 / 不可搬 / 对方自己的错)→ `docs/animation-parity.md`
-- 分层与准入 → `refs/layering.md` · 变更分级 → `refs/public-api.md` · 原则与代价 → `refs/principles.md`
+- 分层与准入 → `docs/internals/layering.md` · 变更分级 → `docs/internals/public-api.md` · 原则与代价 → `docs/internals/principles.md`
 - 信息图划界 → `docs/infograph-roadmap.md` · 数字只在一处 → `../QUICKREF.md` · 未做项 → `../ROADMAP.md`

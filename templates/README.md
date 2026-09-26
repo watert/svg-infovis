@@ -13,7 +13,7 @@
 
 > ⚠ **模板层不在 `exports` 里**: 没有 `svg-infovis/templates/*` 这种子路径 —— 仓内按路径引
 > (`import { emitSequence } from '../templates/sequence.js'`)。npm 包里带 `templates/` 源文件(照抄得走),
-> 但它**不占公共承诺面**: 签名该改就改, 见 [`refs/public-api.md`](../refs/public-api.md)。
+> 但它**不占公共承诺面**: 签名该改就改, 见 [`docs/internals/public-api.md`](../docs/internals/public-api.md)。
 
 ## 边界宪章(一句话)
 

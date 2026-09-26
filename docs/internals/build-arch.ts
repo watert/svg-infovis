@@ -1,10 +1,10 @@
 // =====================================================================
 // 架构图 **v1**（横排 core 版）—— 用 core 自己画自己, 并且**自己审自己**
-//   ⚠ 已有重排过的 v2: `build-arch-v2.ts` → `refs/architecture-v2.svg`
+//   ⚠ 已有重排过的 v2: `build-arch-v2.ts` → `docs/internals/architecture-v2.svg`
 //     （主链捋成中轴竖线 / blink 降为旁路 / 右侧注解轨; README 与 md 现在引的是 v2）。
 //     本文件保留为 v1 存档, 重跑只用于对照。
-//   bun run refs/build-arch.ts > refs/architecture.svg
-//   然后 ./scripts/svg2png.sh refs/architecture.svg /tmp/arch.png 看一眼
+//   bun run docs/internals/build-arch.ts > docs/internals/architecture.svg
+//   然后 ./scripts/svg2png.sh docs/internals/architecture.svg /tmp/arch.png 看一眼
 //
 // 两件事在这里同时成立:
 //   ① 主题用法示范 —— 默认 light + outline, solid 只留给"要人盯住的那一格"

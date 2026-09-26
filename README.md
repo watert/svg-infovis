@@ -79,13 +79,13 @@ bun run verify                                          # 改完源码的唯一�
 
 - [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问(数字只在它手里)
 - [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律; 同装的还有 [`refs/contract.md`](./skills/svg-infovis/refs/contract.md)(三层入口 / `Scene` 逐字段契约 / 出口三件套)与 [`examples/`](./skills/svg-infovis/examples/README.md)(三张参考图 + 源码副本)
-- [`refs/layering.md`](./refs/layering.md) · [`refs/principles.md`](./refs/principles.md) · [`refs/public-api.md`](./refs/public-api.md) —— 分层契约与边界规则 · 设计意图与逼它出来的事故 · 公共承诺面与破坏性改动四步
+- [`docs/internals/layering.md`](docs/internals/layering.md) · [`docs/internals/principles.md`](docs/internals/principles.md) · [`docs/internals/public-api.md`](docs/internals/public-api.md) —— 分层契约与边界规则 · 设计意图与逼它出来的事故 · 公共承诺面与破坏性改动四步
 - [`docs/`](./docs/) —— 主题研究(`theme` · `mermaid-geometry` · `infograph-roadmap` · `animation-*` · `avatar-lab-parity`)、发布 SOP(`npm-release`)、本 README 抽出的三份(`api-index` · `consuming` · `contributing`)
 - [`ROADMAP.md`](./ROADMAP.md) —— 立项依据与后续方向; [`AGENTS.md`](./AGENTS.md) —— 仓库结构、产物纪律与协作须知
 
-> ⚠ 包内没有 `docs/` `refs/` 与 `ROADMAP.md`, 也没有**仓根**的 `examples/`(出图示例 + `manifest.ts`)—— 上面指向它们的链接只在**仓库**里有效。
+> ⚠ 包内没有 `docs/` 与 `ROADMAP.md`, 也没有**仓根**的 `examples/`(出图示例 + `manifest.ts`)—— 上面指向它们的链接只在**仓库**里有效。
 > 包内**有**的是: `dist/` `src/` `blocks/` `scripts/` `templates/` `assets/` `skills/` + `README.md`(`files` 白名单见 `package.json`)。所以"怎么引、能引什么"要分三档看 —— [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) 的「三条路」表。
-> 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**软链**(真身在 `skills/svg-infovis/`), 其余 `refs/*.md` 与 skill 里新增的 `refs/contract.md` / `examples/` 都是真身 —— 改内容一律改真身, 详见 `AGENTS.md`。
+> 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**软链**(真身在 `skills/svg-infovis/`; 仓根 `refs/` 里只剩这两条链), 改内核那几份文档(含纪律全表)的真身在 [`docs/internals/`](./docs/internals/), skill 内的 `refs/contract.md` / `examples/` 同样是真身 —— 改内容一律改真身, 详见 `AGENTS.md`。
 
 ## License
 

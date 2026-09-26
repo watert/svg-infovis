@@ -37,7 +37,7 @@ date: 2026-09-17T20:20:00+08:00
 ## 用法约定(已落进实现)
 
 - **默认 light + outline** —— `DEFAULT_THEME = THEMES.light`, `variant` 缺省 `outline`; 日常出图不用传任何主题参数
-- **`solid` 用来表达强调** —— 唯一权威 / 门禁 / 当前焦点那几格; 满图实色等于没重点(参考 `refs/architecture.svg`: 全图只有两处 solid)
+- **`solid` 用来表达强调** —— 唯一权威 / 门禁 / 当前焦点那几格; 满图实色等于没重点(参考 `docs/internals/architecture.svg`: 全图只有两处 solid)
 
 ## 草案(已实施, 可推翻)
 

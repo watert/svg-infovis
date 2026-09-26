@@ -8,7 +8,7 @@ date: 2026-09-26T01:20:00+08:00
 # 公共承诺面与破坏性变更 SOP
 
 > 这篇只服务一件事: **改坏了会炸谁, 以及怎么改才炸不到人**。
-> 分层与准入 → `refs/layering.md` · 为什么这么切 → `refs/principles.md` · 验证纪律 → `../AGENTS.md`。
+> 分层与准入 → `docs/internals/layering.md` · 为什么这么切 → `docs/internals/principles.md` · 验证纪律 → `../AGENTS.md`。
 
 ## 公共面就是 `package.json` 的 `exports` 子路径
 
@@ -56,14 +56,14 @@ date: 2026-09-26T01:20:00+08:00
 | **L2 签名破坏** | 改参数 / 改返回结构 / 删导出 | 调用点必须改 | 见下面"破坏性改动四步" |
 | **L3 搬家 / 改名** | 子路径改名、层间搬家(如 `shapes/x` → `blocks/x`) | import 路径 + 归属层都变 | 同 L2, 外加**改 `package.json` 的 `exports`** 与 barrel 注释里的排序说明 |
 
-⚠ **边界情况**: 往"轴一"靠(见 `refs/layering.md`)的改动 —— 从 shapes 搬到 blocks、从"kernel 推"
+⚠ **边界情况**: 往"轴一"靠(见 `docs/internals/layering.md`)的改动 —— 从 shapes 搬到 blocks、从"kernel 推"
 改成"作者声明" —— **算 L2, 不算 L1**。哪怕签名一个字没变, 语义已经变了: `ratio` 从自动归一化变成
 作者声明的已算好的数, 下游算错会静默出错图。这类改动的汇报里必须显式喊出来。
 
 ## 破坏性改动四步(L2 / L3)
 
 1. **一次性做完, 不留半兼容**。过渡函数/旧名 re-export 一律不留(违反 P4: 第二权威)。
-2. **同仓迁移**:`examples/`(全量, 包括示例里的期望坐标)、`templates/`、`scripts/`、`refs/build-arch*.ts`
+2. **同仓迁移**:`examples/`(全量, 包括示例里的期望坐标)、`templates/`、`scripts/`、`docs/internals/build-arch*.ts`
    全改; `bun run verify` 绿。示例字节若变了, 按 L1 的要求在 commit 里交代。
 3. **点名下游**: 汇报里写清"改了什么签名 / 谁在用 / 需不需要动"。vault 的画图 skill 与 htmls 看板
    不会被自动验证 —— **你要么自己跑一遍它的主路径, 要么明确说"下游未验证"**。
@@ -112,5 +112,5 @@ date: 2026-09-26T01:20:00+08:00
 
 ## 相关
 
-- 分层与准入 → `refs/layering.md` · 原则 → `refs/principles.md` · API 索引(什么在哪个子路径)→ `../docs/api-index.md`(一览在 `../README.md`)
+- 分层与准入 → `docs/internals/layering.md` · 原则 → `docs/internals/principles.md` · API 索引(什么在哪个子路径)→ `../docs/api-index.md`(一览在 `../README.md`)
 - 纪律与验证 → `SKILL.md` / `AGENTS.md`(仓内) · 未做项 → `ROADMAP.md`(仓内)

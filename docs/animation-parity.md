@@ -466,6 +466,6 @@ const k = isAtBoundary ? nearest : Math.floor(x);
 ## 相关
 
 - 动画方向与两档消费面的规划 → `docs/animation-roadmap.md`
-- 纪律全表与准入 → `refs/layering.md` · 原则出处 → `refs/principles.md` · 变更分级 → `refs/public-api.md`
+- 分层准入 → `docs/internals/layering.md` · 原则出处 → `docs/internals/principles.md` · 变更分级 → `docs/internals/public-api.md`
 - 同族对账 → `docs/avatar-lab-parity.md`(外部几何内核) · `docs/mermaid-geometry.md`
 - 数字只在一处 → `../QUICKREF.md` · 未做项 → `../ROADMAP.md` · 信息图划界 → `docs/infograph-roadmap.md`

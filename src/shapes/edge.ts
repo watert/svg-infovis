@@ -293,7 +293,7 @@ function markerDescriptor(m: EndpointMarker, color: string, theme: Theme): Descr
  *
  * 为什么这里必须认 tone(260919, "作者写了却不上屏"同族第五次): `EdgeProps` 一直有这个字段,
  * 而 `edgeShape` 只认 `color`, 于是复刻脚本里 `edgeStyles: { tone }` 是**死数据** ——
- * 作者在数据表里点了色, 产物上那条线还是灰的(`refs/build-arch-v2.ts` 的 violet 虚线边即此例)。
+ * 作者在数据表里点了色, 产物上那条线还是灰的(`docs/internals/build-arch-v2.ts` 的 violet 虚线边即此例)。
  */
 export function edgeShape(p: EdgeProps): Descriptor {
   assertFinitePoints('edgeShape', p.points, '一条边至少要两点; 若传入的是 SceneEdge, 记得 `{ points: e.points }`');

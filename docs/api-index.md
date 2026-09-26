@@ -88,6 +88,6 @@ date: 2026-09-26T23:05:00+08:00
 
 ## 相关
 
-- 子路径即 API 的承诺面、变更分级与破坏性改动四步 → `../refs/public-api.md`
+- 子路径即 API 的承诺面、变更分级与破坏性改动四步 → `internals/public-api.md`
 - 消费侧须知(运行时 / 模块解析 / 可选依赖 / CLI)→ `consuming.md`
 - 画图起手与缺省值 → `../QUICKREF.md`

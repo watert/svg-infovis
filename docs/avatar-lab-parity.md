@@ -86,6 +86,6 @@ guard 守的是**传入**的坏值(shape 入参的 rect / points / 旋钮 / 词�
 
 ## 相关
 
-- 纪律全表 → `refs/layering.md`(本文不改纪律, 只对账) · 原则出处 → `refs/principles.md`
+- 分层准入 → `docs/internals/layering.md`(本文不改纪律, 只对账) · 原则出处 → `docs/internals/principles.md`
 - 同族对账 → `docs/mermaid-geometry.md`(外部项目几何对账的先例)
 - 数字只在一处 → `../QUICKREF.md` · 未做项 → `../ROADMAP.md`

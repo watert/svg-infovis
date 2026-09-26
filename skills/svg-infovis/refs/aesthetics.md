@@ -129,7 +129,7 @@ CRAP 的 P 本来就是 Gestalt proximity 的改写。其余各条的映射：
 
 ## 实跑记录（架构图 v2，首个真实案例）
 
-对象：`refs/architecture-v2.svg`（改自 `build-arch.ts` → `build-arch-v2.ts`）。
+对象：`docs/internals/architecture-v2.svg`（改自 `build-arch.ts` → `build-arch-v2.ts`）。
 走完全程：前置七问落字 → 手排 → 三次出图 → 收尾环五步。
 
 **验证了的三件事**：

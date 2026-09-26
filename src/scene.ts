@@ -33,7 +33,7 @@
 //     解析 HTML, 只把这份输入规范化成**字节确定**的指纹(CRLF / 行尾空白 / HTML 注释 / 键顺序
 //     一律不进哈希)。`html_rev`/`scene_rev` 保留: 旧文档降级比较 + 人读时序。
 //     回归: test/scene.test.ts 的"源指纹"五条用例。
-// 废弃理由与"为何最后选了 `measure` 估宽"见 docs/blink-archive.md 与 refs/architecture.md。
+// 废弃理由与"为何最后选了 `measure` 估宽"见 docs/blink-archive.md 与 docs/internals/architecture.md。
 // =====================================================================
 
 import { type Rect, codepointSort, rectBottom, rectRight, round1 } from './geometry/vec.js';

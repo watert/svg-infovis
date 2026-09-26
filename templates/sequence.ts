@@ -34,7 +34,7 @@
 //   · **一切最小值都留账** —— `plan.needs` 记每格列距的三份需求(box / label / used),
 //     差集可见: 是哪一件把这个列距顶开的。参照实现里那张 `contributors` 账本同一个设计。
 //   · **样式永远走覆盖表** —— 模板给的 lifeline 缺省样式只是"没意见时的样子",
-//     调用方的 `edgeStyles` / `nodeStyles` 一个字都优先于它(SKILL.md 纪律 10)。
+//     调用方的 `edgeStyles` / `nodeStyles` 一个字都优先于它(docs/internals/policies.md 纪律 10)。
 //
 // 用法(库): 模板**不在包的 `exports` 白名单里** —— `import '@watert/svg-infovis/templates/sequence.ts'` 解析不到
 // (模板源码随包发布, 但没进白名单)。先把它拷成你自己项目里的一份, 再 import 本地那份; 要改就改本地:

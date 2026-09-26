@@ -9,7 +9,7 @@
 //   · 反例三条: 同对节点重复边 / 中段并轨 / 悬浮端点同点出发 → **照旧报**(放宽不许把真缺陷放走)
 //
 // 数据只有一份: 场景具名导出自同目录的 `trunk-split-probe.ts` / `shared-trunk-probe.ts`
-// (探针负责把数打印给人看, 本文件负责判决)—— 判据归 test, 示例只负责展示, 见 SKILL「示例: 判据归 test」。
+// (探针负责把数打印给人看, 本文件负责判决)—— 判据归 test, 示例只负责展示, 见 `skills/svg-infovis/SKILL.md`「出口」节(判据放 `test/`, 示例只展示)。
 //
 // 口径出处: 代价层 `route-cost` 的 `sharedCorridorPx` 早就写着 `if (nb.sharesEndpoint) continue`
 // (借参照实现 `routeInteractionMetrics`); 门禁此前没接这条线, 于是同一件事两层给相反答案。

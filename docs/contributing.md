@@ -50,8 +50,8 @@ bun run verify      # 上面两步 + tsc --noEmit
 
 - 缺省值 / 误用 / 起手代码 → `../QUICKREF.md`(**画图只读这一页**, 数字只在它手里)
 - 图型骨架 → `refs/recipes.md`; 何时用与**改内核的纪律** → `skills/svg-infovis/SKILL.md`
-- 分层契约 / 依赖方向 / 准入门槛 → `refs/layering.md`; 每条原则的代价与事故 → `refs/principles.md`
-- 公共面与破坏性改动四步 → `refs/public-api.md`
+- 分层契约 / 依赖方向 / 准入门槛 → `docs/internals/layering.md`; 每条原则的代价与事故 → `docs/internals/principles.md`
+- 公共面与破坏性改动四步 → `docs/internals/public-api.md`
 - 仓库结构与产物纪律(网站管线 / 仓库不囤图片 / 软链布局)→ `../AGENTS.md`
 - 未做项 → `../ROADMAP.md`
 

@@ -1,5 +1,5 @@
 // =====================================================================
-// `refs/layering.md` 的准入门槛 —— 从散文变成判决
+// `docs/internals/layering.md` 的准入门槛 —— 从散文变成判决
 //
 // 为什么值得进 test: 那篇分层文档若只给人读, 它就是**装饰**。260926 拿它回头审全仓依赖图
 // 时就撞上了: "读 barrel 的顺序即依赖顺序, 被依赖的先出"这条被写进 index.ts 头注释的纪律,
@@ -136,7 +136,7 @@ const findBlocksViolations = (files: Mod[]): string[] => {
 const srcMods = (): Mod[] => [...walk(join(ROOT, 'src')), ...walk(join(ROOT, 'blocks'))]
   .map((p) => normalize(p).replace(`${normalize(ROOT)}/`, ''));
 
-describe('refs/layering.md · 准入门槛的机器判决', () => {
+describe('docs/internals/layering.md · 准入门槛的机器判决', () => {
   it('① 运行时依赖图无环(有环 = 半个模块图 + TDZ)', () => {
     const mods = srcMods();
     const runtime = (m: Mod): Mod[] =>

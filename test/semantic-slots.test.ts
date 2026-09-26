@@ -5,7 +5,7 @@
 //   · `SceneNode` 没有 `shape` → 菱形 / 圆柱只能靠 `nodeStyles[id].shape` 逃生口进图,
 //     于是"作者在数据表里声明形状"的写法里, 形状是死数据(与 `tone` 当年一模一样);
 //   · `SceneEdge` 没有 `tone` → `edgeShape` 只认 `color`, 复刻脚本里的 `edgeStyles: { tone }`
-//     同样是死数据(实测 `refs/build-arch-v2.ts` 的 violet 虚线边画出来还是灰的);
+//     同样是死数据(实测 `docs/internals/build-arch-v2.ts` 的 violet 虚线边画出来还是灰的);
 //   · `SceneLabel` 没有 `tone` → 边有肤色而标签的字永远是中性灰, 于是"这块标签属于哪一族"
 //     只能靠逐条 `labelBoxShape` 手塞色值(260925 补上: `edgeLabel` 构建期烘焙, 出口按文字槽取色)。
 //

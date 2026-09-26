@@ -7,8 +7,8 @@ date: 2026-09-26T18:45:14+08:00
 
 # 设计意图与第一性原则
 
-> 这篇回答**为什么**, 不回答是什么。分层与边界的现状 → `refs/layering.md`;
-> 纪律全表(可执行的那份)→ `SKILL.md`; 数字只在一处 → `../QUICKREF.md`。
+> 这篇回答**为什么**, 不回答是什么。分层与边界的现状 → `docs/internals/layering.md`;
+> 纪律全表(可执行的那份)→ `policies.md`; 数字只在一处 → `../QUICKREF.md`。
 > 写作纪律: 下面每条断言都必须能落到**一个实跑事故**或**一次实测**上。
 > 落不上的不是原则, 是偏好 —— 偏好写进 code review, 不写进原则。
 
@@ -135,11 +135,11 @@ date: 2026-09-26T18:45:14+08:00
 - **同类表述散在几份文件?** 数一数。抄成 8 份的纪律就是 8 个会漂的副本 ——
   原因只留一处权威, 别处给指针(出口四件套的现状)。
 
-语气要跟着硬度走, 见 `SKILL.md` 纪律表的硬度三档: `[硬]` 该说"不许"就说;
+语气要跟着硬度走, 见 `policies.md` 的硬度三档: `[硬]` 该说"不许"就说;
 取舍与偏好别借那个语气 —— 混在一起的代价是**真硬的那条跟着贬值**。
 
 ## 相关
 
-- 分层与边界的现状 → `refs/layering.md` · 演进史(含 v1→v2 实跑)→ `refs/architecture.md`
-- 美学评估研究草案(全警示级)→ `refs/aesthetics.md` · 纪律全表 → `SKILL.md`
+- 分层与边界的现状 → `docs/internals/layering.md` · 演进史(含 v1→v2 实跑)→ `docs/internals/architecture.md`
+- 美学评估研究草案(全警示级)→ `../skills/svg-infovis/refs/aesthetics.md` · 纪律全表 → `policies.md`
 - 立项依据与未做项 → `../ROADMAP.md` · 排期与划界 → `../docs/infograph-roadmap.md`

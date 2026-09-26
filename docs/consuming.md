@@ -45,5 +45,5 @@ npx svginfo --help          # run / inspect / render / new / icons
 ## npm 页面 vs 仓库里
 
 - 发布的包只带 `dist/` · `src/` · `blocks/` · `scripts/` · `templates/` · `assets/` · `skills/` 与 `README.md` / `LICENSE`(`files` 白名单, 逐条在 `package.json`)
-- **不进包**的: `refs/` · `docs/` · `examples/` · `test/` · `website/` · `ROADMAP.md` —— 指向这些的相对链接只在**仓库**里有效, 读不到就换 [GitHub 仓库](https://github.com/watert/svg-infovis)
+- **不进包**的: `docs/` · `examples/` · `test/` · `website/` · `ROADMAP.md` —— 指向这些的相对链接只在**仓库**里有效, 读不到就换 [GitHub 仓库](https://github.com/watert/svg-infovis)
 - 仓内开发是另一条路(会用到 `examples/` 与 `scripts/`), 见 `contributing.md`

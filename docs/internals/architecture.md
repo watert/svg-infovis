@@ -18,8 +18,8 @@ date: 2026-09-17T22:30:00+08:00
 ![架构 v2](architecture-v2.svg)
 
 > 这张图**本身是 core 画的, 而且在出图之前先过一遍 `showcase` 级 audit**（不过即 `exit 1`）:
-> 重跑 `bun run refs/build-arch-v2.ts > refs/architecture-v2.svg`。
-> **v1 存档**（横排 core 版, v2 之前）：`refs/build-arch.ts` → `refs/architecture.svg`
+> 重跑 `bun run docs/internals/build-arch-v2.ts > docs/internals/architecture-v2.svg`。
+> **v1 存档**（横排 core 版, v2 之前）：`docs/internals/build-arch.ts` → `docs/internals/architecture.svg`
 
 ## 五层 + 一条旁路
 

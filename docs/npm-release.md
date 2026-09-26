@@ -7,7 +7,7 @@ date: 2026-09-26T22:30:00+08:00
 
 # 发布到 npm · 实况与流程
 
-> 这是**操作清单**, 不是设计文档。发布形态的取舍在 `refs/public-api.md`; 立项依据与已知未覆盖在 `ROADMAP.md`。本页只回答"现在什么状态、下次怎么发、怎么验"。
+> 这是**操作清单**, 不是设计文档。发布形态的取舍在 `docs/internals/public-api.md`; 立项依据与已知未覆盖在 `ROADMAP.md`。本页只回答"现在什么状态、下次怎么发、怎么验"。
 
 ## 实况(260926-22:20 实测)
 
@@ -73,5 +73,5 @@ npm publish --dry-run                           # 286 文件 / ~833 kB / 零 war
 - [ ] `npm view @watert/svg-infovis` 有 `0.2.0`, 且 `dist-tags.latest` 指它
 - [ ] 干净目录里 `npm i @watert/svg-infovis` 后, `node -e "import('@watert/svg-infovis')"` 拿到 269 个导出
 - [ ] `npx svginfo --help` 能出用法表
-- [ ] 文档侧: README 的安装段与 `npx skills add` 段在 npm 页面上都读得通(包内没有 `refs/` 与 `docs/`, 相对链接只对仓库有效 —— 见 `consuming.md` 的「npm 页面 vs 仓库里」提示)
+- [ ] 文档侧: README 的安装段与 `npx skills add` 段在 npm 页面上都读得通(包内没有 `docs/`, 相对链接只对仓库有效 —— 见 `consuming.md` 的「npm 页面 vs 仓库里」提示)
 - [ ] (只有上了 CI 才验) tag 触发的 workflow 绿, 包页面上带 provenance 标记

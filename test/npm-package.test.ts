@@ -1,6 +1,6 @@
 // =====================================================================
 // npm 包形态守卫(260926) —— 本仓从"纯 TS 直出"转为可发布 npm 包后, 五条承诺最容易悄悄坏掉:
-//   ① 公共面(`exports`)指到的产物必须存在, 且**不许通配**(白名单是纪律, 见 refs/public-api.md)
+//   ① 公共面(`exports`)指到的产物必须存在, 且**不许通配**(白名单是纪律, 见 docs/internals/public-api.md)
 //   ② `files` 白名单必须覆盖 exports 的每个产物, 否则"装上了却 import 不到"
 //   ③ 相对 import 必须带显式扩展名 —— 少一个就是 node 侧的 ERR_MODULE_NOT_FOUND(旧形态的原始病灶)
 //   ④ barrel 零第三方: lucide-static 只许待在 optional
@@ -138,8 +138,8 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     //    连 test/ 与 website/ 一起), 还会盖住 skills/ 下的真身 —— 这条是"别人装得对不对"的前提。
     expect(existsSync(join(ROOT, 'SKILL.md'))).toBe(false);
     // skill 目录里必须全是真身: CLI 会不会物化软链是它**未文档化**的实现细节, 不能当成安装前提
-    // ⚠ 这里只列"画图现场用得上"的几项。改内核 / 发布才用的 refs/{layering,principles,public-api}.md
-    //    刻意**不在** skill 里(它们的受众是 clone 过的内核开发者), 真身在仓根 refs/ —— 别顺手搬进来
+    // ⚠ 这里只列"画图现场用得上"的几项。改内核 / 发布才用的 layering / principles / public-api(今在
+    //    docs/internals/) 刻意**不在** skill 里(它们的受众是 clone 过的内核开发者) —— 别顺手搬进来
     const real = [
       'SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/aesthetics.md',
       // 260926 补的两项: 作者契约(三层入口 / Scene 契约 / 作者视角的 why)与参考图目录的 README ——
@@ -160,7 +160,7 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
       expect(readFileSync(p, 'utf8').length, `仓根 ${f} 的软链读不到内容`).toBeGreaterThan(0);
     }
     // 反向: 受众不在 skill 的那三份, 真身留在仓根(软链 = 又把它们塞回 skill 了, 分治白做)
-    for (const f of ['refs/layering.md', 'refs/principles.md', 'refs/public-api.md']) {
+    for (const f of ['docs/internals/layering.md', 'docs/internals/principles.md', 'docs/internals/public-api.md']) {
       const p = join(ROOT, f);
       expect(existsSync(p), `仓根缺了 ${f}`).toBe(true);
       expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 成了软链 —— 它的真身该留在仓根, 不随 skill 走`).toBe(false);
@@ -169,10 +169,10 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
 
   it('skill 文档的相对链接必须落在 skill 内且存在(死链 = 只装 skill 的 agent 拿一个空指针)', () => {
     // 260926 走查实测的病灶: 文档搬进 `skills/` 之后, 那几条"按旧位置写的"相对链接成了死链 ——
-    //   `SKILL.md` 的 `./refs/principles.md`(真身在**仓根** `refs/`)与 `recipes.md` 的
+    //   `SKILL.md` 的 `./refs/principles.md`(真身当时在仓根 `refs/`)与 `recipes.md` 的
     //   `../templates/README.md`(解析到 `skills/svg-infovis/templates/`, 那里没有 templates/)。
     //   措辞上像"内部链接", 实际指向外面 —— 而 skill 装到别人机器上时, 外面什么都没有。
-    // 规矩: **跨出 skill 的引用一律写成代码串**(仓内 `refs/principles.md`), 不写成链接;
+    // 规矩: **跨出 skill 的引用一律写成代码串**(仓内 `docs/internals/principles.md`), 不写成链接;
     //   链接只用来指"装了就能拿到"的东西。
     const SKILL_DIR = join(ROOT, 'skills/svg-infovis');
     const dead: string[] = [];
@@ -185,5 +185,33 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
       }
     }
     expect(dead, 'skill 里的相对链接指到了 skill 外 / 不存在的地方 —— 改成代码串或修路径').toEqual([]);
+  });
+
+  it('仓根 refs/ 只剩两条兼容软链 —— 文档的归宿只有一个 docs/(260927)', () => {
+    // 260927 把改内核 / 发布才用的那几份从仓根 `refs/` 迁进 `docs/internals/`(连分层图与它的出图脚本),
+    // 参照实现的对账样本进 `docs/archify-explore/`。留在 `refs/` 的是**兼容层** —— vault 里的
+    // mini-diagram skill 文档按旧路径读这两条。
+    // 这条守卫防的是"顺手再往 refs/ 放第三样东西": 一旦开了口, 仓根就又长出一个半吊子文档目录。
+    const refsDir = join(ROOT, 'refs');
+    const names = readdirSync(refsDir).sort();
+    expect(names, '仓根 refs/ 里出现了第三条东西 —— 真身请进 docs/(仓库结构见 AGENTS.md)').toEqual(['aesthetics.md', 'recipes.md']);
+    for (const f of names) {
+      expect(lstatSync(join(refsDir, f)).isSymbolicLink(), `refs/${f} 不是软链 —— 兼容层只放链, 真身别放这里`).toBe(true);
+    }
+  });
+
+  it('docs/internals/ 的相对链接不许死 —— 搬家最容易留下的就是这类指针', () => {
+    // 260927 一次搬了 4 份文档 + 3 张图 + 3 个出图脚本进 `docs/internals/`, 文件名没变、位置全变:
+    // 这正是 260926 搬 skill 时踩过的坑(那时死的是 `SKILL.md` 与 `recipes.md` 的几条链接)。
+    const dir = join(ROOT, 'docs/internals');
+    const dead: string[] = [];
+    for (const f of readdirSync(dir).filter((n) => n.endsWith('.md')).map((n) => join(dir, n))) {
+      for (const m of readFileSync(f, 'utf8').matchAll(/\[[^\]]*\]\(([^)#]+)\)/g)) {
+        const href = m[1];
+        if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('#')) continue;
+        if (!existsSync(join(f, '..', href))) dead.push(`${rel(f)} → ${href}`);
+      }
+    }
+    expect(dead, 'docs/internals 里的相对链接指到了不存在的地方').toEqual([]);
   });
 });

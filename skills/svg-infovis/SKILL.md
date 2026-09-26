@@ -10,7 +10,7 @@ date: 2026-09-26T23:50:00+08:00
 README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该拿它画图、画图时守什么**。
 
 **本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 各自的源码副本) —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
-**每层的受众分得开**: 本 skill 只装"画图现场用得上"的; 分层契约 / **内核**设计意图 / 公共面(改内核与发布才用)在**仓内 `refs/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
+**每层的受众分得开**: 本 skill 只装"画图现场用得上"的; 分层契约 / **内核**设计意图 / 公共面(改内核与发布才用)在**仓内 `docs/internals/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
 **运行时优先 bun**: 场景文件是 `.ts`, `bun run scene.ts` 直跑零配置; 没有 bun 时 `svginfo` 退回 node ≥22.6 的类型剥离, 产物逐字节相同。
 
 ## 何时用 / 何时别用
@@ -29,10 +29,10 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 | **想先看一张真图长什么样** | [`examples/`](./examples/README.md) —— 三张参考图 + 源码副本(序列 / 阶段带 / 学术风), 配上读 |
 | 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内; 也可 `svginfo new <name>` 拷一份起手) |
 | 查函数 / 门禁判据 / 模块在哪 | 子路径一览在 `README.md`, 逐条在 `docs/api-index.md`(仓内; 包内只有 `README.md` 那份一览) |
-| 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
-| 拿不准某件东西该放哪层 / 哪条边界规则管它 | 仓内 `refs/layering.md` —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`) |
-| 要知道**内核**为什么这么切(代价 / 退出条件 / 实跑事故) | 仓内 `refs/principles.md` —— 作者视角那份短的在 [`refs/contract.md`](./refs/contract.md) §四 |
-| 要动公共面(exports 子路径 / 门禁码 / 发布形态) | 仓内 `refs/public-api.md` —— 变更分级与破坏性改动四步 |
+| 改内核 | 仓内 `docs/internals/policies.md`(纪律全表 13 条)+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
+| 拿不准某件东西该放哪层 / 哪条边界规则管它 | 仓内 `docs/internals/layering.md` —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `docs/internals/architecture-v3.svg`) |
+| 要知道**内核**为什么这么切(代价 / 退出条件 / 实跑事故) | 仓内 `docs/internals/principles.md` —— 作者视角那份短的在 [`refs/contract.md`](./refs/contract.md) §四 |
+| 要动公共面(exports 子路径 / 门禁码 / 发布形态) | 仓内 `docs/internals/public-api.md` —— 变更分级与破坏性改动四步 |
 | 看未做项 | `ROADMAP.md`(仓内) |
 
 ## 三步
@@ -70,7 +70,7 @@ if (draft || !report.pass) process.exitCode = 1;                          // 判
 
 | 你的处境 | 手上有 | 能跑的命令 | 起手代码 |
 |---|---|---|---|
-| ① **clone 了本仓** | 全部(`src/` `examples/` `test/` `templates/` `scripts/` `refs/` …) | 本节这些 `bun run examples/...` / `scripts/*.ts` 命令**只在这里成立** | 抄 `examples/start/full-chain.ts` |
+| ① **clone 了本仓** | 全部(`src/` `examples/` `test/` `templates/` `scripts/` `docs/` …) | 本节这些 `bun run examples/...` / `scripts/*.ts` 命令**只在这里成立** | 抄 `examples/start/full-chain.ts` |
 | ② **装了包**(`bun add @watert/svg-infovis`) | 包里的 `dist/` `src/` `blocks/` `scripts/` `templates/` `assets/` `skills/` + `README.md` | `svginfo run/inspect/render/new/icons`(CLI 随包发) | 照抄 [`QUICKREF.md`](./QUICKREF.md)「30 秒起手」 |
 | ③ **只装了本 skill** | 这六份(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,aesthetics}.md` / `examples/`) | **什么都没有** —— skill 里没有可跑的代码 | 先按②装包拿到 API, 再照 QUICKREF 起手 |
 
@@ -101,7 +101,7 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 机制只活在 `scripts/runner.ts` 的 `runScene`。新图照 `examples/start/full-chain.ts` 抄: 顶层纯几何, `isMainModule(import.meta.url)` 里调用一次(`src/runtime.ts` 的 `./runtime` 子路径)。⚠ 别再用 `import.meta.main` —— bun 认它、node 下它是 `undefined`, 会让 CLI 静默不出图。
 
 - 不手写 `catch` + `process.exitCode` —— 出口纪律收在一处, 别每份示例各守一遍。
-- `refs/build-arch*.ts` 走 `audit()` 直调, **不是**抄写范本。
+- `docs/internals/build-arch*.ts` 走 `audit()` 直调, **不是**抄写范本。
 - 判据放 `test/`, 示例只展示。清单只有 `examples/manifest.ts` 一份。见 `examples/README.md`。
 
 ## 这件事用哪个函数
@@ -123,34 +123,16 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 
 `icons/lucide.ts` 走子路径。`jointVariants` / `diamondPoints` / `derivedPatch` / `viaRoute` / `buildViaRoute` 是内部符号, 不要 import。
 
-## 纪律 (改 core 时也不许破)
+## 纪律 (全表在仓内, 不在这里)
 
-> **先看硬度, 再看条文** —— 同一份表里混着三种东西, 语气一样不代表后果一样:
-> - `[硬]` 违反必红或必出错图(有机器守卫 / 有实跑事故) —— 不许破, 破了就是 bug
-> - `[换]` 有明确代价的取舍 —— 代价可接受时能换, 换前先看它的退出条件
-> - `[味]` 偏好, 无守卫也无事故出处 —— 它是 review 话题, 不是判决依据
->
-> 「为什么」分两处, 本表都不重述: **作者视角的 why**(七条短句, 出图够用)在 [`refs/contract.md`](./refs/contract.md) §四;
-> **内核视角的 why**(每条原则的代价 / 退出条件 / 逼它出来的实跑事故)在**仓内 `refs/principles.md`**(不随 skill 也不进 npm 包 —— 它的读者是改了 core 的人)。
-
-1. `[换]` **零运行时依赖**。依赖方向单向 `core ← 薄壳 ← 上层`(薄壳当前由 `website/` 担任, 将来可移到仓外), 反向即破。**唯一例外**: `./icons/lucide` 读 **optional 依赖** `lucide-static`(不装也能用库本体与 barrel), 其余子路径零依赖。对外发布形态(`dist/` · `files` · `engines`)见 `refs/public-api.md`; 代价与退出条件 → `ROADMAP.md` 立项依据 · principles 三条口吻
-2. `[硬]` **descriptor 双态**。shape 吐纯数据, 字符串化归 `serialize`(唯一字符串出口)。守卫 `test/serialize.test.ts`
-3. `[硬]` **字节确定性**。禁 `Date.now` / `Math.random`; 数值 `round1`; 集合按 codepoint 序。守卫 `test/hero-svg.test.ts`(字节等式) + `test/determinism.test.ts`(源码扫描: `src/` `blocks/` `templates/` 逐文件剥注释后零时间源/随机源) + `test/anim-examples.test.ts`(动画示例的产物字节)。**边界**: 它约束的是 core 产物 —— 出图工具要时间戳 / 随机抖动属另一层
-4. `[换]` **不搞第二权威**。决策在作者的数据里, core 只算几何; 文档同样, 一个事实一处。**可判的那半点式同源**有守卫(`box` 与 `rectFace` / `portPoint` 一类, 见 `test/box.test.ts`); **"文档别互相抄"这半无守卫**, 靠 review —— 出口纪律被抄成 8 份, 就是栽在这上面
-5. `[换]` **渲染器无关**。core 自产文本走 `baselineY`(不用 `dominant-baseline`)、箭端自算几何(不用 SVG `marker`), 换来产物在任意渲染器里长一样; **外来素材 markup 原样透传, 不受此限**。垂直居中 `central = 行心 + 0.35em` **纯公式**(实测墨心 CJK 0.3555–0.3594em, 残差 ≤0.1px)。教训: **别在渲染层加全局 px 补偿** → P6
-6. `[硬]` **画布算出血**。描边居中, 外扩 `strokeWidth/2`; viewBox 别写死。
-7. `[硬]` **渲染面必须是 scene 的满射**。出图走 `sceneChildren`; 出图后 `grep NaN` 产物。守卫 `test/scene-render-parity.test.ts` → P5
-8. `[硬]` **文本要有位置才审得到, 要有内容才上得了屏**。差集在 `phantom_labels` / `phantom_texts`, 不许静默。守卫同上 → P5
-9. `[换]` **新门禁自己举证**。两个方向的反例, 外加把每个豁免条件单独松掉的变异测试; 启发式一律 warning。**退出条件**: 假阳性成本超过漏报 → 删掉它, 不是降档 → P7
-10. `[硬]` **语义进 scene, 样式留覆盖表, 覆盖表永远赢**。`tone` / `variant` / `shape` 是语义, 不是样式。
-11. `[换]` **新判据必须写明作者用哪个旋钮修**。没有旋钮的报错不立项; 元判据在 `test/layering.test.ts` → P7
-12. `[味]` **文档里的数字只核自源码, 只写进 `QUICKREF.md` 缺省值表**。本文件与 README 不另抄一份。"清单只有一份"那半有守卫(`test/examples-manifest.test.ts`), "缺省值表"这半无守卫。
-13. `[换]` **core 不猜意图**。不自动 rank / 避障 / 分组 / 换行 —— 自动层一旦进来, 几何纪律就退化成建议。**退出条件**: 手写拓扑到人脑极限(约 20 节点以上) → 把"声明"降级为"描述意图 + 解算", 但**解算层必须落在 core 之外** → P2
+13 条纪律(硬度三档 + 每条守卫)的读者是**改了 core 的人**, 而只装 skill 的 agent 手上没有 `src/` ——
+所以全表在**仓内 `docs/internals/policies.md`**, 不随 skill 也不进 npm 包。本文件只留下面的**操作禁令**。
+出图现场够用的 why 是 [`refs/contract.md`](./refs/contract.md) §四 那七条短句, 不必翻全表。
 
 ## 别做 (操作层 · agent 高频误用)
 
-> 这节是**出图时**的禁令, 语重是对的 —— prompt 是软约束, agent 必违规(P1)。
-> 设计原则不在这里, 见上表与 `refs/principles.md`。
+> 这节是**出图时**的禁令, 语重是对的 —— prompt 是软约束, agent 必违规, 所以能焊进出口的就不留在这里(纪律 9 / 11)。
+> 设计原则不在这里, 见上表与 `docs/internals/principles.md`。
 
 - 别手写折点坐标
 - 别把 `via` 或 `assignLanes` 当避障。`assignLanes` 不调用就完全不发生
@@ -163,7 +145,7 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 **本 skill = 这六项**(仓内 `skills/svg-infovis/`; 也可 `npx skills add watert/svg-infovis` 装进任何认 skill 的 agent):
 
 ```
-SKILL.md          本文件 —— 何时用 / 怎么用 / 纪律
+SKILL.md          本文件 —— 何时用 / 怎么用 / 操作禁令
 QUICKREF.md       画图时只读这份 —— 起手代码与缺省值表在它手里
 refs/recipes.md         十三条图型 / 风格配方
 refs/contract.md        作者契约: 三层入口 / Scene 逐字段 / 出口三件套 / 作者视角的 why
@@ -171,7 +153,7 @@ refs/aesthetics.md      美学评估草案(含目标函数选边), 不是操作�
 examples/               三张参考图 + 各自的源码副本(序列 / 阶段带 / 学术风)
 ```
 
-**改内核 / 发布用得上的**(仓内 `refs/`, 不随 skill 也不进 npm 包): `layering.md` 分层契约 · `principles.md` 意图与事故出处 · `public-api.md` 公共面与破坏性改动 SOP · `architecture.md` 演进史存档。
+**改内核 / 发布用得上的**(仓内 `docs/internals/`, 不随 skill 也不进 npm 包): `policies.md` 纪律全表 13 条 · `layering.md` 分层契约 · `principles.md` 意图与事故出处 · `public-api.md` 公共面与破坏性改动 SOP · `architecture.md` 演进史存档。
 本仓其余那堆(`templates/` `examples/` `src/` `test/` `docs/` `assets/` …)同理 —— 完整清单与"该读哪份"看仓内 `AGENTS.md`, 本文件不复述。
 ⚠ 这个目录里**全是真身**(没有软链): 仓根那几条指向这里的是软链, 别反着写。
 

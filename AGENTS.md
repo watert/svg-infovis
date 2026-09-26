@@ -22,15 +22,16 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 - 所以「改完是否已同步」== 是否**全绿**: 每次改完源码必须跑 `bun run verify`(=`bun run build` + `bun test` + `tsc --noEmit`), 绿了才算完成。**只跑 `bun test` 不算** —— 它不看产物, 而产物才是别人吃的那份
 - `prepare` 脚本让 `bun link` / 从 git URL 安装时自动跑一遍 `tsc -p tsconfig.build.json`: 消费者拿到的是刚构建的产物; 仓内改完源码则自己跑 `bun run verify`
 - 源码里的相对 import 一律带显式 **`.js` 扩展名**(磁盘上仍是 `.ts`, 靠 TS 的 `.js → .ts` 映射)—— 消费侧 `moduleResolution: nodenext` 认的就是它, 新文件漏了这条, 构建产物在 node 侧直接解析不到
-- 半成品没有版本号兜底、没有回滚窗口, 会当场炸到所有下游(vault 的画图 skill / vite 项目 / htmls 脚本); 发布版更狠 —— 装上就坏, 变更分级见 `refs/public-api.md`
+- 半成品没有版本号兜底、没有回滚窗口, 会当场炸到所有下游(vault 的画图 skill / vite 项目 / htmls 脚本); 发布版更狠 —— 装上就坏, 变更分级见 `docs/internals/public-api.md`
 - verify 红就是没完成, 不许交付; 汇报里附命令与结果(exit code / 通过数)
 - 唯一要重新 `bun link` 的场景: 本仓**路径变更 / 重命名**, **包名变更**(260926: `svg-infovis` → `@watert/svg-infovis`), 或 `~/.bun/install/global` 被清, 或 **`package.json` 的 `bin` 目标变了** —— 那时本仓 `bun link` 重注册, 各消费者再 `bun link @watert/svg-infovis` 重建本地链。⚠ 第三条 260926 真炸过一次: `bin` 改指 `dist/scripts/cli.js` 后, 旧链还指着 `scripts/cli.ts`, 而 shebang 已换成 node, 于是全局 `svginfo` 当场 `ERR_UNKNOWN_FILE_EXTENSION: ".ts"` —— 只改 `bin` 而不重注册 = CLI 直接死, 而且只在"真去调它"时才暴露
 
 ## skill 与文档的真身在哪(260926 起)
 
-- **分治原则**: skill 只装**画图现场用得上**的 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 源码副本), 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓根 `refs/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用。**同理反过来**: 出图现场真的缺的东西(协议地图 = `contract.md`、看图校准 = `examples/`)要补进 skill, 别留给"你自己翻仓"
+- **分治原则**: skill 只装**画图现场用得上**的 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 源码副本), 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓内 `docs/internals/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用。**同理反过来**: 出图现场真的缺的东西(协议地图 = `contract.md`、看图校准 = `examples/`)要补进 skill, 别留给"你自己翻仓"
 - 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**指向真身的软链** —— 改内容一律改真身(`skills/svg-infovis/`), 对着软链原子写会把链替换成普通文件。⚠ 这份软链名单是**显式三条**, 不许写成"skill 里那几份"的循环: `contract.md` 与 `examples/` 是 260926 新加的 skill 真身, 仓根**没有**它们的旧路径
-- ⚠ **skill 文档里的相对链接必须落在 skill 内**(守卫在 `test/npm-package.test.ts`)。260926 走查实测: 文档搬进 `skills/` 后, `SKILL.md` 的 `./refs/principles.md`(真身在仓根)与 `recipes.md` 的 `../templates/README.md` 都成了死链 —— 只装 skill 的 agent 拿到的是空指针。**跨出 skill 的引用一律写成代码串**(仓内 `refs/principles.md`), 链接只指"装了就能拿到"的东西
+- **文档的归宿只有一个 `docs/`**(260927 起): 改内核 / 发布才用的那几份从仓根 `refs/` 迁进 `docs/internals/`(`layering` / `principles` / `public-api` / **`policies.md` = 纪律全表** / `architecture.md`, 连现状分层图 `architecture-v3.svg` 与出图脚本 `build-arch*.ts`), 参照实现的对账样本进 `docs/archify-explore/`。仓根 `refs/` 从此**只剩那两条兼容软链**(vault 里的 mini-diagram skill 文档按旧路径读它们) —— 别再往 `refs/` 放第三样东西: 加顶点目录前先问一句"它是 skill 真身吗", 不是就进 `docs/`
+- ⚠ **skill 文档里的相对链接必须落在 skill 内**(守卫在 `test/npm-package.test.ts`)。260926 走查实测: 文档搬进 `skills/` 后, `SKILL.md` 的 `./refs/principles.md`(真身当时在仓根)与 `recipes.md` 的 `../templates/README.md` 都成了死链 —— 只装 skill 的 agent 拿到的是空指针。**跨出 skill 的引用一律写成代码串**(仓内 `docs/internals/principles.md`), 链接只指"装了就能拿到"的东西
 - ⚠ **根目录永远不许放 `SKILL.md`**: skills CLI 的发现规则是"根目录的 SKILL.md 盖住 `skills/` 下的"(实测: 根那份会把 `skills/` 里的顶掉), 且会把**整仓**当成 skill 拷给消费者(实测 3.3 MB, 连 `test/` 与 `website/` 一起); 真身只可能在 `skills/svg-infovis/`
 - 软链方向选"真身在 skill、仓根留链", 因为反方向会让 `npx skills add` 的**软链物化**成为外部用户能否拿到文档的前提 —— 那是 CLI 未文档化的实现细节; 现在的方向下 skill 目录里全是真身, 换哪个版本都装得对
 - Windows 上 `core.symlinks=false` 的 checkout 会把仓根那 3 条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
@@ -71,11 +72,11 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 ## 读哪一份
 
 - 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `skills/svg-infovis/refs/contract.md`(三层入口 / Scene 契约 / 作者视角的 why) · `skills/svg-infovis/examples/`(三张参考图 + 源码副本) · `templates/*.ts`
-- 改内核 → `skills/svg-infovis/SKILL.md` 的「纪律」+ 源码; 子路径一览在 `README.md`、逐条在 `docs/api-index.md`; 未做项在 `ROADMAP.md`
-- **拿不准某件东西该放哪层 / 哪条边界规则管它** → `refs/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
-- **想知道为什么这么切** → `refs/principles.md`(每条原则的代价与逼它出来的实跑事故)
-- **要动公共面(exports 子路径 / 门禁码 / 发布形态: dist · files · engines)** → `refs/public-api.md`(变更分级 + 破坏性改动四步 + 下游清单)
+- 改内核 → `docs/internals/policies.md`(纪律全表 13 条 + 硬度三档)+ 源码; 子路径一览在 `README.md`、逐条在 `docs/api-index.md`; 未做项在 `ROADMAP.md`
+- **拿不准某件东西该放哪层 / 哪条边界规则管它** → `docs/internals/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
+- **想知道为什么这么切** → `docs/internals/principles.md`(每条原则的代价与逼它出来的实跑事故)
+- **要动公共面(exports 子路径 / 门禁码 / 发布形态: dist · files · engines)** → `docs/internals/public-api.md`(变更分级 + 破坏性改动四步 + 下游清单)
 - **要加动效 / 动动画相关内核** → `docs/animation-roadmap.md`(三个消费场景 / 两条腿 / 方向清单 / 边界 / 待拍板)
   · `docs/animation-parity.md`(Remotion 生态对账: 可搬什么、为什么、对方自己哪里错了)
-- `refs/architecture.md` 是 v0.1 产品管线的**演进史存档**(决策层与 blink 已废弃), 别拿它回答现状问题
+- `docs/internals/architecture.md` 是 v0.1 产品管线的**演进史存档**(决策层与 blink 已废弃), 别拿它回答现状问题
 - 三条口吻: 零运行时依赖(唯一例外 `./icons/lucide` 读 optional 依赖 `lucide-static`) · 字节确定性(禁 `Date.now` / `Math.random`) · 一处事实一处

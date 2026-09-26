@@ -1,8 +1,8 @@
 // =====================================================================
 // 架构图 **v2** —— 按双阶段流程重画 (操作清单现收在 QUICKREF「动手前」, 当时的全文在 refs/aesthetics.md)
-//   v1: refs/build-arch.ts  → refs/architecture.svg
-//   v2: 本文件             → refs/architecture-v2.svg
-//   bun run refs/build-arch-v2.ts > refs/architecture-v2.svg
+//   v1: docs/internals/build-arch.ts  → docs/internals/architecture.svg
+//   v2: 本文件             → docs/internals/architecture-v2.svg
+//   bun run docs/internals/build-arch-v2.ts > docs/internals/architecture-v2.svg
 //
 // ── 前置设计清单（提问式 · 动笔前落字，收尾环的白名单依据）─────────────
 // 1 **主路径**：HTML骨架 → scene缓存 → core.route → audit → export → 出厂产物 → 分发。

@@ -7,11 +7,11 @@ date: 2026-09-26T01:10:00+08:00
 
 # 现行分层契约与边界规则
 
-> 这篇是**模块分层**的权威。`refs/architecture.md` 讲的是另一件事 —— v0.1 的**产品管线**五层
+> 这篇是**模块分层**的权威。`docs/internals/architecture.md` 讲的是另一件事 —— v0.1 的**产品管线**五层
 > (决策 / 缓存 / 内核 / 出口 / 分发)与 blink、HTML 骨架两段已废弃路线, 已降级为演进史存档。
 > 两篇的分层不是一回事: 那篇分的是**一次出图经过几道工序**, 这篇分的是**代码按什么职责摆**。
-> 配图见 `refs/architecture-v3.svg`(core 自画自审, 重跑 `bun run refs/build-arch-v3.ts`)。
-> 原则出处(为什么这么切) → `refs/principles.md`; 对外承诺面与破坏性变更 → `refs/public-api.md`。
+> 配图见 `docs/internals/architecture-v3.svg`(core 自画自审, 重跑 `bun run docs/internals/build-arch-v3.ts`)。
+> 原则出处(为什么这么切) → `docs/internals/principles.md`; 对外承诺面与破坏性变更 → `docs/internals/public-api.md`。
 
 ## 七层
 
@@ -31,7 +31,7 @@ date: 2026-09-26T01:10:00+08:00
 ## 依赖方向: 单向, 不可逆
 
 ```text
-主链(墨迹从声明走到字符串)  ──  零弯折的六盒竖排, 见 refs/architecture-v3.svg
+主链(墨迹从声明走到字符串)  ──  零弯折的六盒竖排, 见 docs/internals/architecture-v3.svg
   作者声明 ─┬─▶ shapes/  ─┐
             │             ├─▶ serialize(唯一字符串出口) ─▶ export(fail-closed) ─▶ 烘焙 SVG
             ├─▶ blocks/  ─┤
@@ -173,6 +173,6 @@ core 没有任何 API 能改"谁在前、谁在后、谁是成员"这类决策; 
 
 ## 相关
 
-- 原则与事故出处 → `refs/principles.md` · 演进史 → `refs/architecture.md`
+- 原则与事故出处 → `docs/internals/principles.md` · 演进史 → `docs/internals/architecture.md`
 - 图型骨架 → `refs/recipes.md` · 数字只在一处 → `../QUICKREF.md`
-- 纪律全表 → `SKILL.md` · 未做项 → `ROADMAP.md`(仓内) · infograph 划界 → `docs/infograph-roadmap.md`(仓内)
+- 纪律全表 → `policies.md` · 未做项 → `ROADMAP.md`(仓内) · infograph 划界 → `docs/infograph-roadmap.md`(仓内)

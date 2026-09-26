@@ -24,12 +24,12 @@ date: 2026-09-26T21:30:00+08:00
 - **素材链**: 图标走 optional 依赖 `lucide-static` + lazy 读盘; 整幅外来 SVG 走 fail-closed 素材链
 - **CLI `svginfo`**: authoring 入口(run / inspect / render / new / icons) —— `bun link` 后全局可用, 或 `npx svginfo`; 双运行时(有 bun 走 bun, 否则 node ≥22.6 的类型剥离)
 - **发布形态(260926)**: `exports` 全部指向 `dist/`(三条件映射、逐条列举、不通配)、ESM-only、`engines >= 20.16`、`files` 白名单(详见下节「npm 发包」)
-- **契约文档(260926)**: `refs/layering.md`(七层 + 依赖方向 + 准入门槛 + 三条边界轴) · `refs/principles.md`(原则的代价与事故出处) · `refs/public-api.md`(exports 即公共面 / 变更分级 / 破坏性改动四步) · `refs/architecture-v3.svg`(现状分层图, core 自画自审; v1/v2 那份降级为演进史)
+- **契约文档(260926)**: `docs/internals/layering.md`(七层 + 依赖方向 + 准入门槛 + 三条边界轴) · `docs/internals/principles.md`(原则的代价与事故出处) · `docs/internals/public-api.md`(exports 即公共面 / 变更分级 / 破坏性改动四步) · `docs/internals/architecture-v3.svg`(现状分层图, core 自画自审; v1/v2 那份降级为演进史)
 
 ## 后续方向
 
 - **契约归属三处错位(260926 审计, 动它们全是破坏性变更, 别顺手改)** —— 现状与判据见
-  `refs/layering.md`「契约归属」: ① `Scene` / `SceneNode` / `SceneGroup` 契约住在 `knives/audit.ts`,
+  `docs/internals/layering.md`「契约归属」: ① `Scene` / `SceneNode` / `SceneGroup` 契约住在 `knives/audit.ts`,
   `scene.ts` 只做加法扩展, 致 `scene` 运行时依赖 `audit`(正解是契约住 scene、audit 反读; 要同时动
   audit / scene / export 三个文件与类型出口, 性价比得单独算) ② `knives/measure` 是纯函数零依赖却被
   6 个形状/块件消费, 按"≥2 消费者"判据更像 `geometry/` 原语, 但搬家要改 `exports` 子路径 = L3 破坏
@@ -124,13 +124,14 @@ date: 2026-09-26T21:30:00+08:00
 - **npm 发包(260926 已落地)** —— 发布形态: ESM-only; `exports` 全部指向 `dist/`(逐条三条件映射,
   **不用通配** —— 通配会让内部文件自动变成公共面); `bin.svginfo` 走 `#!/usr/bin/env node` + 双运行时;
   `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` / `skills` + `README.md` / `LICENSE`
-  (`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
+  (`test/` / `examples/` / `website/` / `docs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包; 仓根 `refs/` 只剩两条兼容软链);
   **本仓同时是一份 Agent Skill** —— 真身在 `skills/svg-infovis/`(`npx skills add watert/svg-infovis` 可装),
   skill 只装**画图现场用得上**的那些(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,aesthetics}.md` /
   `examples/` 三张参考图 + 源码副本), 它们才是真身;
   仓根的 `QUICKREF.md` 与那两份 refs 是指向真身的软链 —— 所以 QUICKREF 也在包里, 只是路径落在
-  `skills/svg-infovis/` 下(软链本身不进 npm 包)。受众是内核开发者 / 发布者的 `refs/{layering,principles,public-api,architecture}.md`
-  反之留在仓根**不随 skill 走**(260926 分治); 布局纪律与三条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
+  `skills/svg-infovis/` 下(软链本身不进 npm 包)。受众是内核开发者 / 发布者的那几份(`layering` /
+  `principles` / `public-api` / `architecture` + 纪律全表 `policies.md`)留在 `docs/internals/`
+  反之**不随 skill 走**(260926 分治, 260927 从仓根 `refs/` 归入 `docs/`); 布局纪律与三条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
   ⚠ `skills/` 里的 `examples/` 是 260926 走查补的第五项 —— 触发条件很具体: **只装了 skill 的 agent 读不了 SVG 文本,
   也拿不到 `src/`, 于是既没有图可看也没有代码可读**; 补法是三张 PNG + 逐字节副本, 生成器 `scripts/build-skill-shots.ts`,
   守卫 `test/skill-shots.test.ts`(PNG 不做字节守卫, 钉的是导出指纹 —— 理由见 `AGENTS.md`「产物」);
@@ -141,10 +142,10 @@ date: 2026-09-26T21:30:00+08:00
   ② CJS `require` 不支持(ESM-only; 但 node ≥22.12 的 `require(ESM)` 能拿到它, 实测 269 个 key);
   ③ 浏览器侧算源指纹 `decisionDigest` 不支持(那一步要 sha256,
   走 bun 或 node 内置); ④ `engines >= 20.16`(20.16 起 `getBuiltinModule` 回移可用), 更低版本的纯 node 用户跑不动源指纹那档;
-  ⑤ `refs/build-arch*.ts` 与 `test/*-probe.ts` 里还留着 bun 专有的 `import.meta.main`(两者都不进包、也不参与门禁,
+  ⑤ `docs/internals/build-arch*.ts` 与 `test/*-probe.ts` 里还留着 bun 专有的 `import.meta.main`(两者都不进包、也不参与门禁,
   留作演进史与夹具的追认, 不跟着改); ⑥ `./icons/lucide` 在浏览器打包下两家行为不同 —— esbuild 硬失败(分层预期),
   vite 只给 warning 并把 `node:fs` 换成空壳对象, 要到运行时才炸成 `readFileSync is not a function`(vite 的规矩, 不是包的)。
-  代价记账见 `refs/public-api.md`
+  代价记账见 `docs/internals/public-api.md`
 - **美学度量校准** —— 攒够 ≥3 张真实图的踩坑样本后才谈把警告升级为判据(现在启发式一律 warning)
 - **一维约束账本之上的列心求解 / 回吐重解、跳线(line jump)** —— 按证据排期
 - **整幅外来素材不进净空门禁** —— 图标 / 网格底纹 / `embedAsset` 同档, 边与标签压在图表上眼下无人管; 要收口得先按纪律 9 举证 + 纪律 11 给旋钮, 现在靠作者留位(见 `QUICKREF.md` 误用表)
@@ -166,5 +167,5 @@ date: 2026-09-26T21:30:00+08:00
   "给节点加个投影显得立体"是装饰性需求, 不是几何需求
 - 不引入 npm 之外的运行时依赖(唯一第三方是 optional 的 `lucide-static`, 只有 `./icons/lucide` 读它);
   本体不引 react / vite / esbuild。⚠「不上 build step」260926 已修正 —— 发布 npm 包需要 `dist/`,
-  但它是派生产物、gitignored, 版本库里仍不囤构建产物(代价见 `refs/public-api.md`)
+  但它是派生产物、gitignored, 版本库里仍不囤构建产物(代价见 `docs/internals/public-api.md`)
 - 不为第三方图标库的破坏性升级做兼容层(升版走 PR)

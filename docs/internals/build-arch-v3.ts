@@ -1,13 +1,13 @@
 // =====================================================================
 // 架构图 **v3** —— 现行**模块分层** + 依赖方向 (v1/v2 讲的是产品管线五层, 已降级存档)
-//   v1: refs/build-arch.ts      → refs/architecture.svg
-//   v2: refs/build-arch-v2.ts   → refs/architecture-v2.svg
-//   v3: 本文件                   → refs/architecture-v3.svg
-//   bun run refs/build-arch-v3.ts > refs/architecture-v3.svg
+//   v1: docs/internals/build-arch.ts      → docs/internals/architecture.svg
+//   v2: docs/internals/build-arch-v2.ts   → docs/internals/architecture-v2.svg
+//   v3: 本文件                   → docs/internals/architecture-v3.svg
+//   bun run docs/internals/build-arch-v3.ts > docs/internals/architecture-v3.svg
 //
 // ⚠ 与 v2 的切法不同: v2 的五层是"一次出图经过几道工序"(决策/缓存/内核/出口/分发), 其中决策层
 // (HTML 骨架) 与 blink 旁路已废弃。v3 分的是"代码按什么职责摆" —— 七层与三条边界轴, 权威在
-// refs/layering.md。组框 = **零依赖纯函数区**(shapes/blocks/templates/knives/geometry/
+// docs/internals/layering.md。组框 = **零依赖纯函数区**(shapes/blocks/templates/knives/geometry/
 // serialize/export), 组外只有「作者声明」与「产物」两件事。
 //
 // ── 前置设计清单(提问式 · 动笔前落字)────────────────────────────────────
