@@ -44,6 +44,9 @@
 | `heading` | `infograph/heading.ts` | **标题梯级 + 分隔线**: kicker / 标题 / 副标题三档字号只在 `HEADING_LAYOUT` 写一次(量宽与画字同一份), 每块位置从上一块底边加缝推(`below`), 一个 y 都不手拍 |
 | `progress` | `infograph/progress.ts` | **blocks/ 第一件**: 两条单值进度条 + 一条三段堆叠条 —— `ratio` 是作者算好的数(kernel 不归一化), 盒交给 `packCol` 摆完再**摊回声明重画**(逐位相同), `above` / `inside` 两档标签位置都画出来 |
 | `pictogram` | `infograph/pictogram.ts` | **blocks/ 第二件**: ISOTYPE 图标阵列(单行 10 染 7 / 4×5 格 20 染 13) —— `N` 与 `k` 由作者声明, 尺寸走 `pictogramFit` 反算, 素材名字在构建期经 `iconAsset` 读一次盘 |
+| `anim-flow` | `gallery/anim-flow.ts` | **动画 ① 档 · 在跑**: 四条蚂蚁线走 `attrs.href` 指 path 自己的 `stroke-dashoffset`(非继承属性挂组上不动), 四环按 `begin="<id>.end"` 时序链点亮(⚠ 同步基 id 不许带连字符) |
+| `anim-progress` | `gallery/anim-progress.ts` | **动画 ① 档 · 长出来**: 条宽 0 → 声明比例走 `href` 指 rect 的 `width`, 阵列前 10/15 格按 `keyTimes` 逐格 `visibility` 点亮(静态帧即末态, href 不能指块内部的 fill —— 缺口记在文件头) |
+| `anim-interactive` | `gallery/anim-interactive.ts` | **动画 ① 档 · 交互轨**: `begin="click"` 点节点 → 该节点与相关边 `fill="freeze"` 亮住(只点不灭), 悬停微反馈 + 呼吸点走内嵌 CSS —— SMIL 轨与 CSS 轨各管一个属性 |
 
 前六张(v0.1 那一族, `node-forms` → `embed-panel`)**不合并**: 图型、主题、参照源各不相同, 硬合只会得到一个"什么都有一点"的杂烩。
 
@@ -51,6 +54,18 @@
 拓扑, 所以都走描述符层直出(与 `basic` 同档, **不过门禁**)。它们又是三层 API 的**递进**举证:
 `stat` 只到 `statFit` + `grid` 摆格位 → `heading` 用 `below` 把块接着排 → `progress` / `pictogram` 走块契约
 (`{ shape, bounds }`)让盒能被当盒摆 —— 硬合一处就把这层递进抹平了。
+
+260926 起的三张(`anim-*`)**又是一族: 时间轴压在旧版式上**。版图与一张静态图一字不差, 产物里多出来的
+只是 `<animate>` / 内嵌 `<style>` —— 于是它们同时举证了 ROADMAP 动画条 ① 档那句承诺: 动画在浏览器端跑,
+**产物本身仍是静态字节**(字节确定 / golden / 门禁一条都不动)。三张各钉一个机制, 别当同一个示例的三种配色:
+
+- `anim-flow` —— `href` 逃生舱(非继承属性只能指名道姓)+ `begin="<id>.end"` 时序链
+- `anim-progress` —— 非继承属性 `width` 的 href 寻址 + 逐格 `visibility` 的 `keyTimes` 错峰
+- `anim-interactive` —— 事件轨(`begin="click"` + `fill="freeze"`)与 CSS 轨(悬停 / `@keyframes`)的分工
+
+⚠ **PNG 快照只有第一帧**(rsvg 不跑 SMIL/CSS 动画), 静态消费看到的是"末态 / 常态"—— 这正是"静态帧即末态"
+那条设计的用意(产物离开播放器仍是一张完整的图)。动起来什么样写在各自的文件头; 判据在
+`../test/anim-examples.test.ts`(SMIL 关键词在场 / XML 结构合法 / 两次导出逐字节全等)。
 
 ### labs · 样式矩阵 —— 缺省值就是这样定档的
 

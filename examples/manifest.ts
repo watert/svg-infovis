@@ -89,6 +89,13 @@ export const EXAMPLES: ExampleEntry[] = [
     what: 'blocks/ 第一件: 两条单值进度条 + 一条三段堆叠条 —— `ratio` 由作者算好, 盒交给 `packCol` 摆完再摊回声明重画(逐位相同), 两档标签位置都画出来' },
   { key: 'pictogram', group: 'gallery', file: 'examples/infograph/pictogram.ts',
     what: 'blocks/ 第二件: ISOTYPE 图标阵列(单行 10 染 7 / 4×5 格 20 染 13) —— `N` 与 `k` 是作者声明的数, 尺寸走 `pictogramFit` 反算' },
+  // 动画 ① 档(260926): 三张同一族 —— 版图与静态图一字不差, 多出来的只是时间轴; 各自钉一个机制
+  { key: 'anim-flow', group: 'gallery', file: 'examples/gallery/anim-flow.ts',
+    what: '流程图的"在跑"态: 四条蚂蚁线走 `attrs.href` 指 path 自己的 `stroke-dashoffset`(非继承属性挂组上不动), 四环按 `begin="<id>.end"` 时序链点亮(⚠ 同步基 id 不许带连字符, 实测)`' },
+  { key: 'anim-progress', group: 'gallery', file: 'examples/gallery/anim-progress.ts',
+    what: '数值"长出来": 条宽 0 → 声明比例走 `href` 指 rect 的 width, 图标阵列前 10/15 格按 `keyTimes` 逐格 `visibility` 点亮 —— 静态帧即末态' },
+  { key: 'anim-interactive', group: 'gallery', file: 'examples/gallery/anim-interactive.ts',
+    what: '交互高亮: `begin="click"` 点节点 → 该节点与相关边 `fill="freeze"` 亮住(只点不灭), 悬停微反馈与呼吸点走内嵌 CSS —— SMIL 轨与 CSS 轨各管一个属性' },
 
   // ── labs ─────────────────────────────────────────────────────────────
   { key: 'style-lab-light', group: 'labs', file: 'examples/labs/style-lab.ts', arg: 'light',

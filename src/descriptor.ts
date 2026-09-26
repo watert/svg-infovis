@@ -101,6 +101,10 @@ export const embed = (x: number, y: number, w: number, h: number, viewBox: Rect,
 // `ExportOptions.hooks`(260926 已落地, export 渲染映射从语义槽派生 id / data-* 透传, 见
 // `src/export.ts` 的 `hookAttrs`), 或作者自己往 `attrs` 里写 `id`。animate 本身是目标元素的
 // 子元素, 不需要 href 寻址。
+//
+// ⚠ **同步基 id 别带连字符**(260926 anim-flow 受控实验坐实): Chrome 对 `begin="lit-1.end"`
+// 这类**带连字符**的同步基引用**静默失效**(产物合法、零报错、整条时序链一动不动); `lit1.end` /
+// `lit_n1.end` 全正常。scene id 的惯例偏偏是 kebab-case —— 要当同步基用的 id, 命名时去掉连字符。
 
 /** `<animateTransform>` 的 `type` 词表 —— **运行时值与类型同源**(与 `NODE_ALIGN_KINDS` 同规矩) */
 export const ANIMATE_TRANSFORM_TYPES = ['translate', 'scale', 'rotate'] as const;
