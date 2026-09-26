@@ -47,7 +47,7 @@ date: 2026-09-26T22:30:00+08:00
 - [x] **首次手动发布占名** —— 260926 22:17; ⚠ scoped 包默认 private, 漏掉 `--access public` 直接失败; ⚠ 发布不可逆, 只能 `npm deprecate`, 不能删名删版本
 - [x] **复查读路径放行** —— 260926 23:20 已放行: `npm view @watert/svg-infovis version` = `0.2.0`, `dist-tags.latest` 指它(「读路径当时自相矛盾」那段就此结案)
 - [ ] **发布后收尾** —— 打 tag `v0.2.0` 推到仓库, 给以后可能上的 CI 发布留锚点
-- [ ] **README 重写后, npm 页面还是旧版** —— 页面上的 README 取自**已发布的 tarball**, 不是仓库当前状态; 仓根 README 260926 已重写(去掉 frontmatter、219 行压到 90 行), 要让它上 npm 页面得**发一个 0.2.1**
+- [ ] **README 重写后, npm 页面还是旧版** —— 页面上的 README 取自**已发布的 tarball**, 不是仓库当前状态; 仓根 README 260926 已重写(去掉 frontmatter、219 行压到 90 行), 要让它上 npm 页面得**发一个 0.2.1**。同一条也管 `package.json` 的 `homepage`(已改指演示站 `https://watert.github.io/svg-infovis/`, 原先是 GitHub `#readme`)
 - [ ] **(可选) CI 发布** —— `publish.yml` + trusted publisher。**默认不做**: 首发无论如何都得手动(trusted publisher 要绑一个已存在的包, 这是个死结), 而本仓一年也没几个版本, 手工发布那点摩擦正好逼你看一眼 verify 与 `git status`
   - 唯一判据: 首次出现「npm 上的版本与某个 commit 对不上」, 或确认这个包要进别人的依赖树、要拿 provenance 当对外承诺。成本没有时效性, 那时补和现在补一样
   - 要补时: trusted publisher 在**包设置页**配(不是 CLI), 绑 repository `watert/svg-infovis` + workflow `publish.yml`; workflow 走 `on: push: tags: ['v*']` → `permissions: id-token: write` → 构建 + 测试 → `npm publish --provenance`
