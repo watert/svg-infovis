@@ -139,7 +139,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - [`refs/recipes.md`](./refs/recipes.md) —— 十三条图型与风格配方
 - [`refs/architecture.md`](./refs/architecture.md) —— v0.1 产品管线五层的**演进史存档**(决策层 / blink 已废弃; 别拿它回答现状问题)
 - [`refs/aesthetics.md`](./refs/aesthetics.md) —— 美学评估研究草案(全警示级, 不是操作手册)
-- [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md) · [`docs/infograph-roadmap.md`](./docs/infograph-roadmap.md)
+- [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md) · [`docs/infograph-roadmap.md`](./docs/infograph-roadmap.md) · [`docs/avatar-lab-parity.md`](./docs/avatar-lab-parity.md)(外部对账: 解析式 3D 剪影渲染器)
 - [`examples/README.md`](./examples/README.md) —— 五桶示例与出口纪律
 - [`ROADMAP.md`](./ROADMAP.md) —— 立项依据与后续方向
 
