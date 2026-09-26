@@ -2,7 +2,7 @@
 name: svg-infovis-roadmap
 description: "svg-infovis 的立项依据、当前能力与后续方向"
 tags: [svg-infovis, roadmap]
-date: 2026-09-23T16:00:00+08:00
+date: 2026-09-26T00:00:00+08:00
 ---
 
 # ROADMAP
@@ -61,6 +61,25 @@ date: 2026-09-23T16:00:00+08:00
   **data-\***(`data-kind` / `data-tone`, 与 `data-draft="1"` 同族)不用自由 class —— class 命名空间会和
   作者手写的撞, 五张图五种命名就是又一个 P4。CSS `@keyframes` 另有一条口吻约束: 样式表只能
   **内嵌 `<style>`**(`DStyle` 已落地) —— 靠宿主页面 CSS 的产物离开宿主就死, 与「自包含 SVG」撞车
+  ⚠ **archify 对账(260926 调研, ① 档的待办清单)** —— archify 动画 95% 是宿主 viewer 的运行时叠加
+  (rAF / 相机 / motion-governor / WebM), 机制不可搬(与零运行时 / 字节确定撞车, 且 ③ 档已焊死);
+  可搬的只有它那小段声明式产物动画的**表达式与节拍**, 按成本从低到高:
+  ⓪ 文档补齐: `README.md` 的 descriptor 索引与 `QUICKREF.md` 还没列 `animate()` / `style()` / `EASING_SPLINES`;
+  ⓵ `animateMotion`(`DAnimate` 加一个 kind 分支, 纯加法): 语义 token 沿真实 authored 路径跑,
+  `calcMode="spline"` + `keySplines` + `rotate="auto"`, 比 dashoffset 更"信息性"(方向 + 语义种类同时表达),
+  是 archify 全仓唯一 SMIL 用法、可验证;
+  ⓶ `TIMING` 节拍表(对称于 `EASING_SPLINES` 的单一真值): 蚂蚁线 / 节点脉冲 / stagger 基底的时长与延迟各收敛一处,
+  archify 参考节拍 160(stagger 步长)/ 780(token 单程)/ 2400(边流)/ 3600(节点脉冲)ms, 当参考不抄写;
+  ⓷ stagger 的正确姿势: 作者数组顺序 → 步进索引 → 延迟, **cap 在上界**(archify 是 12), 只压视觉不动语义顺序;
+  ⓸ `prefers-reduced-motion` 兜底配方(一条 CSS, 建议进 `QUICKREF` / `templates`):
+  `animation: none !important` + `stroke-dashoffset: 0` —— 回到完成态而不是停在半途;
+  ⓹ finite + settled 纪律: 动画一次跑完永久回到 authored 静态样式, 不重播 —— 对"golden 是静帧"的仓
+  这条纪律比动画本身值钱, 与下面"装饰性 vs 信息性"判据同源(archify 版判词: 动效要说明一个有名字的
+  系统行为, 并且停在可读的静帧)。
+  另: ① 档现存缺口一并记账 —— `<set>` / `<discard>` 未做; 形状 descriptor 无 animate 子槽
+  (动 `r`·`cx` 只能 href + 作者给 id, 另一件立项); `skewX/Y` 词表外(故意); 逐段 `values` 缓动只能手写 attrs;
+  WebM 拖尾算法(均匀采样 → 拖尾折线 → `alpha = 0.42 + sin(π·p)·0.5`)是纯函数, 真需要时可做 `knives/`
+  级纯计算 util 供宿主驱动, **不进 core 产物链**; infinite 循环装饰不做(website 画廊同页多份内联, 无限动画是灾难)
   ② **时间序列多态 + JS 驱动** —— 消费侧拿纯函数 `sampleAt(t)`, 标量插值(`{x,y,w,h}` / tone / opacity)
   对本仓极自然。⚠ **路径 morph 是真难点**: 一条边从折点列变到另一个要等参数化(按弧长重采样), 而
   `orthogonal_deviation` / `no_backtrack` 全建立在"折点是整数坐标 + 正交"上, 一插值立刻违反 —— **别一上来
