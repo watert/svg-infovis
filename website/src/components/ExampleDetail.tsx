@@ -84,7 +84,8 @@ export function ExampleDetail({
         <p className="gal-what gal-what-full">{ex.what}</p>
 
         <div className={`gal-fig ${zoom === 'fit' ? 'is-fit' : 'is-full'}`}>
-          <InlineSvg url={svgUrl(ex)} className="gal-svg" />
+          {/* 详情是文档里的第二份内联: id 加前缀, 否则 href/同步基动画命中卡片那份(见 prefixSvgIds) */}
+          <InlineSvg url={svgUrl(ex)} className="gal-svg" idPrefix="dt-" />
         </div>
 
         <div className="gal-tools">

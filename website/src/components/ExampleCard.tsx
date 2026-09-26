@@ -26,8 +26,28 @@ function loadSvgText(url: string): Promise<string | null> {
   return p;
 }
 
-/** 内联渲染一份产物 SVG; text === undefined 为加载中, null 为缺产物 */
-export function InlineSvg({ url, className }: { url: string; className?: string }) {
+/**
+ * 实例级 id 命名空间: 同一张 SVG 内联两次(卡片 + 详情)时, href="#id" / begin="id.end" /
+ * url(#id) 一律命中文档里**第一个** id —— 详情那份的动画会落到卡片那张上(详情看着不动)。
+ * 详情实例把全部 id 与引用加上前缀, 两份各动各的。
+ * 覆盖四类引用: `id="X"` 定义、`#X`(href/锚)、`url(#X)`(fill/clip)、`X.end|X.begin`(SMIL 同步基)。
+ * 只服务自家管线产物(id 是 \w+ 加连字符), 不做通用 XML 改写。
+ */
+export function prefixSvgIds(svg: string, prefix: string): string {
+  const ids = [...new Set([...svg.matchAll(/ id="([\w-]+)"/g)].map((m) => m[1]))];
+  let out = svg;
+  for (const id of ids) {
+    const esc = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    out = out
+      .replace(new RegExp(` id="${esc}"`, 'g'), ` id="${prefix}${id}"`)
+      .replace(new RegExp(`#${esc}(?=[)"'.\\s])`, 'g'), `#${prefix}${id}`)
+      .replace(new RegExp(`(["\\s])${esc}(\\.(?:end|begin))`, 'g'), `$1${prefix}${id}$2`);
+  }
+  return out;
+}
+
+/** 内联渲染一份产物 SVG; text === undefined 为加载中, null 为缺产物; idPrefix 见 prefixSvgIds */
+export function InlineSvg({ url, className, idPrefix }: { url: string; className?: string; idPrefix?: string }) {
   const [text, setText] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
@@ -43,7 +63,7 @@ export function InlineSvg({ url, className }: { url: string; className?: string 
   if (text === undefined) return <div className={`${className ?? ''} gal-svg-load`} />;
   if (text === null) return <div className={`${className ?? ''} gal-svg-miss`}>产物未就绪</div>;
   // 产物是自家管线构建的, 不经 sanitizer
-  return <div className={className} dangerouslySetInnerHTML={{ __html: text }} />;
+  return <div className={className} dangerouslySetInnerHTML={{ __html: idPrefix ? prefixSvgIds(text, idPrefix) : text }} />;
 }
 
 export function ExampleCard({ ex, onOpen }: { ex: ExampleEntry; onOpen: (key: string) => void }) {
