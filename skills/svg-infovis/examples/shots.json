@@ -1,0 +1,32 @@
+{
+  "note": "机读清单 —— 由 `bun run scripts/build-skill-shots.ts` 生成, 别手改; 守卫在 test/skill-shots.test.ts",
+  "shots": [
+    {
+      "key": "sequence-archify-style",
+      "source": "templates/sequence-archify-style.ts",
+      "copy": "skills/svg-infovis/examples/sequence-archify-style.ts",
+      "png": "skills/svg-infovis/examples/sequence-archify-style.png",
+      "pngWidth": 1200,
+      "pngHeight": 1070,
+      "renderSha256": "7203a16c01cfeb112746fbdec484685043051ebf419d3e96ac44e96c659929a4"
+    },
+    {
+      "key": "lifecycle-agent-run",
+      "source": "examples/gallery/lifecycle-agent-run.ts",
+      "copy": "skills/svg-infovis/examples/lifecycle-agent-run.ts",
+      "png": "skills/svg-infovis/examples/lifecycle-agent-run.png",
+      "pngWidth": 1200,
+      "pngHeight": 733,
+      "renderSha256": "e75e481b041174f2a1c67fd51a2a615e936fd36ee1fa2bd723a9fa82c354c4a0"
+    },
+    {
+      "key": "academic-figure",
+      "source": "examples/gallery/academic-figure.ts",
+      "copy": "skills/svg-infovis/examples/academic-figure.ts",
+      "png": "skills/svg-infovis/examples/academic-figure.png",
+      "pngWidth": 1250,
+      "pngHeight": 713,
+      "renderSha256": "27d8780dd1abca4d2983e4fab846208648bd25dc56b461a63d8b025491d8c20e"
+    }
+  ]
+}

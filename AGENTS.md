@@ -28,19 +28,23 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 
 ## skill 与文档的真身在哪(260926 起)
 
-- **分治原则**: skill 只装**画图现场用得上**的四份 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,aesthetics}.md`, 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓根 `refs/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用
-- 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**指向真身的软链** —— 改内容一律改真身(`skills/svg-infovis/`), 对着软链原子写会把链替换成普通文件
+- **分治原则**: skill 只装**画图现场用得上**的 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 源码副本), 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓根 `refs/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用。**同理反过来**: 出图现场真的缺的东西(协议地图 = `contract.md`、看图校准 = `examples/`)要补进 skill, 别留给"你自己翻仓"
+- 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**指向真身的软链** —— 改内容一律改真身(`skills/svg-infovis/`), 对着软链原子写会把链替换成普通文件。⚠ 这份软链名单是**显式三条**, 不许写成"skill 里那几份"的循环: `contract.md` 与 `examples/` 是 260926 新加的 skill 真身, 仓根**没有**它们的旧路径
+- ⚠ **skill 文档里的相对链接必须落在 skill 内**(守卫在 `test/npm-package.test.ts`)。260926 走查实测: 文档搬进 `skills/` 后, `SKILL.md` 的 `./refs/principles.md`(真身在仓根)与 `recipes.md` 的 `../templates/README.md` 都成了死链 —— 只装 skill 的 agent 拿到的是空指针。**跨出 skill 的引用一律写成代码串**(仓内 `refs/principles.md`), 链接只指"装了就能拿到"的东西
 - ⚠ **根目录永远不许放 `SKILL.md`**: skills CLI 的发现规则是"根目录的 SKILL.md 盖住 `skills/` 下的"(实测: 根那份会把 `skills/` 里的顶掉), 且会把**整仓**当成 skill 拷给消费者(实测 3.3 MB, 连 `test/` 与 `website/` 一起); 真身只可能在 `skills/svg-infovis/`
 - 软链方向选"真身在 skill、仓根留链", 因为反方向会让 `npx skills add` 的**软链物化**成为外部用户能否拿到文档的前提 —— 那是 CLI 未文档化的实现细节; 现在的方向下 skill 目录里全是真身, 换哪个版本都装得对
 - Windows 上 `core.symlinks=false` 的 checkout 会把仓根那 3 条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
-- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill; 装出来应是**四份真身**, 多了就是又把仓内 refs 塞进 skill 了。布局守卫在 `test/npm-package.test.ts`(双向: 该真身的不能是软链, 该留仓根的不能变软链)
+- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill; 装出来应是**那六项真身**(`SKILL.md` / `QUICKREF.md` / 3 份 refs / `examples/`), 多了就是又把仓内 refs 塞进 skill 了。布局守卫在 `test/npm-package.test.ts`(双向: 该真身的不能是软链, 该留仓根的不能变软链, 相对链接不许指到 skill 外)
+- **`examples/` 进 skill 的三条规矩**(它的读者是"只有 skill、没有 src"的 agent): ① 三份 `.ts` 是仓内源文件的**逐字节副本**, 生成器 `scripts/build-skill-shots.ts` 一把出(副本 + PNG + `shots.json`); ② 它的 import 走**仓根相对路径**, 所以**别把 `skills/` 加进 `tsconfig.json` 的 `include`** —— 那份相对 import 在 skill 目录下解析不到(现在 include 是 `src`/`blocks`/`examples`/`test`/`scripts`/`templates`, 刻意不含 `skills`); ③ 守卫 `test/skill-shots.test.ts`(副本逐字节 / 导出指纹 / PNG 尺寸 / 清单与 README 逐键一致)
 
 ## 产物
 
 - **`dist/`**: 源码之外的第二类产物 —— gitignored, 但**进 npm 包**(`files` 白名单里有它); 派生的、可重出的, 所以**永不手改、永不 commit**
-- **图片(260926 起)**: 仓库不囤图片 —— PNG 快照那一套已退役(`examples/images/` 整目录 + `scripts/build-example-pngs.sh` 一并删除, `package.json` 的 `pngs` 也随之撤): 出图产物就是 SVG 文本, 全量出图归网站管线(→ `website/public/svg/`, gitignored), 回归对账走 **SVG 文本 diff**(同输入 → 同字节, 比 PNG 像素精确)
-- 唯一 committed 的图是 `assets/hero.svg`(README 首图): `bun run examples/start/full-chain.ts > assets/hero.svg` 重出(**别 `2>&1`**), 字节守卫在 `test/hero-svg.test.ts` —— 内核改了字节而它没重出, `bun test` 当场红
-- 栅格化仍走 `scripts/svg2png.sh`(通用工具, 产物落在调用方指定的地方); 别再立新的产物目录
+- **图片(260926 起)**: 仓库不囤**快照** —— PNG 快照那一套已退役(`examples/images/` 整目录 + `scripts/build-example-pngs.sh` 一并删除, `package.json` 的 `pngs` 也随之撤): 出图产物就是 SVG 文本, 全量出图归网站管线(→ `website/public/svg/`, gitignored), 回归对账走 **SVG 文本 diff**(同输入 → 同字节, 比 PNG 像素精确)
+- committed 的图**只有两类**, 各有各的守卫 —— 判据是**"这图有没有读者"**, 不是"图多好看":
+  - `assets/hero.svg`(README 首图): `bun run examples/start/full-chain.ts > assets/hero.svg` 重出(**别 `2>&1`**), 字节守卫在 `test/hero-svg.test.ts` —— 内核改了字节而它没重出, `bun test` 当场红。它是**字节确定**的产物, 所以守得住字节
+  - `skills/svg-infovis/examples/*.png`(**skill 参考图**, 260926 起): 给"只装了 skill 的 agent"当校准样本(它读不了一张 SVG 文本, 只能读图)。生成器一把出副本 + 图 + 清单: `bun run scripts/build-skill-shots.ts`; 守卫在 `test/skill-shots.test.ts`。⚠ **它不做字节守卫** —— 栅格化器随机器而变(`rsvg-convert` / `qlmanage`, 版本不同字节就不同), 拿字节当基线会在别人机器上假红; 钉住的是**导出指纹**(= `bun run <源>` 的 stdout sha256)那一层
+- 栅格化仍走 `scripts/svg2png.sh`(通用工具, 产物落在调用方指定的地方); **除了上面那两类, 别的图一律现出** —— 别再立新的产物目录
 
 ## 验证链路三件套
 
@@ -66,7 +70,7 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 
 ## 读哪一份
 
-- 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `templates/*.ts`
+- 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `skills/svg-infovis/refs/contract.md`(三层入口 / Scene 契约 / 作者视角的 why) · `skills/svg-infovis/examples/`(三张参考图 + 源码副本) · `templates/*.ts`
 - 改内核 → `skills/svg-infovis/SKILL.md` 的「纪律」+ 源码; 子路径一览在 `README.md`、逐条在 `docs/api-index.md`; 未做项在 `ROADMAP.md`
 - **拿不准某件东西该放哪层 / 哪条边界规则管它** → `refs/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
 - **想知道为什么这么切** → `refs/principles.md`(每条原则的代价与逼它出来的实跑事故)

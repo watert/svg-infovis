@@ -1,8 +1,9 @@
 # svg-infovis · 速查
 
 > 画图**只读这一页**。起手代码、缺省值、误用、动手前的问题都在这。
-> 图型骨架在 `refs/recipes.md`, 函数与子路径(一览在 `README.md`, 逐条在 `docs/api-index.md`)在仓内 / 包内, 何时用与改内核的纪律在 `SKILL.md`。
+> 图型骨架在 `refs/recipes.md`, **三层入口与 `Scene` 数据契约在 `refs/contract.md`**, "一张真图长什么样"在 `examples/`(图 + 代码), 函数与子路径(一览在 `README.md`, 逐条在 `docs/api-index.md`)在仓内 / 包内, 何时用与改内核的纪律在 `SKILL.md`。
 > `src/` 是给改内核的人读的 —— **出图时**翻它只会多一份会漂的副本; **改内核时**它才是唯一权威。
+> ⚠ 本文里出现的 `templates/…` `examples/…` `test/…` 这类路径: 只有 **`templates/` 随 npm 包发**(能读, 但没有包名子路径 —— 起手走 `svginfo new <name>`), `examples/` 与 `test/` **只在 clone 的本仓里存在**。你现在是哪一档、能跑哪条命令, 见 `SKILL.md` 的「三条路」表。
 
 ## 30 秒起手
 

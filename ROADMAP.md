@@ -126,10 +126,14 @@ date: 2026-09-26T21:30:00+08:00
   `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` / `skills` + `README.md` / `LICENSE`
   (`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
   **本仓同时是一份 Agent Skill** —— 真身在 `skills/svg-infovis/`(`npx skills add watert/svg-infovis` 可装),
-  skill 只装画图现场那四份(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,aesthetics}.md`), 它们才是真身;
+  skill 只装**画图现场用得上**的那些(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,aesthetics}.md` /
+  `examples/` 三张参考图 + 源码副本), 它们才是真身;
   仓根的 `QUICKREF.md` 与那两份 refs 是指向真身的软链 —— 所以 QUICKREF 也在包里, 只是路径落在
   `skills/svg-infovis/` 下(软链本身不进 npm 包)。受众是内核开发者 / 发布者的 `refs/{layering,principles,public-api,architecture}.md`
-  反之留在仓根**不随 skill 走**(260926 分治); 布局纪律与两条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
+  反之留在仓根**不随 skill 走**(260926 分治); 布局纪律与三条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
+  ⚠ `skills/` 里的 `examples/` 是 260926 走查补的第五项 —— 触发条件很具体: **只装了 skill 的 agent 读不了 SVG 文本,
+  也拿不到 `src/`, 于是既没有图可看也没有代码可读**; 补法是三张 PNG + 逐字节副本, 生成器 `scripts/build-skill-shots.ts`,
+  守卫 `test/skill-shots.test.ts`(PNG 不做字节守卫, 钉的是导出指纹 —— 理由见 `AGENTS.md`「产物」);
   **包名 260926 改成 `@watert/svg-infovis`**(scoped —— 无 scope 名先到先得、不可回收);
   **但发布还没发生**: 打包名、首发步骤、2026 的 OIDC 规则与验收清单 → `docs/npm-release.md`;
   `prepare` 保证 link / git URL 安装时自动构建。消费侧 `bun` / `vite` / `esbuild` / `tsc(bundler|nodenext)`

@@ -1,16 +1,16 @@
 ---
 name: svg-infovis
-description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; API 一览 README.md。"
+description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; 三层入口与 Scene 契约 refs/contract.md; 三张参考图(图 + 代码)在 examples/; API 一览 README.md。"
 tags: [svg-infovis, svg, diagram, geometry, layout, bun]
-date: 2026-09-26T18:45:14+08:00
+date: 2026-09-26T23:50:00+08:00
 ---
 
 # svg-infovis · 何时用 / 怎么用
 
 README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该拿它画图、画图时守什么**。
 
-**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,aesthetics}.md` —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
-**每层的受众分得开**: 本 skill 只装"画图现场用得上"的四份; 分层契约 / 设计意图 / 公共面(改内核与发布才用)在**仓内 `refs/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
+**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 各自的源码副本) —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
+**每层的受众分得开**: 本 skill 只装"画图现场用得上"的; 分层契约 / **内核**设计意图 / 公共面(改内核与发布才用)在**仓内 `refs/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
 **运行时优先 bun**: 场景文件是 `.ts`, `bun run scene.ts` 直跑零配置; 没有 bun 时 `svginfo` 退回 node ≥22.6 的类型剥离, 产物逐字节相同。
 
 ## 何时用 / 何时别用
@@ -24,25 +24,69 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 
 | 你在做 | 只读 |
 |---|---|
-| 画一张图 | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
-| 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内) |
+| **第一张图 / 拿不准怎么起手** | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
+| **想知道 API 的协议与意图**(三层入口怎么选、`Scene` 逐字段、出口三件套、为什么这么切) | [`refs/contract.md`](./refs/contract.md) —— 作者契约。签名的单一来源仍是源码 / 包内 `.d.ts` |
+| **想先看一张真图长什么样** | [`examples/`](./examples/README.md) —— 三张参考图 + 源码副本(序列 / 阶段带 / 学术风), 配上读 |
+| 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内; 也可 `svginfo new <name>` 拷一份起手) |
 | 查函数 / 门禁判据 / 模块在哪 | 子路径一览在 `README.md`, 逐条在 `docs/api-index.md`(仓内; 包内只有 `README.md` 那份一览) |
 | 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
 | 拿不准某件东西该放哪层 / 哪条边界规则管它 | 仓内 `refs/layering.md` —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 `refs/architecture-v3.svg`) |
-| 想知道为什么这么切 | 仓内 `refs/principles.md` —— 原则、代价、逼它出来的实跑事故 |
+| 要知道**内核**为什么这么切(代价 / 退出条件 / 实跑事故) | 仓内 `refs/principles.md` —— 作者视角那份短的在 [`refs/contract.md`](./refs/contract.md) §四 |
 | 要动公共面(exports 子路径 / 门禁码 / 发布形态) | 仓内 `refs/public-api.md` —— 变更分级与破坏性改动四步 |
 | 看未做项 | `ROADMAP.md`(仓内) |
 
 ## 三步
 
-起手代码只有一份, 在 QUICKREF「30 秒起手」(`nodeFit` + `tryExport` + 自己 `writeFileSync`)。不要再写一份不过门禁的 `toSVG`。
+**决策表 → 几何 → 出口**, 就这三步。下面是**骨架**(只交代顺序与形状); **权威起手**(带缺省值的参数逐个解释)
+在 QUICKREF「30 秒起手」—— **数值 / 缺省 / 误用一律以那份为准**, 别在这里找第二份。唯一不许省的是**出口**:
+不要自己写一份不过门禁的 `toSVG`。
 
-⚠ **三条路别混**: ① **仓内开发**(本节这些 `bun run examples/...` / `scripts/*.ts` 命令)只在 clone 的本仓里成立; ② **装包消费**(`bun add @watert/svg-infovis`)从包名引子路径, 包里既没有 `examples/` 也没有 `test/` —— 起手照抄 QUICKREF 那一段, 别去 `bun run` 本仓的示例; ③ **只装了本 skill**(既没 clone 也没装包)时手上只有那四份文档 —— 真要画图先 `bun add @watert/svg-infovis` 拿到 API, 再照 QUICKREF 起手, 别对着文档里的 `bun run examples/...` 发愣。
+```ts
+import { writeFileSync } from 'node:fs';
+// 装包后从包名引; 仓内开发也可相对引 `./src/index.ts`(你是哪一档见下面「三条路」表)
+import { THEMES, nodeFit, routeOrthogonal, tryExport } from '@watert/svg-infovis';
+
+// ① 决策表: 谁在图上 / 谁连谁(几何一个数都不手填)
+const f = nodeFit({ label: 'A', sub: 'note', level: 'showcase' });       // 盒宽反算, 不手定
+const a = { x: 60, y: 60, w: f.w, h: f.h }, b = { x: 60, y: 220, w: f.w, h: f.h };
+
+// ② 几何: 折点列由 core 解算 —— `via` 是作者声明, 不是避障
+const r = routeOrthogonal({ from: a, fromPort: { side: 'bottom' }, to: b, toPort: { side: 'top' } });
+const scene = {
+  width: 0, height: 0,                                                   // 0×0 + 出口 fit: 画布按内容重算
+  nodes: [{ id: 'a', rect: a, label: 'A', sub: 'note' }, { id: 'b', rect: b, label: 'B' }],
+  edges: [{ id: 'e', from: 'a', to: 'b', points: r.points }],
+};
+
+// ③ 出口: 迭代用 tryExport(不过也给草稿), 交付换成 exportScene(不过就抛 ExportBlockedError)
+const { svg, report, draft } = tryExport(scene, { level: 'showcase', theme: THEMES.light, fit: true });
+writeFileSync('/tmp/d.svg', svg);                                        // 产物归脚本自己写, 不经 shell 重定向
+if (draft || !report.pass) process.exitCode = 1;                          // 判决必须落到 exit code
+```
+
+字段与协议的完整地图(三层入口怎么选、`Scene` 逐字段、出口三件套)在 [`refs/contract.md`](./refs/contract.md)。
+
+⚠ **三条路别混 —— 先确认你手上有哪一档, 再决定能跑什么**(写死在这里, 因为文档里的路径确实指向外面):
+
+| 你的处境 | 手上有 | 能跑的命令 | 起手代码 |
+|---|---|---|---|
+| ① **clone 了本仓** | 全部(`src/` `examples/` `test/` `templates/` `scripts/` `refs/` …) | 本节这些 `bun run examples/...` / `scripts/*.ts` 命令**只在这里成立** | 抄 `examples/start/full-chain.ts` |
+| ② **装了包**(`bun add @watert/svg-infovis`) | 包里的 `dist/` `src/` `blocks/` `scripts/` `templates/` `assets/` `skills/` + `README.md` | `svginfo run/inspect/render/new/icons`(CLI 随包发) | 照抄 [`QUICKREF.md`](./QUICKREF.md)「30 秒起手」 |
+| ③ **只装了本 skill** | 这六份(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,aesthetics}.md` / `examples/`) | **什么都没有** —— skill 里没有可跑的代码 | 先按②装包拿到 API, 再照 QUICKREF 起手 |
+
+- ②③ 手上**没有** `examples/` 与 `test/`(不在包内), 所以文档里凡是 `bun run examples/…` 的示例命令都别照打 —— 它们是①的路径。
+- ③ 想看"一张真图长什么样"就看 [`examples/`](./examples/README.md): 三张 PNG + 各自的源码副本(读本, 不可直接跑; 换算见那份 README)。
+- `templates/` 比较特殊: 源码**随包发**(能读), 但**没有包名子路径** —— 起手走 `svginfo new <name>`。
+
+**一条链跑到底**(每个示例都是这个形状; ② 把那两条 `bun run` 换成 `svginfo run` / `svginfo inspect`):
 
 ```bash
-bun run examples/start/full-chain.ts > /tmp/d.svg     # 抄 full-chain 开新图
-./scripts/svg2png.sh /tmp/d.svg /tmp/d.png 1200       # 本地栅格化看一眼
-bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读数板(不出图)
+bun run examples/start/full-chain.ts > /tmp/d.svg  # ① clone 本仓: 抄 full-chain 开新图(出口是 fail-closed 的标准姿势)
+
+bun run d.ts > /tmp/d.svg        # 自己那份场景: 图走 stdout, 诊断只走 stderr —— **绝不 `2>&1`**
+echo "exit=$?"                   # 0 过 / 1 门禁没过(草稿照给, data-draft="1") / 2 用法错
+./scripts/svg2png.sh /tmp/d.svg /tmp/d.png 1200   # 本地栅格化看一眼(rsvg, 否则 qlmanage)
+bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数板(不出图; 与出口同一次序)
 ```
 
 - 图走文件或 stdout, 诊断只走 stderr。**绝不 `2>&1`**。验尸: `head -c 200` 必须是 `<svg` 或 `<?xml`。`svg2png.sh` 会拦脏文件。
@@ -86,7 +130,8 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 > - `[换]` 有明确代价的取舍 —— 代价可接受时能换, 换前先看它的退出条件
 > - `[味]` 偏好, 无守卫也无事故出处 —— 它是 review 话题, 不是判决依据
 >
-> 「为什么」与「什么时候该推翻它」只在 [`refs/principles.md`](./refs/principles.md) 一份, 本表不重述。
+> 「为什么」分两处, 本表都不重述: **作者视角的 why**(七条短句, 出图够用)在 [`refs/contract.md`](./refs/contract.md) §四;
+> **内核视角的 why**(每条原则的代价 / 退出条件 / 逼它出来的实跑事故)在**仓内 `refs/principles.md`**(不随 skill 也不进 npm 包 —— 它的读者是改了 core 的人)。
 
 1. `[换]` **零运行时依赖**。依赖方向单向 `core ← 薄壳 ← 上层`(薄壳当前由 `website/` 担任, 将来可移到仓外), 反向即破。**唯一例外**: `./icons/lucide` 读 **optional 依赖** `lucide-static`(不装也能用库本体与 barrel), 其余子路径零依赖。对外发布形态(`dist/` · `files` · `engines`)见 `refs/public-api.md`; 代价与退出条件 → `ROADMAP.md` 立项依据 · principles 三条口吻
 2. `[硬]` **descriptor 双态**。shape 吐纯数据, 字符串化归 `serialize`(唯一字符串出口)。守卫 `test/serialize.test.ts`
@@ -115,17 +160,20 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 
 ## 目录
 
-**本 skill = 这四份**(仓内 `skills/svg-infovis/`; 也可 `npx skills add watert/svg-infovis` 装进任何认 skill 的 agent):
+**本 skill = 这六项**(仓内 `skills/svg-infovis/`; 也可 `npx skills add watert/svg-infovis` 装进任何认 skill 的 agent):
 
 ```
-SKILL.md          本文件
-QUICKREF.md       画图时只读这份 —— 缺省值表在它手里
+SKILL.md          本文件 —— 何时用 / 怎么用 / 纪律
+QUICKREF.md       画图时只读这份 —— 起手代码与缺省值表在它手里
 refs/recipes.md         十三条图型 / 风格配方
+refs/contract.md        作者契约: 三层入口 / Scene 逐字段 / 出口三件套 / 作者视角的 why
 refs/aesthetics.md      美学评估草案(含目标函数选边), 不是操作手册
+examples/               三张参考图 + 各自的源码副本(序列 / 阶段带 / 学术风)
 ```
 
 **改内核 / 发布用得上的**(仓内 `refs/`, 不随 skill 也不进 npm 包): `layering.md` 分层契约 · `principles.md` 意图与事故出处 · `public-api.md` 公共面与破坏性改动 SOP · `architecture.md` 演进史存档。
 本仓其余那堆(`templates/` `examples/` `src/` `test/` `docs/` `assets/` …)同理 —— 完整清单与"该读哪份"看仓内 `AGENTS.md`, 本文件不复述。
+⚠ 这个目录里**全是真身**(没有软链): 仓根那几条指向这里的是软链, 别反着写。
 
 ```bash
 bun run verify      # 在 clone 的本仓里改完内核: 构建 + 全量测试 + 类型检查, 全绿才算完

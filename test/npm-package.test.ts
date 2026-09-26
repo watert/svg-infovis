@@ -138,16 +138,23 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     //    连 test/ 与 website/ 一起), 还会盖住 skills/ 下的真身 —— 这条是"别人装得对不对"的前提。
     expect(existsSync(join(ROOT, 'SKILL.md'))).toBe(false);
     // skill 目录里必须全是真身: CLI 会不会物化软链是它**未文档化**的实现细节, 不能当成安装前提
-    // ⚠ 这里只列"画图现场用得上"的四份。改内核 / 发布才用的 refs/{layering,principles,public-api}.md
+    // ⚠ 这里只列"画图现场用得上"的几项。改内核 / 发布才用的 refs/{layering,principles,public-api}.md
     //    刻意**不在** skill 里(它们的受众是 clone 过的内核开发者), 真身在仓根 refs/ —— 别顺手搬进来
-    const real = ['SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/aesthetics.md'];
+    const real = [
+      'SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/aesthetics.md',
+      // 260926 补的两项: 作者契约(三层入口 / Scene 契约 / 作者视角的 why)与参考图目录的 README ——
+      // 受众同样是"画图现场"。而那三份改内核 / 发布才用的 (layering / principles / public-api) 仍**不在**这里。
+      'refs/contract.md', 'examples/README.md',
+    ];
     for (const f of real) {
       const p = join(ROOT, 'skills/svg-infovis', f);
       expect(existsSync(p), `skill 真身缺了: skills/svg-infovis/${f}`).toBe(true);
       expect(lstatSync(p).isSymbolicLink(), `skills/svg-infovis/${f} 是软链 —— 真身该放这里`).toBe(false);
     }
     // 仓根留旧路径: 这几份**必须**是软链(不是 = 抄了第二份内容, 两处必然漂)
-    for (const f of ['QUICKREF.md', ...real.slice(2)]) {
+    // ⚠ 这份名单是**显式**的, 不许写成 `...real.slice(2)`: 新增的 skill 真身(如 contract.md /
+    //    examples/)在仓根**没有**旧路径, 顺手 slice 会要求它们也变成仓根软链(diff 看不见的一行)。
+    for (const f of ['QUICKREF.md', 'refs/recipes.md', 'refs/aesthetics.md']) {
       const p = join(ROOT, f);
       expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 应是软链(真身在 skills/svg-infovis/ 下)`).toBe(true);
       expect(readFileSync(p, 'utf8').length, `仓根 ${f} 的软链读不到内容`).toBeGreaterThan(0);
@@ -158,5 +165,25 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
       expect(existsSync(p), `仓根缺了 ${f}`).toBe(true);
       expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 成了软链 —— 它的真身该留在仓根, 不随 skill 走`).toBe(false);
     }
+  });
+
+  it('skill 文档的相对链接必须落在 skill 内且存在(死链 = 只装 skill 的 agent 拿一个空指针)', () => {
+    // 260926 走查实测的病灶: 文档搬进 `skills/` 之后, 那几条"按旧位置写的"相对链接成了死链 ——
+    //   `SKILL.md` 的 `./refs/principles.md`(真身在**仓根** `refs/`)与 `recipes.md` 的
+    //   `../templates/README.md`(解析到 `skills/svg-infovis/templates/`, 那里没有 templates/)。
+    //   措辞上像"内部链接", 实际指向外面 —— 而 skill 装到别人机器上时, 外面什么都没有。
+    // 规矩: **跨出 skill 的引用一律写成代码串**(仓内 `refs/principles.md`), 不写成链接;
+    //   链接只用来指"装了就能拿到"的东西。
+    const SKILL_DIR = join(ROOT, 'skills/svg-infovis');
+    const dead: string[] = [];
+    for (const f of walk(join(ROOT, 'skills'), '.md')) {
+      for (const m of readFileSync(f, 'utf8').matchAll(/\[[^\]]*\]\(([^)#]+)\)/g)) {
+        const href = m[1];
+        if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('#')) continue; // 外链 / 纯锚点
+        const p = join(f, '..', href); // join 会规整 `..`, 不必另引 dirname
+        if (!p.startsWith(SKILL_DIR + '/') || !existsSync(p)) dead.push(`${rel(f)} → ${href}`);
+      }
+    }
+    expect(dead, 'skill 里的相对链接指到了 skill 外 / 不存在的地方 —— 改成代码串或修路径').toEqual([]);
   });
 });

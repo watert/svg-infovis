@@ -14,7 +14,7 @@ date: 2026-09-22T18:00:00+08:00
 
 > **配方 1 / 9 / 10 已有可跑骨架**(`templates/{layered,sequence,lifecycle}.ts`): 那种"每次都长一个样"的
 > 结构, 起手骨架已封装成可填参的函数 —— **能填参就别重写**。其余十条仍是 prose(骨架形状每次由作者定, 模板化只会变成
-> `layout.suggest` 后门)。模板层的边界宪章与字段表见 [`templates/README.md`](../templates/README.md)。
+> `layout.suggest` 后门)。模板层的边界宪章与字段表见 **仓内** `templates/README.md`。
 
 下面这些配方共用的起手三步:
 
@@ -314,7 +314,7 @@ if (!r.report.pass) process.exitCode = 1;
 
 > **序列封装完了; 其余十条别顺手也封装** —— 只有"结构每次都长一个样"的图型才配得上模板(时间线 /
 > 三层带 / fan-out 候选), 拓扑形状每次由作者临场定的(依赖图 / 判定流 / 访问矩阵 / 本体图)**不该模板化**
-> (那是 `layout.suggest` 后门)。判据与反例见 [`templates/README.md`](../templates/README.md)。
+> (那是 `layout.suggest` 后门)。判据与反例见 **仓内** `templates/README.md`。
 
 ### 10. 阶段带 / 状态机流水线(lifecycle)—— ✅ 有骨架, 别重写: `templates/lifecycle.ts`
 
