@@ -1,6 +1,6 @@
 ---
 name: svg-infovis
-description: "diagramming 几何内核: 圆角路径解算 / 几何谓词 / shapes descriptor / 字节确定的 SVG 序列化. 零运行时依赖, bun 直跑, 不认 React."
+description: "diagramming 几何内核: 圆角路径解算 / 几何谓词 / shapes descriptor / 字节确定的 SVG 序列化. ESM-only npm 包, 零运行时依赖(唯一例外: 图标子路径读 optional 依赖 lucide-static)."
 tags: [svg-infovis, geometry, svg, diagram, shapes, serialize]
 date: 2026-09-23T16:00:00+08:00
 ---
@@ -12,11 +12,29 @@ date: 2026-09-23T16:00:00+08:00
 *上图由本仓自己生成, 就是仓里这份 `assets/hero.svg`: `bun run examples/start/full-chain.ts` 的产物(showcase 档门禁)。
 `test/hero-svg.test.ts` 断言它与该示例的当前导出**逐字节一致** —— 内核改了字节而这张图没重出, 测试当场红(重生命令见该测试文件头)。*
 
-## 30 秒起手
+## 装到你的项目里
+
+```bash
+npm i svg-infovis        # 或 bun add svg-infovis / pnpm add svg-infovis
+```
+
+```ts
+import { nodeFit } from 'svg-infovis/knives/fit';   // 子路径即 API, 清单见下面「API 索引」
+import { exportScene } from 'svg-infovis';          // 也可从 barrel 引(纯函数侧)
+```
+
+- **ESM-only**(不发 CJS), `engines: node >= 20.16`(源指纹那档走 `process.getBuiltinModule`, 20.16 起回移可用)。
+- 消费者 tsconfig 的 `moduleResolution` 用 `bundler` 或 `nodenext` 都行; **老式的 `node`(node10 档)不支持**。`bun` / `vite` / `esbuild` 消费零配置可用(实测)。
+- 图标素材 `lucide-static` 是 **optional dependency**: 不装也能用库本体与 barrel, 只有 `svg-infovis/icons/lucide` 与 `svginfo icons` 需要它。
+- **浏览器侧算源指纹(`decisionDigest`)暂不支持** —— 那一步要 sha256, 走 bun 或 node 内置, 浏览器里没有。
+- CLI: `npx svginfo --help`。有 bun 就用 bun 跑你的 `.ts` 场景文件; 没有 bun 走 node ≥22.6 的类型剥离。
+- 仓内开发(改内核 / 跑示例)是另一条路 —— 见下面「30 秒起手」, 那套 `bun run examples/...` 命令都是**本仓内**用法, 装包消费用不到。
+
+## 30 秒起手(仓内开发)
 
 ```bash
 git clone https://github.com/watert/svg-infovis.git && cd svg-infovis
-bun install        # 拉 lucide-static(图标素材); 库本体零运行时依赖
+bun install        # 装 devDependencies + optional 的 lucide-static(图标素材)
 bun run examples/start/basic.ts > /tmp/basic.svg      # descriptor 层最小路径
 bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → audit → export 全链
 ./scripts/svg2png.sh /tmp/chain.svg                    # 可选: 本地栅格化(rsvg / qlmanage, 毫秒级)
@@ -27,12 +45,12 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `bun run examples/manifest.ts` —— 全部示例清单(键名 / 桶 / 这张图证明什么)
 - `bun run scripts/inspect.ts <scene.ts>` —— 布局读数板, 不出图; 退出码 0 通过 / 1 门禁不过 / 2 用法错
 - `bun run scripts/svg-varflatten.ts <in.svg> [out.svg]` —— 外来 SVG 的 CSS 变量展平(rsvg 那一档的前置, 见文末「栅格化」)
-- `svginfo run <scene.ts> -o out.svg` —— CLI 入口(`run` / `inspect` / `render` / `new` / `icons`), `bun link` 后全局可用
-- `bun run verify` —— `bun test` + `tsc --noEmit`
+- `svginfo run <scene.ts> -o out.svg` —— CLI 入口(`run` / `inspect` / `render` / `new` / `icons`); `bun link` 后全局可用, 装了包则 `npx svginfo`
+- `bun run verify` —— `bun run build` + `bun test` + `tsc --noEmit`(改完源码跑这个; **只跑 `bun test` 不算**)
 
 三条口吻贯穿全部文档: **零运行时依赖 · 字节确定性 · 一处事实一处**。
 
-- 库本体 0 dependency; 图标素材 `lucide-static` 是构建期读盘, 不进运行时链
+- 库本体与 barrel **不引任何第三方包**(这就是三条口吻里的"零运行时依赖"); 唯一的第三方依赖 `lucide-static`(图标素材)声明为 **optional dependency**, 且只在 `./icons/lucide` 与 CLI 的 `icons` 档被读到
 - 禁 `Date.now` / `Math.random`, 同输入 → 逐字节相同输出 —— 于是回归对账是 SVG **文本** diff(比 PNG 像素准), 仓库里也不再囤图片快照
 - 每个数字只有一个权威出处, 文档不互相抄一份
 
@@ -43,7 +61,8 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 ## 与 lucide-static 的关系
 
-- 图标素材来自 npm 依赖 [`lucide-static`](https://www.npmjs.com/package/lucide-static)(ISC 许可): **lazy 单图标读盘**(`require.resolve('lucide-static/icons/<name>.svg')`), 不 vendoring SVG 进仓, 也不走 barrel 全量 eager load。
+- 图标素材来自 npm 依赖 [`lucide-static`](https://www.npmjs.com/package/lucide-static)(ISC 许可), 声明为 **optional dependency**: 不装它也能用库本体与 barrel, 只有 `svg-infovis/icons/lucide` 与 `svginfo icons` 需要它。
+- 读法是 **lazy 单图标读盘**(`require.resolve('lucide-static/icons/<name>.svg')`), 不 vendoring SVG 进仓, 也不走 barrel 全量 eager load。
 - 按概念找名走 `findIcon('airplane')` —— 读包内 `tags.json`(name → tags, 含同义词)。
 - 解析器 `parseIconSvg` 只认七种几何原语、零 `<g>` / 零 `transform`, 见到即抛(静默跳过 = 画出少几笔的图标)。
 - 升级走 lockfile + PR, 保字节确定。
@@ -72,7 +91,9 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 ### descriptor 与序列化
 
-- `./descriptor` — 纯数据描述符(`path/circle/rect/text/group/svg/pattern/embed` 构造器)
+- `./descriptor` — 纯数据描述符(`path/circle/rect/text/group/svg/pattern/embed` 构造器; **动效**:
+  `animate()` 吐 SMIL `<animate>` / `<animateTransform>`、`style()` 吐内嵌样式表, 缓动词表
+  `EASING_SPLINES` 全仓唯一 —— 名字写错当场抛, 见 `docs/animation-roadmap.md`)
 - `./serialize` — descriptor → SVG 字符串(唯一字符串出口, 属性键 codepoint 序)
 
 ### `shapes/` — props → descriptor
@@ -127,10 +148,13 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./export` — `tryExport`(迭代回路, 永不抛) / `exportScene`(fail-closed 交付) / `sceneChildren`(渲染面 = 审计面)
 - `./theme` — 7 tone × light / dark / paper × outline / tint / solid
 - `./guard` — shape 入参守卫(`ShapeInputError` / `resolveKnobs`, 把 NaN 拦在源头)
+- `./runtime` — `isMainModule(import.meta.url)`: 可移植的"这个模块是入口吗"判定(bun 的 `import.meta.main` 在 node 下是 `undefined`)
 
 模板层(`templates/{sequence,layered,lifecycle}.ts`)不在 `exports` 里 —— 仓内按路径引入, 边界宪章与字段表见 [`templates/README.md`](./templates/README.md)。
 
 ## 文档地图(一处事实一处)
+
+> ⚠ **npm 页面 vs 仓库里**: 发布的包只带 `dist/` · `src/` · `blocks/` · `scripts/` · `templates/` · `assets/` 与 `README.md` / `LICENSE` / `QUICKREF.md` / `SKILL.md`(`files` 白名单); `refs/` · `docs/` · `examples/` · `website/` **与 `ROADMAP.md`** 都不进包 —— 下面指向这些文件的相对链接只在**仓库里**有效, 在 npm 页面读就换 [GitHub 仓库](https://github.com/watert/svg-infovis) 看同一份。
 
 - [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问
 - [`SKILL.md`](./SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律
@@ -147,9 +171,9 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 ## 运行与验证
 
 ```bash
+bun run build       # tsc -p tsconfig.build.json → dist/(派生产物, gitignored)
 bun test            # 纯函数单测(零依赖直跑)
-bunx tsc --noEmit   # 类型检查
-bun run verify      # 两者一起
+bun run verify      # 上面两步 + tsc --noEmit —— 改完源码跑这个
 ```
 
 栅格化走 `scripts/svg2png.sh`(优先 `rsvg-convert`, 否则 macOS `qlmanage`), 毫秒级零浏览器。

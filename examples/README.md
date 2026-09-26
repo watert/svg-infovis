@@ -9,6 +9,8 @@
 也是这张图在网站上落盘的名字(`website/public/svg/<键名>.svg`, 每次构建全量重出) ——
 一处改名三处同步是过去的老毛病, 现在只有一份清单(`examples/manifest.ts`, 机读走 `--tsv`)。
 
+⚠ **`examples/` 不进 npm 包**(`package.json` 的 `files` 白名单): 这些命令只在本仓里成立; 装包消费的起手代码见 `../README.md` 的「装到你的项目里」。
+
 > ⚖ **本表与清单的同步由 `test/examples-manifest.test.ts` 看着**(逐键一致 / 文件落盘 /
 > 网站管线不带第二份 key 表)。改清单不加这一表、或加了表不登记清单, `bun test` 当场红。
 
@@ -106,7 +108,8 @@ bun run --cwd website prerender                       # 全部出图入口跑一
 3. **门禁没过时草稿照给** —— 诊断与图是互补的两半, 少一半只能盲改。草稿带 `data-draft="1"`, 机器可查。
 
 这三条**不再由每个示例各守一遍**: 260920 起全部收进 `scripts/runner.ts`(薄 runner)。示例的顶层保持纯几何
-—— 出图调用一律在 `import.meta.main` 里, 于是 `inspect` / 将来的 web 展示 import 任何示例都不会往 stdout 吐图。
+—— 出图调用一律在 `isMainModule(import.meta.url)` 里(`src/runtime.ts` 的 `./runtime` 子路径; **不用**
+`import.meta.main` —— 它在 node 下是 `undefined`, CLI 会静默不出图), 于是 `inspect` / 将来的 web 展示 import 任何示例都不会往 stdout 吐图。
 
 > 为什么 runner 住在 `scripts/` 而不是这里: 消费它的不只有 examples —— `templates/sequence-archify-style.ts`
 > 也要。放进 `examples/` 就变成"模板层反向依赖示例层"。
@@ -115,7 +118,7 @@ bun run --cwd website prerender                       # 全部出图入口跑一
 
 1. **想清楚"这张图证明什么"** —— 写不出这一句, 这个示例不该存在(它已经进了清单的 `what` 字段)。
 2. 放对桶: `start/`(起手) · `checks/`(机制对照) · `gallery/`(能力举证) · `labs/`(样式矩阵)。
-3. 出口走 `scripts/runner.ts` 的 `runScene(scene, {...})`, 调用收在 `import.meta.main` 里。
+3. 出口走 `scripts/runner.ts` 的 `runScene(scene, {...})`, 调用收在 `isMainModule(import.meta.url)` 里。
    顶层保持**纯几何**(`export const scene`), 这样读数板与 web 都能直接 import。
 4. 登记进 `examples/manifest.ts`(key 是产物名, 不许同义两名), **并补上本文件的桶表那一行** ——
    桶表是人读面、manifest 是机读面, **两处必须同一次改**(否则又长回"三份清单"那个老毛病)。本地不必

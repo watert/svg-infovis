@@ -1,6 +1,6 @@
 ---
 name: svg-infovis-public-api
-description: "svg-infovis 的公共承诺面: exports 子路径即 API · 无版本号 symlink 直出下的变更分级与破坏性变更 SOP · 诊断码的兼容面"
+description: "svg-infovis 的公共承诺面: exports 子路径即 API · symlink 直连下游与 npm 发布两条链下的变更分级与破坏性变更 SOP · 诊断码的兼容面"
 tags: [svg-infovis, public-api, semver, migration, contract]
 date: 2026-09-26T01:20:00+08:00
 ---
@@ -12,20 +12,22 @@ date: 2026-09-26T01:20:00+08:00
 
 ## 公共面就是 `package.json` 的 `exports` 子路径
 
-现状 **48 条**(按目录: `geometry` 10 / `shapes` 11 / `knives` 14 / `icons` 3 / `blocks` 2 /
-descriptor · serialize · embed · scene · export · theme · guard · barrel 各 1)。数它别数人脑。
+**清单不在文档里抄一份 —— 以 `package.json` 为唯一权威, 数它别数人脑。**
 
-- `exports` 直指 `./src/*.ts` —— **纯 TS, 无 `dist/`, 不发 npm**。裸 import
-  (`from 'svg-infovis/knives/fit'`)只在已 `bun link svg-infovis` 的项目里可解析;
-  全局 CLI `svginfo` 只要 PATH 命中就能用。
+- `exports` 指向 **`dist/`**(编译产物): 每条子路径是 `types` / `import` / `default` 三条件映射,
+  **逐条列举、不用通配**(通配会让内部文件自动变成公共面 —— 白名单纪律); **ESM-only**, 不给 CJS。
+  裸 import(`from 'svg-infovis/knives/fit'`)在仓内走 `bun link` 的 symlink, 对外走 npm 装的包 ——
+  两条链解析到的都是**构建产物**, 所以改完源码不构建 = 下游跑的仍是上一版(`../AGENTS.md`「铁律」)。
+  全局 CLI `svginfo` 走 `bin` → `dist/scripts/cli.js`(shebang 是 `node`), 只要 PATH 命中就能用。
 - **不在公共面里**: `templates/*`(仓内按路径引)、`examples/*`、`scripts/*`、`refs/*`、`test/*`。
   这几个目录**改起来不用守兼容**, 该改就改。
-- 改一个子路径名 = 搬家 = 破坏(见分级 L3)。子路径清单**不在文档里抄一份**, 以 `package.json` 为唯一权威。
+- 改一个子路径名 = 搬家 = 破坏(见分级 L3)。
 
-## 为什么没有版本号兜底
+## 本地这条链没有版本号兜底(对外那条有)
 
-链路是全链 symlink: `~/.bun/bin/svginfo → scripts/cli.ts`, 全局包目录 → 本仓。源码一存盘就
-**立刻**对所有消费者生效 —— 没有构建窗口、没有"上个版本还能跑"。
+工作区里下游吃的是全链 symlink: `~/.bun/bin/svginfo → dist/scripts/cli.js`, 全局包目录 → 本仓。
+构建产物一落盘就**立刻**对所有 link 过来的消费者生效 —— 没有"上个版本还能跑", 也没有回滚窗口。
+(npm 装的用户那边有 semver, 升不升由他决定; 工作区这些消费者不吃版本号。)
 
 所以本仓的"兼容性"不是靠版本号, 是靠**改的姿势**:
 
@@ -79,8 +81,8 @@ descriptor · serialize · embed · scene · export · theme · guard · barrel 
 
 ## 给 `Descriptor` 联合加一个新 kind
 
-与加诊断码同族, 但**后果更阴**, 单独立一节。`./descriptor` 是公共面的一条子路径, 裸 TS 直出下
-**类型本身也是承诺面**; 而 `Descriptor` 是判别联合(`kind` 字段), 消费方几乎必然写 `switch (d.kind)`。
+与加诊断码同族, 但**后果更阴**, 单独立一节。`./descriptor` 是公共面的一条子路径, `exports` 里 `types` 与
+`import` 并列 —— **类型本身也是承诺面**; 而 `Descriptor` 是判别联合(`kind` 字段), 消费方几乎必然写 `switch (d.kind)`。
 
 - **分级: 名义 L0(纯增量), 对下游是破坏** —— 旧代码若带 exhaustiveness 检查会**编译失败**(那反而是好事,
   炸得响); 若没带(常见的 `default` 兜底), 新 kind 会**静默漏渲染** —— 图上少一块东西、退出码 0、
@@ -92,16 +94,21 @@ descriptor · serialize · embed · scene · export · theme · guard · barrel 
 - **判据**: 一个 kind 只有**全部上屏路径都认它**才算真的存在。所以加 kind 与加码一样, 归 L0 但要在
   commit 里显式喊; 若为它改动已有 `Descriptor` 消费方的控制流, 那就是 L2。
 
-## 什么时候该停止裸 TS 直出
+## 已上 `dist/`(260926): 代价记账
 
-判据只有一条: **开始有人不能承受"源码一存盘就生效"**。目前不该动, 因为:
+判据本来是"开始有人不能承受『源码一存盘就生效』" —— 260926 因为**要发布为通用 npm 包**付了这一笔。
+本节记的是**代价**, 不是"未来选项":
 
-- 依赖方向是 `core ← 薄壳 ← 上层`, core 侧零依赖零构建, 引入 `dist/` 会让"改完即生效"这条
-  最大的开发体验优势消失;
-- 本仓没有第三方 npm 消费者, 发包是"以后再说"(见 `../ROADMAP.md`)。
-
-若将来真发 npm 或上构建, `../AGENTS.md` 的「铁律: 没有『同步全局包』这个动作」整段作废 ——
-流程换成"commit 后重新构建 + 同步全局", 并**同步改那一份**, 别留两套流程并存。
+- **多了一步构建**: 消费者(link 过来的下游 / npm 装的用户)看到的永远是产物, 所以"改完即生效"这条最大的
+  开发体验优势消失 —— 改源码不构建, 他们跑的还是上一版。故 `bun run verify` 必须含 `bun run build`
+  (**只跑 `bun test` 不算绿**); `prepare` 只保证 `bun link` / git URL 安装时构建一次, 仓内改完仍要自己跑。
+- **产物与源码必须同源**: `dist/` 是派生产物、gitignored、**不许手改**; 它进 `files` 白名单(要发出去),
+  但版本库里没有它 —— 出现的任何一份都只许由 `tsc -p tsconfig.build.json` 生成。
+- **源码的相对 import 一律带 `.js` 扩展名**(磁盘上仍是 `.ts`): 消费侧 `moduleResolution: nodenext`
+  认的就是这个; 新文件漏了, 构建产物在 node 侧解析不到。
+- **已知未覆盖**(别当支持): `moduleResolution: node`(node10 老档)不认; CJS `require` 不支持(ESM-only);
+  纯 node 用户要 `engines >= 20.16`(源指纹那档走 node 内置 `node:crypto`, 经 `getBuiltinModule` 取, 20.16 起回移可用);
+  **浏览器侧算 `decisionDigest` 仍不支持**。
 
 ## 相关
 

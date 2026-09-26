@@ -45,7 +45,7 @@ type Block = { shape: DGroup; bounds: Rect };   // 主出口恒返回这两位
 ## 工程纪律(与本仓其余部分同一条)
 
 - **零运行时依赖**: 只组合 `src/` 的刀(`descriptor` / `theme` / `geometry/*` / `shapes/*` / `knives/measure`),
-  不引第三方(唯一的 npm 依赖 `lucide-static` 是构建期读盘的既有例外)。
+  不引第三方(唯一的 npm 依赖 `lucide-static` 是 optional 的, 只有 `./icons/lucide` 读它)。
 - **字节确定**: 禁 `Date.now` / `Math.random`; 同输入逐字节同输出; 几何数过 `round1`(序列化取 1 位小数)。
 - **一处事实**: 字号 / 字重取 `NODE_TEXT_LAYOUT`, 取色取 `toneStyle` + 语义槽, 度量走 `measureText`,
   盒并集走 `geometry/box` 的 `bounds`, 圆角走 `geometry/rounded-path` —— 块里不另立第二份权威。

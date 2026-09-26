@@ -163,7 +163,7 @@ core 没有任何 API 能改"谁在前、谁在后、谁是成员"这类决策; 
 
 ## 横切纪律
 
-- **零运行时依赖**: 库本体 0 dependency; `lucide-static` 是构建期读盘的既有例外, 素材不经它上运行时。
+- **零运行时依赖**: 库本体与 barrel 0 dependency; 唯一例外是 `./icons/lucide`(运行时读 optional 依赖 `lucide-static`), 其余子路径一个第三方 import 都没有。
 - **字节确定**: 禁 `Date.now` / `Math.random`; 几何数过 `round1`; 集合按 codepoint 序; 同输入逐字节同输出。
 - **一处事实一处**: 字号字重取 `NODE_TEXT_LAYOUT`, 取色取 `toneStyle` + 语义槽, 度量走 `measureText`,
   盒并集走 `geometry/box` 的 `bounds`, 圆角走 `geometry/rounded-path` —— 新代码不另立第二份权威。

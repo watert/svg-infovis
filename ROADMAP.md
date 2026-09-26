@@ -9,7 +9,7 @@ date: 2026-09-26T00:00:00+08:00
 
 ## 立项依据
 
-- 独立、零运行时依赖、不上 build step 是刻意的前提 —— 大目录云同步环境里, 构建产物会与版本库互相抢成旧内容, 维护撞墙。
+- 独立、零运行时依赖是刻意的前提; 为发布 npm 包补了一档 `dist/` 构建(260926), 但它是派生产物、gitignored —— 版本库里仍不囤构建产物, 大目录云同步环境不会与版本库抢成旧内容。
 - 立项实测: 8 张真实 Mermaid 结构图上, 纯几何门禁只喊 3 声(召回 ≈ 21%), 而肉眼每图 1–2 处想改(分层被排成阶梯 / 组内空白 41–80% / 长边横扫)。结论: 疼在**意图表达与排布旋钮**, 不在像素精度 —— 需要一个"零运行时依赖、字节确定、排布归作者"的 diagramming 几何内核, 门禁 fail-closed、旋钮显式。
 
 ## 当前能力(v0.1 · v0.2 排版层)
@@ -20,9 +20,10 @@ date: 2026-09-26T00:00:00+08:00
 - **排版层(v0.2, 260925)**: `shapes/` 补三件**无数值语义**的排版件(stat 大数字块 / badge 徽章与列表行 / heading 标题梯级与分隔线); 新建顶层 `blocks/` 层收**带数值语义**的组合块(progress 单值条与堆叠条 / pictogram 图标阵列) —— 块契约 `{ shape, bounds }`, 独立 `exports` 子路径且**不进 barrel**; 划界与排期见 `docs/infograph-roadmap.md`
 - **export**: `tryExport`(迭代草稿)/ `exportScene`(fail-closed 交付)/ auto-fit
 - **templates**: sequence / layered / lifecycle 三套可填参骨架
-- **examples**: 五桶 23 项示例 + PNG 快照(项数 = `examples/manifest.ts` 的 `EXAMPLES` 长度, 数它别数人脑); 配方与架构文档齐备
-- **素材链**: 图标走 `lucide-static` 依赖 + lazy 读盘; 整幅外来 SVG 走 fail-closed 素材链
-- **CLI `svginfo`**: authoring 入口(run / inspect / render / new / icons), `bun link` 全局可用
+- **examples**: 五桶示例(项数 = `examples/manifest.ts` 的 `EXAMPLES` 长度, 数它别数人脑); PNG 快照 260926 已退役 —— 出图产物就是 SVG 文本; 配方与架构文档齐备
+- **素材链**: 图标走 optional 依赖 `lucide-static` + lazy 读盘; 整幅外来 SVG 走 fail-closed 素材链
+- **CLI `svginfo`**: authoring 入口(run / inspect / render / new / icons) —— `bun link` 后全局可用, 或 `npx svginfo`; 双运行时(有 bun 走 bun, 否则 node ≥22.6 的类型剥离)
+- **发布形态(260926)**: `exports` 全部指向 `dist/`(三条件映射、逐条列举、不通配)、ESM-only、`engines >= 20.16`、`files` 白名单(详见下节「npm 发包」)
 - **契约文档(260926)**: `refs/layering.md`(七层 + 依赖方向 + 准入门槛 + 三条边界轴) · `refs/principles.md`(原则的代价与事故出处) · `refs/public-api.md`(exports 即公共面 / 变更分级 / 破坏性改动四步) · `refs/architecture-v3.svg`(现状分层图, core 自画自审; v1/v2 那份降级为演进史)
 
 ## 后续方向
@@ -70,30 +71,64 @@ date: 2026-09-26T00:00:00+08:00
   是 archify 全仓唯一 SMIL 用法、可验证;
   ⓶ `TIMING` 节拍表(对称于 `EASING_SPLINES` 的单一真值): 蚂蚁线 / 节点脉冲 / stagger 基底的时长与延迟各收敛一处,
   archify 参考节拍 160(stagger 步长)/ 780(token 单程)/ 2400(边流)/ 3600(节点脉冲)ms, 当参考不抄写;
-  ⓷ stagger 的正确姿势: 作者数组顺序 → 步进索引 → 延迟, **cap 在上界**(archify 是 12), 只压视觉不动语义顺序;
-  ⓸ `prefers-reduced-motion` 兜底配方(一条 CSS, 建议进 `QUICKREF` / `templates`):
-  `animation: none !important` + `stroke-dashoffset: 0` —— 回到完成态而不是停在半途;
+  ⚠ 表内分两类(260926-18:38 补判据): **正确性常量**(缝重叠量)**不暴露**给作者, **风格旋钮**(节拍快慢)**暴露可覆写** ——
+  混在一起, 作者能配出一个"无重叠"的错觉参数, 缝就回来了(参照 `slide` 那条"避免白缝"的手艺: 它只活在源码注释里, 不是旋钮)
+  ⓷ stagger 的正确姿势: 作者数组顺序 → 步进索引 → 延迟, 只压视觉不动语义顺序。
+  ⚠ **"cap 在上界 12" 这个方案已否(260926-18:38 外部对账)**: 索引 cap 会丢掉第 12 个之后**所有元素的顺序信息**
+  (它们全同时起)。正解是 cap 从"数量上限"换成"**时间跨度上限**, 用缓动压分布": `delay = S · e(i/(n-1))`,
+  e 严格递增且 e(0)=0 / e(1)=1; n 超阈值时**不动顺序、只固定 S、把 e 换成前快后慢**。
+  且现方案的数字**自相矛盾**: 160ms × 11 = 1760ms, 是 token 单程 780ms 的 2.3 倍 —— 数要重定,
+  建议 `TIMING` 直接写毫秒(`staggerSpan`), 不写个数
+  ⓸ `prefers-reduced-motion` 兜底配方(**已订正 260926-18:38: 不是一刀切**): 原记的 `animation: none !important`
+  会把位移类与淡入类一起打死。正解**分两类** —— 位移类瞬间落到终态、淡入类照常渐变。
+  另有一条**结构性差异**: `style()` 档能自己包 `@media (prefers-reduced-motion: reduce)`,
+  **SMIL 档没有等价钩子**(CSS 管不到行内 SMIL)。⇒ 选型判据: **纯装饰优先走 `style()`(可自我关闸),
+  SMIL 留给需要属性插值的场合(transform / stroke-dashoffset)并配 `fill="freeze"` 兜底**
   ⓹ finite + settled 纪律: 动画一次跑完永久回到 authored 静态样式, 不重播 —— 对"golden 是静帧"的仓
   这条纪律比动画本身值钱, 与下面"装饰性 vs 信息性"判据同源(archify 版判词: 动效要说明一个有名字的
-  系统行为, 并且停在可读的静帧)。
+  系统行为, 并且停在可读的静帧)。**且它可机器验证**: `serialize(sampleAt(末)) === serialize(静态产物)`
   另: ① 档现存缺口一并记账 —— `<set>` / `<discard>` 未做; 形状 descriptor 无 animate 子槽
-  (动 `r`·`cx` 只能 href + 作者给 id, 另一件立项); `skewX/Y` 词表外(故意); 逐段 `values` 缓动只能手写 attrs;
+  (动 `r`·`cx` 只能 href + 作者给 id, 另一件立项); `skewX/Y` 词表外(故意); 逐段 `values` 缓动只能手写 attrs
+  (⚠ 260926-18:38 补: 这条有个**没定的取舍** —— SMIL 的 `keyTimes` 是归一化 0..1, 没有"帧"这回事,
+  要逐段缓动必须知道**每段占多少时间**, 于是只剩"强制作者同时给 `keyTimes`"或"等分(等于没表达力)"两条路;
+  **取舍没定之前不要立项**); **缓动词的准入硬约束(260926-18:38 规范定案)**: SMIL `keySplines` 四值
+  **必须 ∈ [0,1]** ⇒ `back` / bounce / elastic / 有回弹的 spring **在单段里根本表达不了**(CSS `cubic-bezier`
+  允许 y 越界, SMIL 不允许 —— 这是两边的分界点, 不是实现差异), 只能走多段 `values`;
+  `EASING_SPLINES` 要加一条机器守卫(词表 10 条今天全合规);
   WebM 拖尾算法(均匀采样 → 拖尾折线 → `alpha = 0.42 + sin(π·p)·0.5`)是纯函数, 真需要时可做 `knives/`
   级纯计算 util 供宿主驱动, **不进 core 产物链**; infinite 循环装饰不做(website 画廊同页多份内联, 无限动画是灾难)
   ② **时间序列多态 + JS 驱动** —— 消费侧拿纯函数 `sampleAt(t)`, 标量插值(`{x,y,w,h}` / tone / opacity)
-  对本仓极自然。⚠ **路径 morph 是真难点**: 一条边从折点列变到另一个要等参数化(按弧长重采样), 而
+  对本仓极自然。**260926-18:38 补: 这条现在有了明确的消费方** —— 帧驱动渲染(Remotion 这类宿主逐帧截图)。要点:
+  ① 它**作用于 scene 参数层**(`sceneFn(t) => Scene`), 与 ① 档作用在 descriptor 属性层**不同层**, 共享的只有
+  真值表(`EASING_SPLINES` / `TIMING`)—— **别强行统一机制**(那是第二权威); ② 求值出来是**普通 scene**,
+  现有 `audit` / `exportScene` 一行不改 ⇒ 副产品是"**视频的每一帧都过几何门禁**"(别的视频管线做不到);
+  ③ 反过来 ① 档在帧驱动宿主里**必须关掉**(SMIL / CSS 的时钟与帧号不同步, 会得到随机帧)——
+  "禁令适不适用"取决于**消费侧是不是帧驱动宿主**
+  ⚠ **路径 morph 是真难点**: 一条边从折点列变到另一个要等参数化(按弧长重采样), 而
   `orthogonal_deviation` / `no_backtrack` 全建立在"折点是整数坐标 + 正交"上, 一插值立刻违反 —— **别一上来
-  就碰它**, 先做横移型(节点移动 / 高亮切换)
+  就碰它**, 先做横移型(节点移动 / 高亮切换)。**补证据(260926-18:38)**: remotion 的 `interpolatePath` 是
+  顶点按索引 lerp + 点数补齐, **不是弧长重采样**, 中间态既非整数也不正交 ⇒ 这条现在不是"还没实现",
+  而是"**那套东西解决的不是我们的问题**"
   ③ **播放状态机** —— 已焊进「不做」, 别再想
   判据: 动画是**装饰性需求**还是**信息性需求**? 前者按「不做投影」同款判词留在外面, 后者才立项。
   真要做的第一件事是**先有一张要动的真图** —— 跟「≥3 张真实样本才升级为判据」同精神
+  ⚠ **调研归档(260926-18:38)**: 外部对账(Remotion / motion / 官方 skills 三仓: 可搬什么、为什么、
+  对方自己哪里错了) → `docs/animation-parity.md`; 消费面规划(三个场景 / 两条腿 / 方向清单 / 边界 /
+  待拍板) → `docs/animation-roadmap.md`。**两篇是这条目的展开, 排期前先读**
 - **descriptor 的双态承诺没有归属(260926 缺口)** —— `src/descriptor.ts` 文件头写着"双态序列化的分界点:
   `serialize.ts` → SVG 字符串 / **react 薄壳 → JSX 元素**", `layering.md` 的依赖方向也给它留了位, 但
   **ROADMAP 里没有任何 React 消费面的立项**, `public-api.md` 的变更分级也没给它预算(它不是子路径)。
   倾向的归属(**待定, 别先焊**): **薄壳建在仓外**(vault 的 htmls / skill 侧), core 只保证 descriptor
   表达力够薄壳用 —— 这样"react / vite / esbuild 一律不引"那条红线**一个字都不用破**。于是这个立项
   真正要回答的不是"要不要建 react 包", 而是"**descriptor 要不要为时间维度设计**"
-- **npm 发包** —— 另立项; 在此之前 `bun link` 或 git URL 引入
+- **npm 发包(260926 已落地)** —— 发布形态: ESM-only; `exports` 全部指向 `dist/`(逐条三条件映射,
+  **不用通配** —— 通配会让内部文件自动变成公共面); `bin.svginfo` 走 `#!/usr/bin/env node` + 双运行时;
+  `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` + `README.md` / `LICENSE` /
+  `QUICKREF.md` / `SKILL.md`(`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
+  `prepare` 保证 link / git URL 安装时自动构建。消费侧 `bun` / `vite` / `esbuild` / `tsc(bundler|nodenext)`
+  零配置可用(实测)。**已知未覆盖**(别当支持): ① `moduleResolution: node`(node10 老档)不认;
+  ② CJS `require` 不支持(ESM-only); ③ 浏览器侧算源指纹 `decisionDigest` 不支持(那一步要 sha256,
+  走 bun 或 node 内置); ④ `engines >= 20.16`(20.16 起 `getBuiltinModule` 回移可用), 更低版本的纯 node 用户跑不动源指纹那档。代价记账见 `refs/public-api.md`
 - **美学度量校准** —— 攒够 ≥3 张真实图的踩坑样本后才谈把警告升级为判据(现在启发式一律 warning)
 - **一维约束账本之上的列心求解 / 回吐重解、跳线(line jump)** —— 按证据排期
 - **整幅外来素材不进净空门禁** —— 图标 / 网格底纹 / `embedAsset` 同档, 边与标签压在图表上眼下无人管; 要收口得先按纪律 9 举证 + 纪律 11 给旋钮, 现在靠作者留位(见 `QUICKREF.md` 误用表)
@@ -113,5 +148,7 @@ date: 2026-09-26T00:00:00+08:00
   `theme` 的 7 tone × `solid`/`variant`。证据: 外部那份纯解析投影 + 凸包剪影的 3D 渲染器
   (`docs/avatar-lab-parity.md`) 绕过的每一样东西在 SVG 语境里都不需要, 立体感可以完全由轮廓承担 ——
   "给节点加个投影显得立体"是装饰性需求, 不是几何需求
-- 不引入 npm 之外的运行时依赖, 不上 build step(react / vite / esbuild 一律不引)
+- 不引入 npm 之外的运行时依赖(唯一第三方是 optional 的 `lucide-static`, 只有 `./icons/lucide` 读它);
+  本体不引 react / vite / esbuild。⚠「不上 build step」260926 已修正 —— 发布 npm 包需要 `dist/`,
+  但它是派生产物、gitignored, 版本库里仍不囤构建产物(代价见 `refs/public-api.md`)
 - 不为第三方图标库的破坏性升级做兼容层(升版走 PR)

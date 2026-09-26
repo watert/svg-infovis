@@ -2,7 +2,7 @@
 
 > 画图**只读这一页**。起手代码、缺省值、误用、动手前的问题都在这。
 > 图型骨架在 `refs/recipes.md`, 函数与 API 索引在 `README.md`, 何时用与改内核的纪律在 `SKILL.md`。
-> `src/` 是给改内核的人读的。出图时翻源码是纯浪费。
+> `src/` 是给改内核的人读的 —— **出图时**翻它只会多一份会漂的副本; **改内核时**它才是唯一权威。
 
 ## 30 秒起手
 
@@ -33,6 +33,8 @@ if (!report.pass) {
 bun run d.ts                                                   # → /tmp/d.svg
 ./scripts/svg2png.sh /tmp/d.svg /tmp/d.png 1200
 ```
+
+⚠ 这两条是**本仓 / 本机**开发路径(要有 bun)。别人项目里装了包时, 用 `node ≥22.6` 或 bun 直接跑你这个脚本文件就行 —— 消费侧不需要构建步骤(包里带的已是产物), 起手代码照上面那段写。
 
 交付前把 `tryExport` 换成 `exportScene`(不带 `force`)—— 它才是保险丝, 不过就抛 `ExportBlockedError`。
 
@@ -105,9 +107,9 @@ bun run scripts/inspect.ts /path/to/my-scene.ts --metrics --rows=80 --showcase
 
 ## 素材库(图标 / 图表底板)
 
-两处素材都**不进净空门禁**, 也不进 `src/` 的运行时依赖链 —— 它们是"构建期读一次、写进 scene 的纯数据":
+两处素材都**不进净空门禁**, 也不是库本体的依赖 —— 它们是"作者脚本跑一次、把结果写进 scene 的纯数据"(产物里不含任何外部素材):
 
-- **图标**: 来自 npm 依赖 `lucide-static`(ISC; kebab-case 名, lazy 单图标读盘, 不 vendoring 进仓)。取素材走 `iconAsset('plane')`(⚠ 从 `.../icons/lucide` 引, 它不在 barrel); 按概念找名 `findIcon('airplane')`(读包内 `tags.json`)。
+- **图标**: 来自 optional 依赖 `lucide-static`(ISC; kebab-case 名, lazy 单图标读盘, 不 vendoring 进仓; **只有 `./icons/lucide` 与 CLI 的 `icons` 档读它, 不装也能用库本体**)。取素材走 `iconAsset('plane')`(⚠ 从 `.../icons/lucide` 引, 它不在 barrel); 按概念找名 `findIcon('airplane')`(读包内 `tags.json`)。
 - **图表底板**: `assets/embeds/echarts-{bar,line,pie,scatter}.svg` 四张现成素材, 喂 `embedAsset` 进 `scene.embeds`(版式与坑见 `refs/recipes.md` §12; 来源与许可见 `assets/embeds/LICENSE-APACHE-2`)。
 
 ## 坐标纪律(`fit` 会平移, 不会缩放)
@@ -239,6 +241,40 @@ UPDATE_BASELINE=1 bun test test/route-pick-equivalence.test.ts
 - **盒摆到另一个盒的某侧 → `rightOf` / `leftOf` / `below` / `above`**: 隔 `gap`, 交叉轴 `align` 三档(**缺省 `center`**, 与 `pack` 的 `start` 不同 —— 面中点才是默认), 两轴对心用 `centeredOn`。别手写 `{ x: BOX_W + CORRIDOR, ... }`。
 - **`pack` 构建期造 rect, `nudge` 事后微移**, 两件事不合并。
 - **已经摆好的盒子只差对齐 / 等距 / 吸附 → `nudge` 三刀**(`align` / `distribute` / `snap`): 只动 `x`/`y`, 不改宽高与拓扑, 非法输入**整体拦停**(不给半成品)。它修的是"手摆出来的 ±2px 抖动", 不是"版式不对" —— 版式不对要重排(见 `refs/recipes.md`)。
+
+## 动效怎么做(声明式, 零 JS) — 260926-18:38
+
+产物**自己会动, 仍是静态字节**(SMIL / 内嵌 `<style>`, 见 `descriptor` 的 `animate()` / `style()`)。
+只有这一档能进产物; 运行时 JS、播放器状态一律不进内核。展开与对账 → `docs/animation-roadmap.md` /
+`docs/animation-parity.md`。
+
+- **先问一句**: 这个动效在说明一个有名字的系统行为吗? 说明不了就是装饰 —— 不加。加了也要
+  **停在可读的静帧**(finite + settled, 不重播): 静态产物**就是**动画的末帧。
+- **两条路选哪条**: 交付物是 `.svg` / 网页 ⇒ 声明式; 交付物是**视频**(逐帧渲染)⇒ 声明式**必须关掉**,
+  走采样档(`sampleAt(t)`)。帧驱动宿主的时钟与 SMIL 不同步, 逐帧截图会截到随机帧。
+  ⚠ **一条禁令适不适用, 取决于消费侧是不是帧驱动宿主** —— 别拿"Remotion 禁 CSS 动效"来质疑我们的
+  `style()` 档(它禁的前提是宿主按帧重排渲染, 我们的宿主没有帧时钟)。
+- **缓动只从 `EASING_SPLINES` 里挑**, 不许自带贝塞尔数字(词表与值在 `src/descriptor.ts`, 不在本文抄一份)。
+  ⚠ **SMIL `keySplines` 四值必须 ∈ [0,1]** ⇒ `back` / bounce / elastic 这类**过冲曲线单段表达不了**
+  (CSS `cubic-bezier` 允许 y 越界, SMIL 不允许), 只能走多段 `values`。
+- **蚂蚁线不需要算长度**: 固定 `dasharray: "6 5"` + `stroke-dashoffset` 从 `0` 动到 `-(6+5)` 就是无缝循环
+  (周期要**恰好**等于一个 dash 周期, 否则接缝处跳)。只有 draw-on / 单趟走满 / 按边打分位才要长度。
+- **draw-on 的余量**: dash 周期取 `ceil1(L) + 1`(上取整到 1 位小数 + 1px 净空), **`L` 必须由舍入后的坐标算**
+  (渲染器量的是舍入后的路径)。「**藏要过头、露要精确**」: `p=0` 时把周期放大到 `1.5L` 并把 offset 也设成
+  `1.5L`, 整条落进空隙; 中间态与末态用精确 `L`。
+- **`fill` 决定播完停哪**(SMIL 缺省是 `remove`): `fill="freeze"` 停末态, 不写则**弹回基态**。
+  判据: **装饰 ⇒ `freeze`; 演示过程 ⇒ 才允许 `remove`**。
+- **`begin` 是绝对时钟**(不像 `Series` 那样自动求和), 且 `begin` 之前元素停在**源文档基态**
+  ⇒ 入场动画要"**基态 = 终态, 从起态走过去**", 否则 `begin` 前会闪一下终态。
+- **`prefers-reduced-motion` 分两类降级**, 不是一刀切 `animation: none`: 位移类瞬间落到终态、
+  **淡入类照常渐变**。⚠ 只有 `style()` 档能自己包 `@media(...)`(SMIL 挂不上媒体查询),
+  所以**纯装饰优先走 `style()`**, SMIL 留给需要属性插值的场合并配 `freeze` 兜底。
+- **stagger 用「时间跨度 + 缓动压分布」**, 不是索引 cap: `delay = S · e(i/(n-1))`, `e` 严格递增;
+  超阈值时**不动顺序**、只固定 `S`、把 `e` 换成前快后慢。索引只能取**作者数组顺序**。
+- **末帧必须精确落位**: 取 `progress === 1` 的精确值, 不许停在 epsilon 之前; 缝重叠量**只加"后到者"的前缘**,
+  且它的精度要 **≥ 序列化精度 + 1 档**(被 `round1` 抹平, 缝就回来了)。
+- ⚠ **数字滚动类是踩线的**(它经过的中间态可被读作数据, 而"数必须是作者写的那个数")。唯一可接受形态:
+  首帧是 0 / 占位, **末帧精确等于作者声明的真值**, 中间不停留。
 
 ## 常见误用(左边都实测踩过)
 

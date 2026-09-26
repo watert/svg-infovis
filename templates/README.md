@@ -11,9 +11,13 @@
 > archify 是"声明式 JSON → 确定性 renderer", 本仓是"命令式 TS 直调几何内核",
 > 两边范式正交, 正确借鉴是**把自家的配方知识升级成薄封装**, 不是搬它的 HTML 那套。
 
+> ⚠ **模板层不在 `exports` 里**: 没有 `svg-infovis/templates/*` 这种子路径 —— 仓内按路径引
+> (`import { emitSequence } from '../templates/sequence.js'`)。npm 包里带 `templates/` 源文件(照抄得走),
+> 但它**不占公共承诺面**: 签名该改就改, 见 [`refs/public-api.md`](../refs/public-api.md)。
+
 ## 边界宪章(一句话)
 
-**模板只封装起手骨架 + audit 调用, 绝不封装决策。**
+**模板只封装起手骨架 + audit 调用, 不封装决策。**
 
 | | 内容 |
 |---|---|
