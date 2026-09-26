@@ -2,7 +2,8 @@
 // predicates · 几何谓词集 (纯数学, 零依赖)
 // audit 与 route 共用的地基: 相交 / 净空 / 重叠 / 折点规范化 / 交叉计数。
 //
-// 与 Archify 对账后的三条硬规矩(见 docs/archify-parity.md):
+// 与 Archify 对账后的三条硬规矩 —— 它们的**活文档是那两个测试**(断言即定义, 别去别处找文档):
+//   test/predicate-spec.test.ts · test/predicates-parity.test.ts
 //   ① 非法输入不许静默变成 0 或 NaN —— 全部走 null / false, 让门禁能"不知道"而不是"通过"
 //   ② gap 是带符号量: >0 放宽(间距检查), <0 收紧(容差); 不用布尔 touch 糊
 //   ③ 折点规范化必须保回折(dot<0), 否则折线长度会静默缩水

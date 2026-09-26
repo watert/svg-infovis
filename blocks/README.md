@@ -32,7 +32,8 @@ type Block = { shape: DGroup; bounds: Rect };   // 主出口恒返回这两位
 - 契约不是新发明: `shapes/badge.ts` 的 `listRowShape` 早就长这样(`{ shape, bounds }`), 本层只是把它
   **明写成规矩**, 并让每个主出口都遵守。
 - 契约是**结构型**, 暂时**不设共享类型模块**: 每个块给结果起自己的名字(`ProgressBlock` / `Pictogram`),
-  只要那两位在。少一个 `blocks/block.ts` = 少一处"谁都得 import"的公共点(层还在长, 别急着立宪法)。
+  只要那两位在。少一个 `blocks/block.ts`(有意不建, 不是漏) = 少一处"谁都得 import"的公共点
+  (层还在长, 别急着立宪法)。机器侧由 `test/layering.test.ts` 判据③盯着 blocks 的依赖面。
 
 ## 版式纪律
 
