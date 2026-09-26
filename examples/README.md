@@ -128,8 +128,9 @@ bun run --cwd website prerender                       # 全部出图入口跑一
 6. **画布按约定声明: `width: 0, height: 0` + 出口 `fit`** —— 声明值不上屏(`fitScene` 按
    `contentBounds` 重算), 手算画布是白算。现状**五种写法并存**, 这就是教训(**同一个语义五种字面量**,
    读者分不清哪个是真画布, 抓的人也就抓不住旧值): ① `0×0` + fit(`embed-panel` / `ontology-icons`)
-   ② 非零魔数占位 + fit(`harness-arch` 1400×900 / `node-forms` 640×420) ③ 从 `bounds()` 现算 +
-   fit(`port-folds`) ④ 手定常量且**不走** fit, 把画布自己算准(`full-chain` 的 `W`/`H`)
+   ② 非零魔数占位 + fit(`node-forms` 640×420) ③ 从 `bounds()` / `contentBounds` 现算 +
+   fit(`port-folds` / `harness-arch` —— 它的坐标算在"层中轴 = 0"的局部系里, 出图前整体挪到正数,
+   所以声明的画布必须现算) ④ 手定常量且**不走** fit, 把画布自己算准(`full-chain` 的 `W`/`H`)
    ⑤ 每个分片各给一个常量、裸 `toSVG`(非出口示例 `audit-demo` 的 560×340 / 420×260)。
    ⚠ 两条代价: **读数板缺省不走 fit**(`scripts/inspect.ts` 直接 `audit(scene)`), 所以 `0×0` 在它眼里
    是"全员越界"(实测 `embed-panel`: `single_svg` 点 11 个 offenders / 画布 `[0,0]`)—— 那是
