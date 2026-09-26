@@ -285,8 +285,7 @@
     "assets",
     "README.md",
     "LICENSE",
-    "QUICKREF.md",
-    "SKILL.md",
+    "skills",
     "!**/*.test.ts"
   ],
   "bin": {

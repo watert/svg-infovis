@@ -123,8 +123,12 @@ date: 2026-09-26T00:00:00+08:00
   真正要回答的不是"要不要建 react 包", 而是"**descriptor 要不要为时间维度设计**"
 - **npm 发包(260926 已落地)** —— 发布形态: ESM-only; `exports` 全部指向 `dist/`(逐条三条件映射,
   **不用通配** —— 通配会让内部文件自动变成公共面); `bin.svginfo` 走 `#!/usr/bin/env node` + 双运行时;
-  `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` + `README.md` / `LICENSE` /
-  `QUICKREF.md` / `SKILL.md`(`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
+  `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` / `skills` + `README.md` / `LICENSE`
+  (`test/` / `examples/` / `website/` / `docs/` / `refs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包);
+  **本仓同时是一份 Agent Skill** —— 真身在 `skills/svg-infovis/`(`npx skills add watert/svg-infovis` 可装),
+  仓根的 `QUICKREF.md` 与 `refs/{recipes,layering,principles,public-api,aesthetics}.md` 是指向真身的软链:
+  所以 QUICKREF 也在包里, 只是路径落在 `skills/svg-infovis/` 下(软链本身不进 npm 包)。
+  布局纪律与两条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
   `prepare` 保证 link / git URL 安装时自动构建。消费侧 `bun` / `vite` / `esbuild` / `tsc(bundler|nodenext)`
   零配置可用(实测)。**已知未覆盖**(别当支持): ① `moduleResolution: node`(node10 老档)不认;
   ② CJS `require` 不支持(ESM-only; 但 node ≥22.12 的 `require(ESM)` 能拿到它, 实测 269 个 key);

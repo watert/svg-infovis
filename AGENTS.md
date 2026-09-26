@@ -26,6 +26,14 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 - verify 红就是没完成, 不许交付; 汇报里附命令与结果(exit code / 通过数)
 - 唯一要重新 `bun link` 的场景: 本仓**路径变更 / 重命名**, 或 `~/.bun/install/global` 被清, 或 **`package.json` 的 `bin` 目标变了** —— 那时本仓 `bun link` 重注册, 各消费者再 `bun link svg-infovis` 重建本地链。⚠ 第三条 260926 真炸过一次: `bin` 改指 `dist/scripts/cli.js` 后, 旧链还指着 `scripts/cli.ts`, 而 shebang 已换成 node, 于是全局 `svginfo` 当场 `ERR_UNKNOWN_FILE_EXTENSION: ".ts"` —— 只改 `bin` 而不重注册 = CLI 直接死, 而且只在"真去调它"时才暴露
 
+## skill 与文档的真身在哪(260926 起)
+
+- **`SKILL.md` 的真身在 `skills/svg-infovis/`**(与 `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md` 同装一份), 仓根的 `QUICKREF.md` 与那 5 份 refs 是**指向它的软链** —— 改内容一律改真身, 对着软链原子写会把链替换成普通文件
+- ⚠ **根目录永远不许放 `SKILL.md`**: skills CLI 的发现规则是"根目录的 SKILL.md 盖住 `skills/` 下的"(实测: 根那份会把 `skills/` 里的顶掉), 且会把**整仓**当成 skill 拷给消费者(实测 3.3 MB, 连 `test/` 与 `website/` 一起); 真身只可能在 `skills/svg-infovis/`
+- 软链方向选"真身在 skill、仓根留链", 因为反方向会让 `npx skills add` 的**软链物化**成为外部用户能否拿到文档的前提 —— 那是 CLI 未文档化的实现细节; 现在的方向下 skill 目录里全是真身, 换哪个版本都装得对
+- Windows 上 `core.symlinks=false` 的 checkout 会把仓根这几条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
+- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill
+
 ## 产物
 
 - **`dist/`**: 源码之外的第二类产物 —— gitignored, 但**进 npm 包**(`files` 白名单里有它); 派生的、可重出的, 所以**永不手改、永不 commit**
@@ -56,7 +64,7 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 ## 读哪一份
 
 - 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `templates/*.ts`
-- 改内核 → `SKILL.md` 的「纪律」+ 源码; API 索引在 `README.md`; 未做项在 `ROADMAP.md`
+- 改内核 → `skills/svg-infovis/SKILL.md` 的「纪律」+ 源码; API 索引在 `README.md`; 未做项在 `ROADMAP.md`
 - **拿不准某件东西该放哪层 / 哪条边界规则管它** → `refs/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
 - **想知道为什么这么切** → `refs/principles.md`(每条原则的代价与逼它出来的实跑事故)
 - **要动公共面(exports 子路径 / 门禁码 / 发布形态: dist · files · engines)** → `refs/public-api.md`(变更分级 + 破坏性改动四步 + 下游清单)

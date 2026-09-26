@@ -9,7 +9,7 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -131,5 +131,24 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     //    —— 那就是装饰性守卫)。
     expect(r.stderr, 'CLI 把场景模块误判成 golden / 自落盘档 —— 回退路的判断权又交回宿主手里了')
       .not.toContain('golden / 自落盘那一档');
+  });
+
+  it('skill 布局: 真身在 skills/ 下、根目录没有 SKILL.md、仓根那几份是指向真身的软链', () => {
+    // ⚠ 根目录一出现 SKILL.md, skills CLI 就把它当成唯一 skill 并把**整仓**拷给消费者(实测 3.3 MB,
+    //    连 test/ 与 website/ 一起), 还会盖住 skills/ 下的真身 —— 这条是"别人装得对不对"的前提。
+    expect(existsSync(join(ROOT, 'SKILL.md'))).toBe(false);
+    // skill 目录里必须全是真身: CLI 会不会物化软链是它**未文档化**的实现细节, 不能当成安装前提
+    const real = ['SKILL.md', 'QUICKREF.md', 'refs/recipes.md', 'refs/layering.md', 'refs/principles.md', 'refs/public-api.md', 'refs/aesthetics.md'];
+    for (const f of real) {
+      const p = join(ROOT, 'skills/svg-infovis', f);
+      expect(existsSync(p), `skill 真身缺了: skills/svg-infovis/${f}`).toBe(true);
+      expect(lstatSync(p).isSymbolicLink(), `skills/svg-infovis/${f} 是软链 —— 真身该放这里`).toBe(false);
+    }
+    // 仓根留旧路径: 这几份**必须**是软链(不是 = 抄了第二份内容, 两处必然漂)
+    for (const f of ['QUICKREF.md', ...real.slice(2)]) {
+      const p = join(ROOT, f);
+      expect(lstatSync(p).isSymbolicLink(), `仓根 ${f} 应是软链(真身在 skills/svg-infovis/ 下)`).toBe(true);
+      expect(readFileSync(p, 'utf8').length, `仓根 ${f} 的软链读不到内容`).toBeGreaterThan(0);
+    }
   });
 });
