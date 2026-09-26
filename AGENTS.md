@@ -30,6 +30,16 @@ readlink ~/.bun/install/global/node_modules/svg-infovis  # → 本仓真实路�
 cd /tmp && svginfo --help                                # 能出用法表即链路通
 ```
 
+## website/(260926 起)
+
+展示站(Vite + React + TS, 纯静态 → GitHub Pages)。**独立 package**: 自己的 `package.json` / `tsconfig.json` / `node_modules`, 框架依赖全关在这个目录 —— 内核的零运行时依赖与「不上 build step」红线只管 `src/`, 不管这里; 依赖方向单向(website → src 只读 import, 内核不许回头)。
+
+- 数据链: `bun run --cwd website prerender`(= `website/scripts/prerender.ts`)跑 `examples/manifest.ts` 全部出图入口 → `website/public/svg/<key>.svg` + `website/src/generated/examples.json`(产物 gitignored, 连跑逐字节一致)。**新增示例只要登记 manifest, 站点自动多一张卡**, 不许在 website 里维护第二份清单
+- 画廊 SVG 一律**内联直出**, 不用 `<img>` / 不引 PNG; hero 图是内核在浏览器里现场算的(活证据, 别换成静态产物)
+- dev: `bun run --cwd website dev`(默认端口 **5180**, 不是 vite 的 5173 —— 那口撞别的项目); build: `bun run --cwd website build`
+- 部署: `.github/workflows/pages.yml`(push main → prerender + build → deploy-pages); 需要仓库 Settings → Pages 的 Source = GitHub Actions
+- 根 `tsconfig.json` 的 `include` **刻意不含** `website/`(它有自己的 DOM lib 配置); website 侧验证走 `bun run --cwd website check` + `build`
+
 ## 读哪一份
 
 - 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `templates/*.ts`
