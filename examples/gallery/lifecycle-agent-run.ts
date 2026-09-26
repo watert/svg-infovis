@@ -1,7 +1,7 @@
 // =====================================================================
 // lifecycle-agent-run · 参照实现复刻: "Agent Run Lifecycle"(**深色**)
 //
-// 源: `refs/archify-explore/shots/lifecycle-agent-run.png`(参照实现 single-HTML 的真实渲染)
+// 源: `refs/archify-explore/archify-lifecycle.png`(参照实现 single-HTML 的真实渲染)
 // 语义源: 该图对应的 IR 声明(4 条 lane / 10 个状态 / 6 条迁移)。**成图上四条 lane 收成三段
 // 段落** —— 等待(lane waiting)与恢复(lane exceptions)合成"02 / Interruptions + Recovery loop",
 // 本文件跟着成图走。
