@@ -129,6 +129,8 @@ date: 2026-09-26T00:00:00+08:00
   仓根的 `QUICKREF.md` 与 `refs/{recipes,layering,principles,public-api,aesthetics}.md` 是指向真身的软链:
   所以 QUICKREF 也在包里, 只是路径落在 `skills/svg-infovis/` 下(软链本身不进 npm 包)。
   布局纪律与两条实测坑见 `AGENTS.md` 的「skill 与文档的真身在哪」;
+  **包名 260926 改成 `@watert/svg-infovis`**(scoped —— 无 scope 名先到先得、不可回收);
+  **但发布还没发生**: 打包名、首发步骤、2026 的 OIDC 规则与验收清单 → `docs/npm-release.md`;
   `prepare` 保证 link / git URL 安装时自动构建。消费侧 `bun` / `vite` / `esbuild` / `tsc(bundler|nodenext)`
   零配置可用(实测)。**已知未覆盖**(别当支持): ① `moduleResolution: node`(node10 老档)不认;
   ② CJS `require` 不支持(ESM-only; 但 node ≥22.12 的 `require(ESM)` 能拿到它, 实测 269 个 key);
