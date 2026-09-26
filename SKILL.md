@@ -24,6 +24,9 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 | 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts` |
 | 查函数 / 门禁判据 / 模块在哪 | [`README.md`](./README.md) 的 API 索引 |
 | 改内核 | 本文件「纪律」+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
+| 拿不准某件东西该放哪层 / 哪条边界规则管它 | [`refs/layering.md`](./refs/layering.md) —— 七层 / 依赖方向 / 准入门槛 / 三条边界轴。配图 `refs/architecture-v3.svg` |
+| 想知道为什么这么切 | [`refs/principles.md`](./refs/principles.md) —— 原则、代价、逼它出来的实跑事故 |
+| 要动公共面(exports 子路径 / 门禁码) | [`refs/public-api.md`](./refs/public-api.md) —— 变更分级与破坏性改动四步 |
 | 看未做项 | [`ROADMAP.md`](./ROADMAP.md) |
 
 ## 三步
@@ -99,13 +102,16 @@ bun run scripts/inspect.ts <scene.ts>                 # 布局看不清 → 读�
 ```
 QUICKREF.md     画图时只读这份
 README.md       API 索引 / 门禁判据导读
+refs/layering.md        现行分层契约 + 边界规则(七层 / 依赖方向 / 三条边界轴)
+refs/principles.md      设计意图与第一性原则(代价与事故出处)
+refs/public-api.md      公共面 / 变更分级 / 破坏性改动 SOP
 refs/recipes.md 十三条图型 / 风格配方
 refs/aesthetics.md   美学研究草案(含目标函数选边), 不是操作手册
-refs/architecture.md + build-arch*.ts   五层契约 + 当前实现边界
+refs/architecture.md + build-arch*.ts   v0.1 五层管线的演进史存档; 现状图 = architecture-v3
 templates/      序列 / 分层 / 阶段带三套骨架。宪章见 templates/README.md
 examples/       五桶, 清单 examples/manifest.ts
 assets/embeds/  图表底板 4(Apache 2.0)
-docs/           theme / mermaid-geometry / blink-archive
+docs/           theme / mermaid-geometry / blink-archive / infograph-roadmap
 ROADMAP.md      立项依据与后续方向
 src/  test/  scripts/runner.ts  scripts/{inspect.ts, svg2png.sh, svg-varflatten.ts, build-example-pngs.sh}
 ```

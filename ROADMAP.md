@@ -23,6 +23,7 @@ date: 2026-09-23T16:00:00+08:00
 - **examples**: 五桶 23 项示例 + PNG 快照(项数 = `examples/manifest.ts` 的 `EXAMPLES` 长度, 数它别数人脑); 配方与架构文档齐备
 - **素材链**: 图标走 `lucide-static` 依赖 + lazy 读盘; 整幅外来 SVG 走 fail-closed 素材链
 - **CLI `svginfo`**: authoring 入口(run / inspect / render / new / icons), `bun link` 全局可用
+- **契约文档(260926)**: `refs/layering.md`(七层 + 依赖方向 + 准入门槛 + 三条边界轴) · `refs/principles.md`(原则的代价与事故出处) · `refs/public-api.md`(exports 即公共面 / 变更分级 / 破坏性改动四步) · `refs/architecture-v3.svg`(现状分层图, core 自画自审; v1/v2 那份降级为演进史)
 
 ## 后续方向
 

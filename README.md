@@ -131,8 +131,11 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 - [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问
 - [`SKILL.md`](./SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律
+- [`refs/layering.md`](./refs/layering.md) —— **现行分层契约与边界规则**: 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 [`architecture-v3.svg`](./refs/architecture-v3.svg), core 自画自审)
+- [`refs/principles.md`](./refs/principles.md) —— 设计意图与第一性原则: 每条断言、它的代价、逼它出来的实跑事故、冲突时怎么裁
+- [`refs/public-api.md`](./refs/public-api.md) —— 公共承诺面: exports 子路径即 API、变更分级、破坏性改动四步、诊断码兼容面
 - [`refs/recipes.md`](./refs/recipes.md) —— 十三条图型与风格配方
-- [`refs/architecture.md`](./refs/architecture.md) —— 分层契约与当前实现边界
+- [`refs/architecture.md`](./refs/architecture.md) —— v0.1 产品管线五层的**演进史存档**(决策层 / blink 已废弃; 别拿它回答现状问题)
 - [`refs/aesthetics.md`](./refs/aesthetics.md) —— 美学评估研究草案(全警示级, 不是操作手册)
 - [`docs/theme.md`](./docs/theme.md) · [`docs/mermaid-geometry.md`](./docs/mermaid-geometry.md) · [`docs/blink-archive.md`](./docs/blink-archive.md) · [`docs/infograph-roadmap.md`](./docs/infograph-roadmap.md)
 - [`examples/README.md`](./examples/README.md) —— 五桶示例与出口纪律

@@ -34,4 +34,8 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 
 - 画图 → `QUICKREF.md`(起手代码 / 缺省值表, 数字只在那里) · `refs/recipes.md`(图型骨架) · `templates/*.ts`
 - 改内核 → `SKILL.md` 的「纪律」+ 源码; API 索引在 `README.md`; 未做项在 `ROADMAP.md`
+- **拿不准某件东西该放哪层 / 哪条边界规则管它** → `refs/layering.md`(七层 / 依赖方向 / 准入门槛 / 三条边界轴)
+- **想知道为什么这么切** → `refs/principles.md`(每条原则的代价与逼它出来的实跑事故)
+- **要动公共面(exports 子路径 / 门禁码)** → `refs/public-api.md`(变更分级 + 破坏性改动四步 + 下游清单)
+- `refs/architecture.md` 是 v0.1 产品管线的**演进史存档**(决策层与 blink 已废弃), 别拿它回答现状问题
 - 三条口吻: 零运行时依赖 · 字节确定性(禁 `Date.now` / `Math.random`) · 一处事实一处
