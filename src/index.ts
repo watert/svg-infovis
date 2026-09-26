@@ -83,10 +83,13 @@ export * from './knives/nudge';
 // 所以必须排在 audit 之后。它是**读数不是门禁** —— 不返回 pass/fail、不抛异常、不新增阈值;
 // 现阶段的定位是"把审美从控制流里提出来", route 尚未消费它(接线分两阶段, 见文件头)
 export * from './knives/route-cost';
-export * from './export';
 
 // scene 的 SceneNode 与 audit 同名(它是 audit 的扩展, 多了 bounds_source) ——
 // barrel 里给 audit 让位: 需要 scene 版节点类型时用 SceneDoc['nodes'][number]
+//
+// ⚠ 260926: `./export` 从这里挪到**本块之后** —— 它运行时调 `scene` 的 `assertFreshForExport` /
+// `sceneStatus`, 而"读 barrel 的顺序即依赖顺序, 被依赖的先出"要求 scene 先出。原来 export 排在
+// scene 之前(依赖者在前), 属纪律擦伤: 引用在函数体内所以不会 TDZ 崩, 但纪律破了就该焊回去(P1)
 export {
   createScene, markHtmlChanged, applyBounds, sceneStatus, assertFreshForExport, SceneStaleError,
   deriveGroupRect, fitGroupFrames,
@@ -95,6 +98,8 @@ export {
   type CreateSceneOptions, type BoundsPatch, type ApplyBoundsResult, type SceneStatus,
   type DecisionSource, type FreshnessBasis, type StaleReason,
 } from './scene';
+
+export * from './export';
 
 // 场景读数板(260919): **几何 × 判决的 join** —— 排在最后是因为它同时依赖 `audit`(判决)与
 // `scene`(派生框), 是 barrel 里唯一的"下游消费者"。它不判任何事(零新码 / 零阈值), 只把 audit 的
