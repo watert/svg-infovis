@@ -59,7 +59,9 @@ cd /tmp && svginfo --help                                # 能出用法表即链
 - 数据链: `bun run --cwd website prerender`(= `website/scripts/prerender.ts`)跑 `examples/manifest.ts` 全部出图入口 → `website/public/svg/<key>.svg` + `website/src/generated/examples.json`(产物 gitignored, 连跑逐字节一致)。**新增示例只要登记 manifest, 站点自动多一张卡**, 不许在 website 里维护第二份清单
 - 画廊 SVG 一律**内联直出**, 不用 `<img>` / 不引 PNG; 站点 hero 图是内核在浏览器里现场算的(活证据, 别换成静态产物) —— ⚠ 与 README 首图 `assets/hero.svg`(committed, 守卫在 `test/hero-svg.test.ts`)**不是同一张**, 别互相替换
 - dev: `bun run --cwd website dev`(默认端口 **5180**, 不是 vite 的 5173 —— 那口撞别的项目); build: `bun run --cwd website build`
-- 部署: `.github/workflows/pages.yml`(push main → prerender + build → deploy-pages); 需要仓库 Settings → Pages 的 Source = GitHub Actions
+- 部署: `.github/workflows/pages.yml`(push main → prerender + build → deploy-pages); **站址 <https://watert.github.io/svg-infovis/>**(子路径站 —— `base` 已写死在 `website/vite.config.ts`, 别改成 `/`)
+  - ⚠ 仓库的 Pages 站 260926 才建成(`build_type=workflow`)—— 在那之前两次 push 的部署都红在 `configure-pages` 的 `Get Pages site failed`。**见到这个错就是 Pages 没建/没设成 Actions, 不是 workflow 有病**: 重建 `gh api -X POST /repos/watert/svg-infovis/pages -f build_type=workflow`, 然后用 `gh run rerun <id>` 重跑那次失败(同一 commit 即可)
+  - 建站后 `git push` 的副作用多了一条: 会真的把站点重新发一遍, 不再是"跑一下就红"
 - 根 `tsconfig.json` 的 `include` **刻意不含** `website/`(它有自己的 DOM lib 配置); website 侧验证走 `bun run --cwd website check` + `build`
 
 ## 读哪一份
