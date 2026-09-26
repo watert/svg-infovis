@@ -17,7 +17,7 @@
 //   同题(一个判、一个算), 分居两文件而共用同一批常量 —— 这正是本仓"按语义主题开刀"的口径。
 //
 // 与 `label_fit` 门禁**同源**(这是本刀存在的全部理由, 各写一份是本仓最贵的事故):
-//   · 缺省内边距 = `THRESHOLDS[level].labelInset`(直接从 `audit.ts` 读, **不复制字面量**);
+//   · 缺省内边距 = `THRESHOLDS[level].labelInset`(直接从 `thresholds.ts` 读, **不复制字面量**);
 //     门禁判的是"文字宽 > 盒宽 − 2×labelInset", 本刀反解成"盒宽 = 文字宽 + 2×内边距(向上取整)"
 //     —— 与门禁自己那条 `widen-node` 修法的 `Math.ceil(textWidth + 2 * inset)` 逐字同式。
 //   · 字号 / 次标签缩量 / 两行行距取 `NODE_TEXT_LAYOUT`(渲染 `nodeShape` 用的同一份数字);
@@ -43,7 +43,8 @@
 // 给盒照样过门禁(漏报), 于是"按形状给盒"这件事没有第二个人能替作者做; 而换算只有一份(与
 // `nodeTextArea` 互为逆), 写成纪律就是又一份会漂的系数。
 //
-// ⚠️ 反向依赖: 本文件 import `audit.ts`(取 THRESHOLDS)。**audit 不许反过来 import 本文件**, 会成环。
+// ⚠️ 仍值导入 `audit.ts`(取 `SCENE_TEXT_DEFAULTS` 与 scene 文本类型)。阈值走 `thresholds.ts`。
+// **audit 不许反过来 import 本文件**, 会成环。
 // =====================================================================
 
 import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
@@ -56,8 +57,9 @@ import { TEXT_ANCHORS, type TextAnchor } from '../descriptor';
 import { NODE_TEXT_LAYOUT, type NodeShapeKind, assertCapRadius, assertNodeShape, nodeOuterSize } from '../shapes/node';
 // 卡片可以带图标, 而"图标离卡片多远"只有一个缺省 —— 读它, 不在本文件重写一个 12
 import { ICON_DEFAULTS } from '../shapes/icon';
-// `SCENE_TEXT_DEFAULTS` = `SceneText` 的渲染缺省(缺省跟类型住一起); `THRESHOLDS` = 门禁呼吸位。两者都读, 都别抄
-import { type AuditLevel, type SceneOwner, type SceneText, SCENE_TEXT_DEFAULTS, THRESHOLDS } from './audit';
+// `SCENE_TEXT_DEFAULTS` 跟 `SceneText` 住在 audit; 呼吸位跟别的尺子住在 thresholds。两边都读, 都别抄
+import { type SceneOwner, type SceneText, SCENE_TEXT_DEFAULTS } from './audit';
+import { type AuditLevel, THRESHOLDS } from './thresholds';
 import { measureText } from './measure';
 
 /**

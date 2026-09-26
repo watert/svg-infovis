@@ -54,6 +54,9 @@ import { rowBlock } from '../geometry/text-rows';
 import { measureText } from './measure';
 import { density } from './density';
 import { clusterAudit, type ClusterTier } from './cluster';
+// 尺子的定义在 thresholds。这里再导出同一绑定, 本地判据也读这一份
+export { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
+import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
 
 // --- 契约类型 ----------------------------------------------------------
 
@@ -385,21 +388,12 @@ export type Scene = {
   clusterTier?: ClusterTier;
 };
 
-export type AuditLevel = 'standard' | 'showcase';
-
 export type AuditReport = {
   level: AuditLevel;
   pass: boolean;
   /** 一律给出的量化指标(诊断之外的"看起来没事但也有数") */
   metrics: Record<string, number>;
   diagnostics: Diagnostic[];
-};
-
-export const THRESHOLDS: Record<AuditLevel, { labelClearance: number; nodeGap: number; labelInset: number }> = {
-  // labelInset: 节点内文字两侧的呼吸位(px)。两个档位 = 两种严格度:
-  // standard 允许字几乎贴边(6px), showcase 要求留白(10px)。
-  standard: { labelClearance: 2, nodeGap: 8, labelInset: 6 },
-  showcase: { labelClearance: 4, nodeGap: 12, labelInset: 10 },
 };
 
 /**
@@ -1235,13 +1229,6 @@ function reflowBoxH(f: { fontSize: number }, lines: number, inset: number): numb
 /** 端点吸附容差: 折线端点到节点盒 ≤ 此值即认为这条边"属于"它(用于排除自身端节点) */
 const EDGE_OWNER_EPS = 14;
 /**
- * 穿透长度阈值: 半像素以下算擦边(折线起点正好落在盒边上), 不算穿。
- * 导出是给 `knives/route-cost` 用的 —— 代价层的"穿盒"与"端点擦边"两维都拿它当尺子,
- * 判决与排序**必须同一把尺子**(各自定一个数就会出现"门禁说没穿、排序说穿了"的双源)。
- */
-export const PIERCE_MIN = 0.5;
-
-/**
  * 这条边的两端节点。优先信 `from`/`to`, 但它们**可能是组 id**(跨层边就常这么写), 匹配不上就落空。
  * 落空时按端点就近吸附兜底 —— 与手的"这条线从哪出来"直觉一致。
  */
@@ -1529,8 +1516,6 @@ const PORT_SHARED_ATTACH = 3;
 //    与密度四项同一立场 —— 启发式不许 fail-closed 否决正确版式。
 // 量之前必须 `normalizeRoutePoints`: 否则共线中点会让首段看着很长。
 
-/** 端点前的死区: 首/末段短于此值且存在折弯 → 折弯顶在箭头下面(导出给 route-cost 复用, 同 PIERCE_MIN) */
-export const STUB_MIN = 10;
 /** 倒数第二段与本端节点盒的最大距离(严格小于); 同时要求投影重叠过半(过滤"只是路过") */
 const END_BAND = 18;
 

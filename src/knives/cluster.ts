@@ -45,6 +45,8 @@ import {
 } from '../geometry/predicates';
 import type { Diagnostic, Scene, SceneGroup } from './audit';
 import { CLUSTER_CODES } from './codes';
+// 穿透长度与穿盒门禁同一把尺子(thresholds 的 PIERCE_MIN)
+import { PIERCE_MIN } from './thresholds';
 
 /** 组语义档: `set`(缺省, 平铺集合) / `tree`(层级 ownership, opt-in) */
 export type ClusterTier = 'set' | 'tree';
@@ -67,8 +69,6 @@ const BORDER_RUN_GAP = 6;
 const BORDER_RUN_MIN = 24;
 /** 判"进到框里"时把框线内缩半像素: 端点相切不算穿越 */
 const BORDER_INSET = 0.5;
-/** 穿透长度阈值: 半像素以下算擦边(与穿盒门禁同口径) */
-const PIERCE_MIN = 0.5;
 
 // --- membership 解析 ---------------------------------------------------
 

@@ -9,7 +9,8 @@
 
 import { type Attrs, type Descriptor, svg as svgRoot } from './descriptor';
 import { DEFAULT_THEME, type Theme, canvasLayer } from './theme';
-import { type AuditLevel, type AuditReport, type Scene, SCENE_TEXT_DEFAULTS, THRESHOLDS, audit, groupLabelBox, labelRect } from './knives/audit';
+import { type AuditReport, type Scene, SCENE_TEXT_DEFAULTS, audit, groupLabelBox, labelRect } from './knives/audit';
+import { type AuditLevel, THRESHOLDS } from './knives/thresholds';
 import { type SceneDoc, assertFreshForExport, sceneStatus } from './scene';
 import { toSVG } from './serialize';
 import { type EdgeProps, edgeShape } from './shapes/edge';

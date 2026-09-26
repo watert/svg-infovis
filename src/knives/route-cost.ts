@@ -20,18 +20,17 @@
 //
 // 边界(与 core 其余部分同纪律):
 //   · 这是**读数**, 不是门禁 —— 不返回 pass/fail、不抛异常、**不新增阈值**。每一维的阈值都从
-//     门禁那边取(见维度表的 note), 判决与排序**必须同一把尺子**; 另定一个数就会出现
+//     `thresholds.ts` 取(audit 再导出同一绑定), 判决与排序**必须同一把尺子**; 另定一个数就会出现
 //     "门禁说没穿、排序说穿了"的双源结论。
 //   · 零新判据: 维度只是把门禁**已经在算**的量从 bool 提成标量。`firstBacktrackIndex >= 0` 是判决,
 //     `backtrackPx = 37.4` 是它的量化 —— 同一个事实的两种读出方式。
 //   · 确定性: 每个值过 `round1`(与 nudge / audit 同一量化粒度), 末位 `ordinal` 破平 ⇒ 同输入同输出。
 //
-// 接线的两个阶段(别跳级):
-//   ① **本阶段(已落)**: 只提供读数。`route` 不消费它, 产物**一个字节都不变**。
-//   ② **下阶段**: `route` 的候选择优改走 `compareRouteCost`, 但**只启用与现状等价的维度子集**
-//      (backtrackPx / endpointBitePx / selfOverlapPx / stretchMilli)—— 由 `test/route-pick-equivalence.test.ts`
-//      的 288 组逐字节基线验证产物不变(随 `bun run verify` 跑);
-//      验证通过后再逐维放开新维度(那时产物会出现更优解, 需要重出 golden + 目视)。
+// 接线状态(260926):
+//   · 横腰线 `transposedRoute` 的择优**已经**走 `compareRouteCost`, 只启用与表达式化之前逐字等价的
+//     三维 `backtrackPx` / `endpointBitePx` / `stretchMilli`。证据是 `test/route-pick-equivalence.test.ts`
+//     的 288 组逐字节基线(随 `bun run verify` 跑)。
+//   · 竖腰线 Z 与 L 拐仍是原来的控制流。放开弯数 / 穿盒 / 走廊 / 交叉会改产物, 要单独拍板再重出 golden。
 // =====================================================================
 
 import { type Pt, type Rect, round1 } from '../geometry/vec';
@@ -39,7 +38,7 @@ import {
   polylineCrossings, polylineLength, polylineRectsClearance, polylineSegmentLengths,
   sameAxisOverlapLength, segmentRectIntersectionLength,
 } from '../geometry/predicates';
-import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './audit';
+import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
 
 // --- 维度表(**单一来源**) -----------------------------------------------
 //
