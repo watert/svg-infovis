@@ -167,10 +167,20 @@ describe('refs/layering.md · 准入门槛的机器判决', () => {
   });
 
   it('④ package.json#exports 的每个子路径都落在真实文件上(消费方 import 才炸的那一类)', () => {
-    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { exports: Record<string, string> };
-    const missing = Object.entries(pkg.exports)
-      .filter(([, target]) => !existsSync(join(ROOT, target)))
-      .map(([sub, target]) => `${sub} → ${target}`);
+    type Target = string | Record<string, string>;
+    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { exports: Record<string, Target> };
+    // 260926 起 exports 指向 `dist/` 的编译产物, 且是对象条件映射(types / import / default)。
+    // dist 是构建产物、可能还没编 —— 判据不许依赖它, 于是缺失时退回检查它的**源文件**对应物
+    // (dist/src/x.js → src/x.ts)。要守的是"子路径不指空气", 不是"已经 build 过"。
+    const toSource = (t: string) =>
+      t.replace(/^\.\/dist\//, './').replace(/\.d\.ts$/, '.ts').replace(/\.js$/, '.ts');
+    const pairs = Object.entries(pkg.exports).flatMap(([sub, v]) =>
+      typeof v === 'string'
+        ? [[sub, v] as const]
+        : Object.entries(v).map(([slot, t]) => [`${sub} (${slot})`, t] as const));
+    const missing = pairs
+      .filter(([, t]) => !existsSync(join(ROOT, t)) && !existsSync(join(ROOT, toSource(t))))
+      .map(([sub, t]) => `${sub} → ${t}`);
     expect(missing, 'exports 指向不存在的文件 —— 子路径是公共面, 不存在也得说得清').toEqual([]);
   });
 

@@ -1,73 +1,309 @@
 {
   "name": "svg-infovis",
   "version": "0.1.0",
+  "description": "diagramming 几何内核: 圆角路径解算 / 几何谓词 / shapes descriptor / 字节确定的 SVG 序列化. barrel 零第三方依赖, ESM-only.",
+  "keywords": [
+    "svg",
+    "diagram",
+    "geometry",
+    "layout",
+    "shapes",
+    "infovis",
+    "typescript",
+    "visualization"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/watert/svg-infovis.git"
+  },
+  "homepage": "https://github.com/watert/svg-infovis#readme",
+  "bugs": {
+    "url": "https://github.com/watert/svg-infovis/issues"
+  },
   "type": "module",
-  "description": "几何内核: 圆角路径解算 / 几何谓词 / shapes descriptor / 字节确定的 SVG 序列化. 零运行时依赖, bun 直跑.",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.3"
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./geometry/vec": "./src/geometry/vec.ts",
-    "./geometry/rounded-path": "./src/geometry/rounded-path.ts",
-    "./geometry/predicates": "./src/geometry/predicates.ts",
-    "./geometry/text-rows": "./src/geometry/text-rows.ts",
-    "./geometry/inline-text": "./src/geometry/inline-text.ts",
-    "./geometry/port": "./src/geometry/port.ts",
-    "./geometry/box": "./src/geometry/box.ts",
-    "./geometry/grid": "./src/geometry/grid.ts",
-    "./geometry/pack": "./src/geometry/pack.ts",
-    "./geometry/place": "./src/geometry/place.ts",
-    "./descriptor": "./src/descriptor.ts",
-    "./serialize": "./src/serialize.ts",
-    "./shapes/node": "./src/shapes/node.ts",
-    "./shapes/edge": "./src/shapes/edge.ts",
-    "./shapes/group": "./src/shapes/group.ts",
-    "./shapes/text": "./src/shapes/text.ts",
-    "./shapes/inline": "./src/shapes/inline.ts",
-    "./shapes/grid-pattern": "./src/shapes/grid-pattern.ts",
-    "./shapes/icon": "./src/shapes/icon.ts",
-    "./shapes/embed": "./src/shapes/embed.ts",
-    "./shapes/stat": "./src/shapes/stat.ts",
-    "./shapes/badge": "./src/shapes/badge.ts",
-    "./shapes/heading": "./src/shapes/heading.ts",
-    "./blocks/progress": "./blocks/progress.ts",
-    "./blocks/pictogram": "./blocks/pictogram.ts",
-    "./embed/svg-asset": "./src/embed/svg-asset.ts",
-    "./icons/svg-parse": "./src/icons/svg-parse.ts",
-    "./icons/path-data": "./src/icons/path-data.ts",
-    "./icons/lucide": "./src/icons/lucide.ts",
-    "./knives/route": "./src/knives/route.ts",
-    "./knives/route-pair": "./src/knives/route-pair.ts",
-    "./knives/route-cost": "./src/knives/route-cost.ts",
-    "./knives/lanes": "./src/knives/lanes.ts",
-    "./knives/constraints": "./src/knives/constraints.ts",
-    "./knives/thresholds": "./src/knives/thresholds.ts",
-    "./knives/audit": "./src/knives/audit.ts",
-    "./knives/measure": "./src/knives/measure.ts",
-    "./knives/fit": "./src/knives/fit.ts",
-    "./knives/codes": "./src/knives/codes.ts",
-    "./knives/density": "./src/knives/density.ts",
-    "./knives/describe": "./src/knives/describe.ts",
-    "./knives/nudge": "./src/knives/nudge.ts",
-    "./knives/cluster": "./src/knives/cluster.ts",
-    "./scene": "./src/scene.ts",
-    "./export": "./src/export.ts",
-    "./theme": "./src/theme.ts",
-    "./guard": "./src/guard.ts"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/src/runtime.d.ts",
+      "import": "./dist/src/runtime.js",
+      "default": "./dist/src/runtime.js"
+    },
+    "./geometry/vec": {
+      "types": "./dist/src/geometry/vec.d.ts",
+      "import": "./dist/src/geometry/vec.js",
+      "default": "./dist/src/geometry/vec.js"
+    },
+    "./geometry/rounded-path": {
+      "types": "./dist/src/geometry/rounded-path.d.ts",
+      "import": "./dist/src/geometry/rounded-path.js",
+      "default": "./dist/src/geometry/rounded-path.js"
+    },
+    "./geometry/predicates": {
+      "types": "./dist/src/geometry/predicates.d.ts",
+      "import": "./dist/src/geometry/predicates.js",
+      "default": "./dist/src/geometry/predicates.js"
+    },
+    "./geometry/text-rows": {
+      "types": "./dist/src/geometry/text-rows.d.ts",
+      "import": "./dist/src/geometry/text-rows.js",
+      "default": "./dist/src/geometry/text-rows.js"
+    },
+    "./geometry/inline-text": {
+      "types": "./dist/src/geometry/inline-text.d.ts",
+      "import": "./dist/src/geometry/inline-text.js",
+      "default": "./dist/src/geometry/inline-text.js"
+    },
+    "./geometry/port": {
+      "types": "./dist/src/geometry/port.d.ts",
+      "import": "./dist/src/geometry/port.js",
+      "default": "./dist/src/geometry/port.js"
+    },
+    "./geometry/box": {
+      "types": "./dist/src/geometry/box.d.ts",
+      "import": "./dist/src/geometry/box.js",
+      "default": "./dist/src/geometry/box.js"
+    },
+    "./geometry/grid": {
+      "types": "./dist/src/geometry/grid.d.ts",
+      "import": "./dist/src/geometry/grid.js",
+      "default": "./dist/src/geometry/grid.js"
+    },
+    "./geometry/pack": {
+      "types": "./dist/src/geometry/pack.d.ts",
+      "import": "./dist/src/geometry/pack.js",
+      "default": "./dist/src/geometry/pack.js"
+    },
+    "./geometry/place": {
+      "types": "./dist/src/geometry/place.d.ts",
+      "import": "./dist/src/geometry/place.js",
+      "default": "./dist/src/geometry/place.js"
+    },
+    "./descriptor": {
+      "types": "./dist/src/descriptor.d.ts",
+      "import": "./dist/src/descriptor.js",
+      "default": "./dist/src/descriptor.js"
+    },
+    "./serialize": {
+      "types": "./dist/src/serialize.d.ts",
+      "import": "./dist/src/serialize.js",
+      "default": "./dist/src/serialize.js"
+    },
+    "./shapes/node": {
+      "types": "./dist/src/shapes/node.d.ts",
+      "import": "./dist/src/shapes/node.js",
+      "default": "./dist/src/shapes/node.js"
+    },
+    "./shapes/edge": {
+      "types": "./dist/src/shapes/edge.d.ts",
+      "import": "./dist/src/shapes/edge.js",
+      "default": "./dist/src/shapes/edge.js"
+    },
+    "./shapes/group": {
+      "types": "./dist/src/shapes/group.d.ts",
+      "import": "./dist/src/shapes/group.js",
+      "default": "./dist/src/shapes/group.js"
+    },
+    "./shapes/text": {
+      "types": "./dist/src/shapes/text.d.ts",
+      "import": "./dist/src/shapes/text.js",
+      "default": "./dist/src/shapes/text.js"
+    },
+    "./shapes/inline": {
+      "types": "./dist/src/shapes/inline.d.ts",
+      "import": "./dist/src/shapes/inline.js",
+      "default": "./dist/src/shapes/inline.js"
+    },
+    "./shapes/grid-pattern": {
+      "types": "./dist/src/shapes/grid-pattern.d.ts",
+      "import": "./dist/src/shapes/grid-pattern.js",
+      "default": "./dist/src/shapes/grid-pattern.js"
+    },
+    "./shapes/icon": {
+      "types": "./dist/src/shapes/icon.d.ts",
+      "import": "./dist/src/shapes/icon.js",
+      "default": "./dist/src/shapes/icon.js"
+    },
+    "./shapes/embed": {
+      "types": "./dist/src/shapes/embed.d.ts",
+      "import": "./dist/src/shapes/embed.js",
+      "default": "./dist/src/shapes/embed.js"
+    },
+    "./shapes/stat": {
+      "types": "./dist/src/shapes/stat.d.ts",
+      "import": "./dist/src/shapes/stat.js",
+      "default": "./dist/src/shapes/stat.js"
+    },
+    "./shapes/badge": {
+      "types": "./dist/src/shapes/badge.d.ts",
+      "import": "./dist/src/shapes/badge.js",
+      "default": "./dist/src/shapes/badge.js"
+    },
+    "./shapes/heading": {
+      "types": "./dist/src/shapes/heading.d.ts",
+      "import": "./dist/src/shapes/heading.js",
+      "default": "./dist/src/shapes/heading.js"
+    },
+    "./blocks/progress": {
+      "types": "./dist/blocks/progress.d.ts",
+      "import": "./dist/blocks/progress.js",
+      "default": "./dist/blocks/progress.js"
+    },
+    "./blocks/pictogram": {
+      "types": "./dist/blocks/pictogram.d.ts",
+      "import": "./dist/blocks/pictogram.js",
+      "default": "./dist/blocks/pictogram.js"
+    },
+    "./embed/svg-asset": {
+      "types": "./dist/src/embed/svg-asset.d.ts",
+      "import": "./dist/src/embed/svg-asset.js",
+      "default": "./dist/src/embed/svg-asset.js"
+    },
+    "./icons/svg-parse": {
+      "types": "./dist/src/icons/svg-parse.d.ts",
+      "import": "./dist/src/icons/svg-parse.js",
+      "default": "./dist/src/icons/svg-parse.js"
+    },
+    "./icons/path-data": {
+      "types": "./dist/src/icons/path-data.d.ts",
+      "import": "./dist/src/icons/path-data.js",
+      "default": "./dist/src/icons/path-data.js"
+    },
+    "./icons/lucide": {
+      "types": "./dist/src/icons/lucide.d.ts",
+      "import": "./dist/src/icons/lucide.js",
+      "default": "./dist/src/icons/lucide.js"
+    },
+    "./knives/route": {
+      "types": "./dist/src/knives/route.d.ts",
+      "import": "./dist/src/knives/route.js",
+      "default": "./dist/src/knives/route.js"
+    },
+    "./knives/route-pair": {
+      "types": "./dist/src/knives/route-pair.d.ts",
+      "import": "./dist/src/knives/route-pair.js",
+      "default": "./dist/src/knives/route-pair.js"
+    },
+    "./knives/route-cost": {
+      "types": "./dist/src/knives/route-cost.d.ts",
+      "import": "./dist/src/knives/route-cost.js",
+      "default": "./dist/src/knives/route-cost.js"
+    },
+    "./knives/lanes": {
+      "types": "./dist/src/knives/lanes.d.ts",
+      "import": "./dist/src/knives/lanes.js",
+      "default": "./dist/src/knives/lanes.js"
+    },
+    "./knives/constraints": {
+      "types": "./dist/src/knives/constraints.d.ts",
+      "import": "./dist/src/knives/constraints.js",
+      "default": "./dist/src/knives/constraints.js"
+    },
+    "./knives/thresholds": {
+      "types": "./dist/src/knives/thresholds.d.ts",
+      "import": "./dist/src/knives/thresholds.js",
+      "default": "./dist/src/knives/thresholds.js"
+    },
+    "./knives/audit": {
+      "types": "./dist/src/knives/audit.d.ts",
+      "import": "./dist/src/knives/audit.js",
+      "default": "./dist/src/knives/audit.js"
+    },
+    "./knives/measure": {
+      "types": "./dist/src/knives/measure.d.ts",
+      "import": "./dist/src/knives/measure.js",
+      "default": "./dist/src/knives/measure.js"
+    },
+    "./knives/fit": {
+      "types": "./dist/src/knives/fit.d.ts",
+      "import": "./dist/src/knives/fit.js",
+      "default": "./dist/src/knives/fit.js"
+    },
+    "./knives/codes": {
+      "types": "./dist/src/knives/codes.d.ts",
+      "import": "./dist/src/knives/codes.js",
+      "default": "./dist/src/knives/codes.js"
+    },
+    "./knives/density": {
+      "types": "./dist/src/knives/density.d.ts",
+      "import": "./dist/src/knives/density.js",
+      "default": "./dist/src/knives/density.js"
+    },
+    "./knives/describe": {
+      "types": "./dist/src/knives/describe.d.ts",
+      "import": "./dist/src/knives/describe.js",
+      "default": "./dist/src/knives/describe.js"
+    },
+    "./knives/nudge": {
+      "types": "./dist/src/knives/nudge.d.ts",
+      "import": "./dist/src/knives/nudge.js",
+      "default": "./dist/src/knives/nudge.js"
+    },
+    "./knives/cluster": {
+      "types": "./dist/src/knives/cluster.d.ts",
+      "import": "./dist/src/knives/cluster.js",
+      "default": "./dist/src/knives/cluster.js"
+    },
+    "./scene": {
+      "types": "./dist/src/scene.d.ts",
+      "import": "./dist/src/scene.js",
+      "default": "./dist/src/scene.js"
+    },
+    "./export": {
+      "types": "./dist/src/export.d.ts",
+      "import": "./dist/src/export.js",
+      "default": "./dist/src/export.js"
+    },
+    "./theme": {
+      "types": "./dist/src/theme.d.ts",
+      "import": "./dist/src/theme.js",
+      "default": "./dist/src/theme.js"
+    },
+    "./guard": {
+      "types": "./dist/src/guard.d.ts",
+      "import": "./dist/src/guard.js",
+      "default": "./dist/src/guard.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "blocks",
+    "scripts",
+    "templates",
+    "assets",
+    "README.md",
+    "LICENSE",
+    "QUICKREF.md",
+    "SKILL.md"
+  ],
+  "bin": {
+    "svginfo": "dist/scripts/cli.js"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
+    "test": "bun test",
+    "verify": "tsc -p tsconfig.build.json && bun test && tsc --noEmit",
     "example": "bun run examples/start/basic.ts",
     "chain": "bun run examples/start/full-chain.ts",
     "manifest": "bun run examples/manifest.ts",
     "template": "bun run templates/sequence.ts",
-    "ontology": "bun run examples/gallery/ontology-icons.ts",
-    "test": "bun test",
-    "verify": "bun test && tsc --noEmit"
+    "ontology": "bun run examples/gallery/ontology-icons.ts"
   },
-  "license": "MIT",
-  "bin": {
-    "svginfo": "./scripts/cli.ts"
-  },
-  "dependencies": {
+  "optionalDependencies": {
     "lucide-static": "^1.47.0"
   },
   "devDependencies": {
