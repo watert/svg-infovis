@@ -15,7 +15,8 @@ date: 2026-09-23T16:00:00+08:00
 ## 装到你的项目里
 
 ```bash
-npm i svg-infovis        # 或 bun add svg-infovis / pnpm add svg-infovis
+bun add svg-infovis        # 首选 —— 运行时推荐 bun, 见下
+npm i svg-infovis          # 或 pnpm add / yarn add
 ```
 
 ```ts
@@ -23,12 +24,33 @@ import { nodeFit } from 'svg-infovis/knives/fit';   // 子路径即 API, 清单�
 import { exportScene } from 'svg-infovis';          // 也可从 barrel 引(纯函数侧)
 ```
 
-- **ESM-only**(不发 CJS), `engines: node >= 20.16`(源指纹那档走 `process.getBuiltinModule`, 20.16 起回移可用)。
+**运行时: 推荐 bun**(这条链是 TS-first 的)
+- 场景文件是 `.ts` —— `bun run scene.ts` / `svginfo run scene.ts` 直跑, 零配置零 flag, 产物即 SVG
+- 没有 bun 的退路: `svginfo` 自动改用 node ≥22.6 的类型剥离跑同一个文件(实测产物逐字节相同); 22.6 以下得自己带 `--experimental-strip-types`
+- 只 import 库本体(构建期算坐标 / 服务端出图)则无所谓: `engines: node >= 20.16` 是那条低线(源指纹那档走 `process.getBuiltinModule`, 20.16 起回移可用)
+- bun 版本本身不设 `engines` 门槛 —— 仓内开发用的就是它, 见上面「30 秒起手」
+
+其余几条:
+- **ESM-only**(不发 CJS)。
 - 消费者 tsconfig 的 `moduleResolution` 用 `bundler` 或 `nodenext` 都行; **老式的 `node`(node10 档)不支持**。`bun` / `vite` / `esbuild` 消费零配置可用(实测)。
 - 图标素材 `lucide-static` 是 **optional dependency**: 不装也能用库本体与 barrel, 只有 `svg-infovis/icons/lucide` 与 `svginfo icons` 需要它。
 - **浏览器侧算源指纹(`decisionDigest`)暂不支持** —— 那一步要 sha256, 走 bun 或 node 内置, 浏览器里没有。
-- CLI: `npx svginfo --help`。有 bun 就用 bun 跑你的 `.ts` 场景文件; 没有 bun 走 node ≥22.6 的类型剥离。
+- CLI: `npx svginfo --help`(`run` / `inspect` / `render` / `new` / `icons`)。
 - 仓内开发(改内核 / 跑示例)是另一条路 —— 见下面「30 秒起手」, 那套 `bun run examples/...` 命令都是**本仓内**用法, 装包消费用不到。
+
+## 给 coding agent 装 skill
+
+本仓自带一份 Agent Skill(`skills/svg-infovis/SKILL.md`; 它同时随包发布), 装了它 agent 就知道何时该拿这个内核画图、画的时候守什么。
+
+```bash
+npx skills add watert/svg-infovis        # 装到当前项目(认得的 agent 各装一份)
+npx skills add watert/svg-infovis -g     # 装到全局(跨项目可见)
+npx skills add watert/svg-infovis --list # 只看看仓里有什么 skill
+```
+
+- 装出来的 skill 目录 = `SKILL.md` + `QUICKREF.md` + `refs/{recipes,layering,principles,public-api,aesthetics}.md`, **全是真身** —— 不靠软链解析, 换哪个版本的 CLI 都装得对
+- 不装 skill 也能用: 文档随包发布 —— 包根有 `README.md`, `QUICKREF.md` 与 SKILL 那份真身在 `node_modules/svg-infovis/skills/svg-infovis/`
+- ⚠ 三条实测坑, 动仓结构前先看: ① 仓库**根目录刻意不放** `SKILL.md` —— skills CLI 的规则是"根目录的 SKILL.md 盖住 `skills/` 下的", 且会把**整仓**当成 skill 拷进去(实测 3.3 MB、连 `test/` 与 `website/` 一起); ② skill 目录里若放软链, 安装时会被物化成真文件(默认 symlink 与 `--copy` 两种模式都实测过), 但那是未文档化行为 —— 所以真身一律放 `skills/svg-infovis/`, 仓根只留指向它的软链; ③ 验证发现结果用 `--list`, 别猜
 
 ## 30 秒起手(仓内开发)
 
@@ -154,10 +176,12 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 
 ## 文档地图(一处事实一处)
 
-> ⚠ **npm 页面 vs 仓库里**: 发布的包只带 `dist/` · `src/` · `blocks/` · `scripts/` · `templates/` · `assets/` 与 `README.md` / `LICENSE` / `QUICKREF.md` / `SKILL.md`(`files` 白名单); `refs/` · `docs/` · `examples/` · `website/` **与 `ROADMAP.md`** 都不进包 —— 下面指向这些文件的相对链接只在**仓库里**有效, 在 npm 页面读就换 [GitHub 仓库](https://github.com/watert/svg-infovis) 看同一份。
+> ⚠ **npm 页面 vs 仓库里**: 发布的包只带 `dist/` · `src/` · `blocks/` · `scripts/` · `templates/` · `assets/` · `skills/` 与 `README.md` / `LICENSE`(`files` 白名单, 逐条在 `package.json`); `refs/` · `docs/` · `examples/` · `website/` **与 `ROADMAP.md`** 都不进包 —— 下面指向这些文件的相对链接只在**仓库里**有效, 在 npm 页面读就换 [GitHub 仓库](https://github.com/watert/svg-infovis) 看同一份。
+>
+> ⚠ 仓根的 `QUICKREF.md` 与 `refs/{recipes,layering,principles,public-api,aesthetics}.md` 是**软链**: 真身在 `skills/svg-infovis/` 里(与 SKILL.md 同装一份, 随包也发), 仓内留软链只为旧路径不失效 —— GitHub 网页 / 编辑器 / node 读文件都跟随软链, npm 包内则只有真身那份(软链不进包)。
 
-- [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问
-- [`SKILL.md`](./SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律
+- [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问(真身 `skills/svg-infovis/QUICKREF.md`)
+- [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律(可 `npx skills add` 装, 见上)
 - [`refs/layering.md`](./refs/layering.md) —— **现行分层契约与边界规则**: 七层 / 依赖方向 / 准入门槛 / 三条边界轴(配图 [`architecture-v3.svg`](./refs/architecture-v3.svg), core 自画自审)
 - [`refs/principles.md`](./refs/principles.md) —— 设计意图与第一性原则: 每条断言、它的代价、逼它出来的实跑事故、冲突时怎么裁
 - [`refs/public-api.md`](./refs/public-api.md) —— 公共承诺面: exports 子路径即 API、变更分级、破坏性改动四步、诊断码兼容面
