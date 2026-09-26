@@ -2,7 +2,7 @@
 name: npm-release
 description: "把本仓发到 npm 的现状与待办: 包名 @watert/svg-infovis · 2026 发布规则(token 路线已废, 走 OIDC trusted publishing) · 首次手动占名 → 配 trusted publisher → publish.yml 的步骤与验收"
 tags: [svg-infovis, npm, release, oidc, ci, todo]
-date: 2026-09-26T20:29:47+08:00
+date: 2026-09-26T21:30:00+08:00
 ---
 
 # 发布到 npm · 现状与待办
@@ -12,11 +12,11 @@ date: 2026-09-26T20:29:47+08:00
 ## 现状(260926-21:30 实测)
 
 - 包名 **`@watert/svg-infovis`** —— 260926 从无 scope 的 `svg-infovis` 改成 scoped(理由: 无 scope 名先到先得、不可回收, 第三方注册走它会让用户误以为那是本包)
-- 版本 `0.1.0`, **尚未发布** —— `npm view @watert/svg-infovis` 实测 E404
+- 版本 `0.2.0`(260926 从 `0.1.0` bump —— v0.x 号归 infograph 排期, 0.2 即排版层), **尚未发布** —— `npm view @watert/svg-infovis` 实测 E404
 - npm 账号 `watert` 已在本机登录(`npm whoami` 通过, 邮箱 boatwind@gmail.com 已验证); **two-factor auth = `auth-and-writes`**(260926 21:25 CST 那个时间点起)
   - ⚠ 后果: 所有写操作(`publish` / `deprecate` / 改设置)都要过一次 OTP —— CLI 在真终端里会**交互式**问, 非交互(脚本 / agent)必须 `--otp=<code>` 否则当场 `EOTP`(实测: `npm deprecate react-native-icloud` 就是这么被拦下的)
   - 未验证: 这档用的是 passkey/WebAuthn 还是 TOTP(app 里给的就是 6 位码, 两种都能过 `--otp`)
-- 全局链路已通: `~/.bun/install/global/node_modules/@watert/svg-infovis → 本仓`, `svginfo --version` = 0.1.0
+- 全局链路已通: `~/.bun/install/global/node_modules/@watert/svg-infovis → 本仓`, `svginfo --version` = 0.2.0(260926 实测)
 - 消费侧(`~/www/github/my-codes` + 其下两处 htmls 项目)已改吃新包名, 两个 vite 项目 build 绿、出图实测通
 
 ## 待办
@@ -32,7 +32,7 @@ date: 2026-09-26T20:29:47+08:00
   - `on: push: tags: ['v*']` → `permissions: id-token: write` → 构建 + 测试 → `npm publish --provenance`
   - ⚠ **一个 token 都不要存**: 2026-08 起 2FA-bypass 的 granular token 已不能做账号/包管理动作, 约 2027-01 起连直接发布也要被砍 —— 唯一活路是 OIDC
   - ⚠ 首次发布**必须**手动, 因为 trusted publisher 要绑一个已存在的包
-- [ ] 打 tag `v0.1.0` 走一遍 CI 发布, 验证 OIDC 链路 —— 这是"以后能不能自动发版"的分水岭
+- [ ] 打 tag `v0.2.0` 走一遍 CI 发布, 验证 OIDC 链路 —— 这是"以后能不能自动发版"的分水岭
 
 ## 2026 的发布规则(背景, 别按老套路写 workflow)
 
@@ -52,7 +52,7 @@ npm publish --dry-run                           # 289 文件 / ~847 kB / 零 war
 
 ## 验收(发出去之后)
 
-- `npm view @watert/svg-infovis` 有 `0.1.0`, 且 `dist-tags.latest` 指它
+- `npm view @watert/svg-infovis` 有 `0.2.0`, 且 `dist-tags.latest` 指它
 - 干净目录里 `npm i @watert/svg-infovis` 后, `node -e "import('@watert/svg-infovis')"` 拿到 269 个导出
 - `npx svginfo --help` 能出用法表
 - 仓库侧: tag 触发的 workflow 绿, 包页面上带 provenance 标记

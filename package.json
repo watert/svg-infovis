@@ -1,6 +1,6 @@
 {
   "name": "@watert/svg-infovis",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "diagramming 几何内核: 圆角路径解算 / 几何谓词 / shapes descriptor / 字节确定的 SVG 序列化. barrel 零第三方依赖, ESM-only.",
   "keywords": [
     "svg",
