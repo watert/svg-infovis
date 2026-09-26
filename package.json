@@ -286,7 +286,8 @@
     "README.md",
     "LICENSE",
     "QUICKREF.md",
-    "SKILL.md"
+    "SKILL.md",
+    "!**/*.test.ts"
   ],
   "bin": {
     "svginfo": "dist/scripts/cli.js"

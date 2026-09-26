@@ -38,7 +38,8 @@ function tags(): Record<string, string[]> {
     } catch (e) {
       throw new ShapeInputError('iconNames', 'lucide-static/tags.json',
         `读不到 lucide-static 的 tags.json(${(e as Error).message})`,
-        '先 `bun install` 装依赖; 版本锁在 lockfile, 升版走 PR(见 assets/icons/ICON_SOURCE.md)', '环境');
+        'lucide-static 是 optional 依赖 —— 要图标链就装上它: `npm install lucide-static`(或 bun / pnpm add);'
+        + ' 仓内开发则 `bun install`(版本锁在 lockfile, 升版走 PR, 见 assets/icons/ICON_SOURCE.md)', '环境');
     }
   }
   return tagsCache;

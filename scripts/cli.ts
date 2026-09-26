@@ -34,11 +34,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ShapeInputError } from '../src/guard.js';
 import { findIcon, iconNames } from '../src/icons/lucide.js';
-import { type Scene } from '../src/knives/audit.js';
 import { isMainModule } from '../src/runtime.js';
-import { loadRedirecting, main as inspectMain } from './inspect.js';
-import { runScene } from './runner.js';
+import { main as inspectMain } from './inspect.js';
 
 /**
  * 包根 = 从本文件所在目录向上找到的第一个 `name === 'svg-infovis'` 的 package.json 所在目录。
@@ -139,13 +138,7 @@ function emit(bytes: Uint8Array, to: 'stdout' | string): void {
 const NODE_STRIP_MIN = [22, 6] as const;      // `--experimental-strip-types` 自 22.6 起有
 const NODE_STRIP_ALWAYS = [22, 18] as const;  // 22.18 起类型剥离默认开, 不给 flag 也带得动
 
-/**
- * node 那一档能不能用。**两问都过才行**:
- *   ① 版本够(≥22.6): 跑用户的 `.ts` 要 `--experimental-strip-types` 这一步剥离
- *   ② **本 CLI 这份进程也带得动 TS**: `export default scene` 那条回退路要在本进程里再 import 一次
- *      用户的 `.ts`。22.18 起默认开这问自动过; 22.6–22.17 只有 CLI 自己带了 flag 才过 —— 不带就会
- *      加载不了 `.ts`、静默落进"它没导出场景", 正是本 CLI 最该避免的那种错(宁可退 2 说清怎么跑)
- */
+/** node 这一档能不能给用户的 `.ts` 当宿主 —— 门槛就一条: 它得带得动类型剥离 */
 function nodeCanRunTs(): boolean {
   const [maj, min] = process.versions.node.split('.').map(Number);
   if (maj > NODE_STRIP_ALWAYS[0] || (maj === NODE_STRIP_ALWAYS[0] && min >= NODE_STRIP_ALWAYS[1])) return true;
@@ -153,67 +146,119 @@ function nodeCanRunTs(): boolean {
     && process.execArgv.includes('--experimental-strip-types');
 }
 
+type TsRuntime = { cmd: string; pre: string[]; note?: string };
+let tsRuntimeCache: TsRuntime[] | null = null;
+
 /**
- * 跑用户 `.ts` 入口的子进程。**按可用性探测**, 顺序不许反:
+ * 能给用户 `.ts` 当宿主的运行时, **探测一次、全程复用**, 顺序不许反:
  *
- *   ① `bun` —— 本仓主运行时, 快路径。探测靠**真去起一次**: spawn 的 `ENOENT` 就是"PATH 里没有
- *      bun", 比自己拆 PATH 可靠(Windows 的 `.cmd` 垫片 / 版本管理器都不用特判), 且正常路径下
- *      不多起进程
+ *   ① `bun` —— 本仓主运行时, 快路径。探测靠真起一次 `bun --version`: 它的 `ENOENT` 就是
+ *      "PATH 里没有 bun", 比自己拆 PATH 可靠(Windows 的 `.cmd` 垫片 / 版本管理器都不用特判)
  *   ② 没有 bun ⇒ node 的 `process.execPath` + `--experimental-strip-types`(`nodeCanRunTs` 判门槛)。
  *      用户的场景文件不在 `node_modules` 里, 类型剥离这一档可用; 22.18 起默认开, 带 flag 不变行为
  *      (实测 22.18 也不打 ExperimentalWarning), 图仍只走 stdout(出口纪律没松)
- *   ③ 两样都不可用 ⇒ 退出码 2(环境不成立)+ 三条出路写清, 不静默失败
- *
- * 用户文件本身跑失败**不算**探测失败(那时退出码是它的判决), 所以只有"没有 bun"才落到 ②。
+ *   ③ 两样都不可用 ⇒ 空表, 由 `spawnTs` 退 2 并把三条出路写清
+ */
+function tsRuntimes(): TsRuntime[] {
+  if (tsRuntimeCache) return tsRuntimeCache;
+  const out: TsRuntime[] = [];
+  const noBun = (spawnSync('bun', ['--version'], { stdio: 'ignore' }).error as { code?: string } | undefined)?.code === 'ENOENT';
+  if (!noBun) out.push({ cmd: 'bun', pre: ['run'] });
+  if (nodeCanRunTs()) {
+    out.push({
+      cmd: process.execPath,
+      pre: ['--experimental-strip-types'],
+      note: `# PATH 里没有 bun, 改用 node ${process.versions.node} 的类型剥离档跑它(工具自己的话只走 stderr)`,
+    });
+  }
+  tsRuntimeCache = out;
+  return out;
+}
+
+/**
+ * 用探得的运行时跑一个文件。**用户文件本身跑失败不算探测失败**(那时退出码是它的判决)——
+ * 只有"运行时根本不在"(ENOENT)才落到下一个候选; 一个都不剩 ⇒ 退 2 + 三条出路, 不静默。
  */
 function spawnTs(file: string, passthrough: string[]): { stdout: Uint8Array; status: number | null; error?: Error } {
   const io = { stdio: ['ignore', 'pipe', 'inherit'] as ('ignore' | 'pipe' | 'inherit')[] };
-  const bun = spawnSync('bun', ['run', file, ...passthrough], io);
-  if ((bun.error as { code?: string } | undefined)?.code !== 'ENOENT') return bun;
-
-  if (!nodeCanRunTs()) {
-    fail(`${file} 要一个能跑 TS 的运行时, 但 PATH 里没有 bun, 本机 node ${process.versions.node} 也带不动 TS`
-      + ` —— 三条路: 装 bun, 换 node ≥${NODE_STRIP_ALWAYS.join('.')},`
-      + ` 或用 node ≥${NODE_STRIP_MIN.join('.')} 并给**本 CLI** 也加上 --experimental-strip-types`, 2);
+  for (const rt of tsRuntimes()) {
+    const r = spawnSync(rt.cmd, [...rt.pre, file, ...passthrough], io);
+    if ((r.error as { code?: string } | undefined)?.code === 'ENOENT') continue;
+    if (rt.note) console.error(rt.note);
+    return r;
   }
-  console.error(`# PATH 里没有 bun, 改用 node ${process.versions.node} 的类型剥离档跑它(工具自己的话只走 stderr)`);
-  return spawnSync(process.execPath, ['--experimental-strip-types', file, ...passthrough], io);
+  fail(`${file} 要一个能跑 TS 的运行时, 但 PATH 里没有 bun, 本机 node ${process.versions.node} 也带不动 TS`
+    + ` —— 三条路: 装 bun, 换 node ≥${NODE_STRIP_ALWAYS.join('.')},`
+    + ` 或用 node ≥${NODE_STRIP_MIN.join('.')} 并给**本 CLI** 也加上 --experimental-strip-types`, 2);
+  return { stdout: new Uint8Array(), status: 2 };
 }
+
+/** 同目录的兄弟模块: 源码态是 `.ts`、产物态是 `.js`(node 的剥离档不做 `.js → .ts` 改写, 得自己挑) */
+function sibling(name: string): string {
+  const js = new URL(`./${name}.js`, import.meta.url);
+  return existsSync(fileURLToPath(js)) ? js.href : new URL(`./${name}.ts`, import.meta.url).href;
+}
+
+/**
+ * 场景模块探针 —— 在**能跑 TS 的进程**里 import 用户的模块, 拿到 scene 就交给 `runner` 出图。
+ *
+ * ⚠ 它必须走**子进程**, 这是本 CLI 最贵的一个教训: `export default scene` 那条回退路要在某个进程里
+ * `import` 用户的 `.ts`, 而 CLI 的宿主(bin 是 `#!/usr/bin/env node`)可能是**带不动 TS 的 node(<22.6)**。
+ * 旧写法在 CLI 进程内 import, 抛出的异常被 `catch {}` 吞掉 —— 于是 node 20 宿主 + 纯场景模块
+ * = `exit 0` 却**不产图**, 还给出"golden / 自落盘那一档"的归因。判断权必须交给跑得动 TS 的进程。
+ *
+ * 退出码: **0 / 1** 是 `runScene` 自己的判决; **3** = 它不是场景模块(交给调用方说那句差集诊断)。
+ */
+const SCENE_PROBE = [
+  'const [url, runnerUrl, out, golden] = process.argv.slice(2);',
+  '// 加载期顶层的日志改道 stderr —— 混进产物就是脏图(与 inspect 的 loadRedirecting 同一条纪律)',
+  'const sink = (...a) => process.stderr.write(a.map((x) => (typeof x === "string" ? x : JSON.stringify(x))).join(" ") + "\\n");',
+  'for (const k of ["log", "info", "warn", "debug"]) console[k] = sink;',
+  'const { runScene } = await import(runnerUrl);',
+  'const m = await import(url);',
+  'const s = m.default ?? m.scene;',
+  'if (!s || typeof s !== "object" || !Array.isArray(s.nodes)) process.exit(3);',
+  'runScene(s, { out, golden: golden === "1" });',
+  'process.exit(typeof process.exitCode === "number" ? process.exitCode : 0);',
+  '',
+].join('\n');
 
 /**
  * 一份**出图入口** → 图落到 `out`(`'stdout'` 或文件路径)。**文件自己的出口优先**:
  *
- *   ① 原样跑它自己(在 `spawnTs` 选出的运行时下)。出图脚本的门禁档 / 额外读数 / 退出码都是它
- *      自己定的 —— CLI 不替它做第二遍决定(同一份文件跑出两种图, 是比"跑不动"更坏的事)
- *   ② 它一个字节都没吐 ⇒ 它是**纯场景模块**(`export default scene`), 那就由 CLI 出图:
- *      走 `runner.ts` 的 `runScene` —— 门禁 / 诊断 / 草稿 / 退出码全在那一处守着
+ *   ① 原样跑它自己(在探得的运行时下)。出图脚本的门禁档 / 额外读数 / 退出码都是它自己定的 ——
+ *      CLI 不替它做第二遍决定(同一份文件跑出两种图, 是比"跑不动"更坏的事)
+ *   ② 它一个字节都没吐 ⇒ 再问一次"它是不是**纯场景模块**(`export default scene`)": 是就由 `runner`
+ *      出图(门禁 / 诊断 / 草稿 / 退出码全在那一处守着)。这一步为什么必须换进程, 见 `SCENE_PROBE`
  *
- * 图经本进程转发而不是直连 fd: 为了拿到"到底吐没吐"这个信号(空手 = 换一条路),
- * 字节仍是原样的(不重编码); 诊断走 stderr 原样继承, 不掺进产物。
- * 差集可见: 两条路都不成立时明说"既没吐图也没导出场景", 退出码取它自己那个。
+ * 图经本进程转发而不是直连 fd: 为了拿到"到底吐没吐"这个信号(空手 = 换一条路), 字节仍是原样的
+ * (不重编码); 诊断走 stderr 原样继承, 不掺进产物。两条路都不成立时明说"既没吐图也没导出场景"。
  */
-async function emitSvg(file: string, passthrough: string[], out: 'stdout' | string): Promise<number> {
+function emitSvg(file: string, passthrough: string[], out: 'stdout' | string): number {
   if (!existsSync(file)) fail(`找不到文件: ${file}`, 1);
   const r = spawnTs(file, passthrough);
   if (r.error) fail(`跑不起来: ${file}(${r.error.message})`, 1);
-  const svg = r.stdout;
-  if (svg.length) {
-    emit(svg, out);
+  if (r.stdout.length) {
+    emit(r.stdout, out);
     return r.status ?? 1;
   }
 
-  let scene: Scene | null = null;
+  const tmp = mkdtempSync(join(tmpdir(), 'svginfo-probe-'));
+  const probe = join(tmp, 'scene-probe.mjs');
+  let probeStatus: number | null;
   try {
-    // 加载期顶层输出被改道 stderr, 混不进产物; 加载期抛 ⇒ 它本来就不是场景模块
-    const { mod } = await loadRedirecting(new URL(file, `file://${process.cwd()}/`).href);
-    const got = (mod.default ?? mod.scene) as Scene | undefined;
-    if (got && typeof got === 'object' && Array.isArray(got.nodes)) scene = got;
-  } catch { /* 见上: 静静落到下面那句诊断 */ }
-
-  if (scene) {
-    runScene(scene, { out, golden: passthrough.includes('--golden') });
-    return typeof process.exitCode === 'number' ? process.exitCode : 0;
+    writeFileSync(probe, SCENE_PROBE);
+    const p = spawnTs(probe, [
+      new URL(file, `file://${process.cwd()}/`).href, sibling('runner'), out,
+      passthrough.includes('--golden') ? '1' : '0',
+    ]);
+    probeStatus = p.status;
+    if (out === 'stdout' && p.stdout.length) emit(p.stdout, out);   // 场景那条路也把图交回本进程转发
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
   }
+  if (probeStatus !== 3) return probeStatus ?? 1;   // 它是场景模块: 判决与产物都由那一路给了
+
   // 空手退 0: golden 档(只对 sha256)/ 产物由它自己落盘的脚本都长这样 —— 退出码就是判决, 不是错
   if (!r.status) {
     console.error(`# ${file} 退出 0 但 stdout 没有字节 —— golden / 自落盘那一档; 产物在它自己说的位置(判决见上)`);
@@ -287,10 +332,19 @@ function cmdIcons(args: string[]): number {
   const hit = positive('--limit', lim.value ?? '12');
   if (!Number.isInteger(hit)) fail(`--limit 要给整数, 收到 ${lim.value}`);
   const query = lim.rest.find((a) => !a.startsWith('-'));
-  const total = iconNames().length;
+  // 图标素材是 **optional 依赖**, 它缺席是预期状态而不是"异常" —— 与 `run` 的"没有运行时"同一条纪律:
+  // 一行出路 + 明确退出码, 不许把栈喷给用户(这条曾经是未捕获异常 + 退出码 1, 看着像 CLI 自己坏了)
+  let namesAll: string[];
+  try {
+    namesAll = iconNames();
+  } catch (e) {
+    if (e instanceof ShapeInputError) fail(e.message, 2);
+    throw e;
+  }
+  const total = namesAll.length;
 
   if (!query) {                                   // 不给关键词 = 把名字全集吐出来(交给 grep)
-    listNames(iconNames());
+    listNames(namesAll);
     console.error(`# 素材库共 ${total} 个名字; \`svginfo icons list <关键词>\` 按概念找`);
     return 0;
   }

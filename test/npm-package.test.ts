@@ -9,7 +9,7 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -25,6 +25,14 @@ const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
 /** exports 的全部目标(剥掉 types / import / default 那层条件壳) */
 const targets = Object.entries(pkg.exports).flatMap(([, v]) => (typeof v === 'string' ? [v] : Object.values(v)));
 const built = existsSync(join(ROOT, 'dist/src/index.js'));
+
+/** 有没有能给用户 `.ts` 当宿主的运行时(bun, 或 node ≥22.6 的类型剥离档)—— 没有就 skip 掉那条判据 */
+const tsRunner = (): boolean => {
+  const noBun = (spawnSync('bun', ['--version'], { stdio: 'ignore' }).error as { code?: string } | undefined)?.code === 'ENOENT';
+  if (!noBun) return true;
+  const [maj, min] = process.versions.node.split('.').map(Number);
+  return maj > 22 || (maj === 22 && min >= 6);
+};
 
 const walk = (dir: string, ext: string, out: string[] = []): string[] => {
   if (!existsSync(dir)) return out;
@@ -98,5 +106,30 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     rmSync(dir, { recursive: true, force: true });
     expect(r.stdout.trim()).toMatch(/^ok exports=\d+ codes=\d+$/);
     expect(r.status).toBe(0);
+  });
+
+  it.skipIf(!built || !tsRunner())('纯场景模块在 node 宿主下也必须真出图(exit 0 却不产图 = 静默假成功)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'svg-infovis-scene-'));
+    const mod = join(dir, 'scene-mod.ts');
+    const out = join(dir, 'out.svg');
+    // 纯场景模块 = 只 `export default`, **没有** isMainModule 出口 —— 回退路专为它准备
+    writeFileSync(mod, [
+      `import { scene } from ${JSON.stringify(join(ROOT, 'examples/start/full-chain.ts'))};`,
+      'export default scene;',
+      '',
+    ].join('\n'));
+    // ⚠ 宿主故意用 node(bin 的 shebang 就是 node)。node <22.6 自己带不动 TS: 回退路若在 CLI
+    //    进程内 import 用户的 `.ts`, 异常被吞 ⇒ exit 0 却不产图 —— 260926 验收抓到的阻断级。
+    const r = spawnSync(process.execPath, [join(ROOT, 'dist/scripts/cli.js'), 'run', mod, '-o', out], { encoding: 'utf8' });
+    const size = existsSync(out) ? statSync(out).size : 0;
+    rmSync(dir, { recursive: true, force: true });
+    expect(r.status, `CLI 的诊断:\n${r.stderr}`).toBe(0);
+    expect(size, '退出 0 却没落图 —— 正是"静默假成功"').toBeGreaterThan(0);
+    // ⚠ 光看"文件在不在"抓不住这条: 回退路一旦跑起来会**自己**把图落盘, 于是"忽略了它的结果"
+    //    也照样有文件在。真正区分"认出了场景模块"与"当成 golden / 自落盘档混过去"的, 是这句
+    //    归因诊断不许出现(260926 反向验证踩到: 只断言文件存在时, 把回退路掐掉这条守卫照样全绿
+    //    —— 那就是装饰性守卫)。
+    expect(r.stderr, 'CLI 把场景模块误判成 golden / 自落盘档 —— 回退路的判断权又交回宿主手里了')
+      .not.toContain('golden / 自落盘那一档');
   });
 });
