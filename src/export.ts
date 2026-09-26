@@ -7,21 +7,21 @@
 // 输出走 serialize 那一层, 所以字节确定性由那边统一保证(本文件不许自己拼字符串)。
 // =====================================================================
 
-import { type Attrs, type Descriptor, group, svg as svgRoot } from './descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, type Variant, canvasLayer } from './theme';
-import { type AuditReport, type Scene, SCENE_TEXT_DEFAULTS, audit, groupLabelBox, labelRect } from './knives/audit';
-import { type AuditLevel, THRESHOLDS } from './knives/thresholds';
-import { type SceneDoc, assertFreshForExport, sceneStatus } from './scene';
-import { toSVG } from './serialize';
-import { type EdgeProps, edgeShape } from './shapes/edge';
-import { type GroupProps, groupShape } from './shapes/group';
-import { type NodeProps, type NodeShapeKind, DEFAULT_NODE_SHAPE, nodeShape, NODE_TEXT_LAYOUT } from './shapes/node';
-import { iconInkRect } from './shapes/icon';
-import { embedShape } from './shapes/embed';
-import { labelBoxShape, textShape } from './shapes/text';
-import { type GridProps, gridLayer } from './shapes/grid-pattern';
-import { rowBlock } from './geometry/text-rows';
-import { type Pt, type Rect, rectBottom, rectRight, round1 } from './geometry/vec';
+import { type Attrs, type Descriptor, group, svg as svgRoot } from './descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, type Variant, canvasLayer } from './theme.js';
+import { type AuditReport, type Scene, SCENE_TEXT_DEFAULTS, audit, groupLabelBox, labelRect } from './knives/audit.js';
+import { type AuditLevel, THRESHOLDS } from './knives/thresholds.js';
+import { type SceneDoc, assertFreshForExport, sceneStatus } from './scene.js';
+import { toSVG } from './serialize.js';
+import { type EdgeProps, edgeShape } from './shapes/edge.js';
+import { type GroupProps, groupShape } from './shapes/group.js';
+import { type NodeProps, type NodeShapeKind, DEFAULT_NODE_SHAPE, nodeShape, NODE_TEXT_LAYOUT } from './shapes/node.js';
+import { iconInkRect } from './shapes/icon.js';
+import { embedShape } from './shapes/embed.js';
+import { labelBoxShape, textShape } from './shapes/text.js';
+import { type GridProps, gridLayer } from './shapes/grid-pattern.js';
+import { rowBlock } from './geometry/text-rows.js';
+import { type Pt, type Rect, rectBottom, rectRight, round1 } from './geometry/vec.js';
 
 /** audit 未过时的拒绝出口: 带上完整报告, 调用方不必再跑一次 audit 去取诊断 */
 export class ExportBlockedError extends Error {

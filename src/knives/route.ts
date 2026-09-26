@@ -37,19 +37,19 @@
 //   `via` 点**不含两端端口点**: 两端仍走端口协议(出盒沿法线一个 stub), 首末段长度不受 via 影响。
 // ======================================================================
 
-import { type Pt, type Rect, add, rectBottom, scl } from '../geometry/vec';
+import { type Pt, type Rect, add, rectBottom, scl } from '../geometry/vec.js';
 import {
   normalizeRoutePoints, firstBacktrackIndex, selfOverlapIndex,
-} from '../geometry/predicates';
-import { ShapeInputError, assertFiniteNumber } from '../guard';
+} from '../geometry/predicates.js';
+import { ShapeInputError, assertFiniteNumber } from '../guard.js';
 // 代价向量(260919): 候选之间的**择优**改走它 —— 审美从此是"维度表里的行序", 不再是 if 分支。
 // 只 import 比较器与量化器, 不把维度表整个搬进来(route 不该管"还有哪些维度")
-import { type RouteCostDimension, compareRouteCost, routeCost } from './route-cost';
+import { type RouteCostDimension, compareRouteCost, routeCost } from './route-cost.js';
 // 半像素尺子在 thresholds。值导入 audit 会把整座门禁求值进来
-import { PIERCE_MIN } from './thresholds';
+import { PIERCE_MIN } from './thresholds.js';
 // 面上的点只许一份, 实现在几何层。再导出同一绑定, `knives/route` 的旧路径不变
-export { type Side, type PortRef, portPoint, sideDir } from '../geometry/port';
-import { type Side, type PortRef, portPoint, sideDir } from '../geometry/port';
+export { type Side, type PortRef, portPoint, sideDir } from '../geometry/port.js';
+import { type Side, type PortRef, portPoint, sideDir } from '../geometry/port.js';
 
 export type RouteRequest = {
   from: Rect;

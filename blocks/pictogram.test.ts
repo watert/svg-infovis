@@ -13,13 +13,13 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { PICTOGRAM_LAYOUT, type PictogramProps, pictogramFit, pictogramShape } from './pictogram';
-import { iconAsset, iconFromSvg } from '../src/icons/lucide';
-import { DEFAULT_THEME, THEMES } from '../src/theme';
-import { ShapeInputError } from '../src/guard';
-import { toSVG } from '../src/serialize';
-import { type DGroup, type DPath, svg } from '../src/descriptor';
-import { round1, type Rect } from '../src/geometry/vec';
+import { PICTOGRAM_LAYOUT, type PictogramProps, pictogramFit, pictogramShape } from './pictogram.js';
+import { iconAsset, iconFromSvg } from '../src/icons/lucide.js';
+import { DEFAULT_THEME, THEMES } from '../src/theme.js';
+import { ShapeInputError } from '../src/guard.js';
+import { toSVG } from '../src/serialize.js';
+import { type DGroup, type DPath, svg } from '../src/descriptor.js';
+import { round1, type Rect } from '../src/geometry/vec.js';
 
 /** 两轴同值的旋钮袋(期望值一律从它现算 —— 常量一动, 这里跟着动才是对账) */
 const D = PICTOGRAM_LAYOUT;

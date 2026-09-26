@@ -28,11 +28,11 @@
 // 事实要的是"别拿推断冒充作者意图", 启发式要的是"别因为漏写就闭嘴"。
 // =====================================================================
 
-import type { Diagnostic, Scene } from './audit';
-import { DENSITY_CODES } from './codes';
-import { type Rect, rectBottom, rectRight, round1 } from '../geometry/vec';
-import { polylineLength, rectsOverlap } from '../geometry/predicates';
-import { groupMembers } from './cluster';
+import type { Diagnostic, Scene } from './audit.js';
+import { DENSITY_CODES } from './codes.js';
+import { type Rect, rectBottom, rectRight, round1 } from '../geometry/vec.js';
+import { polylineLength, rectsOverlap } from '../geometry/predicates.js';
+import { groupMembers } from './cluster.js';
 
 export type DensityOptions = {
   /**

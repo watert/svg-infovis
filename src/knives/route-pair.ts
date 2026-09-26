@@ -21,13 +21,13 @@
 //   · 不平移节点、不动版式(与 `assignLanes` 同立场: 旋钮不是门禁)
 // =====================================================================
 
-import { type Pt, type Rect, rectBottom, rectRight, round1 } from '../geometry/vec';
-import { ShapeInputError, assertFiniteNumber } from '../guard';
-import { type PortRef, type RouteRequest, type RouteResult, routeOrthogonal } from './route';
+import { type Pt, type Rect, rectBottom, rectRight, round1 } from '../geometry/vec.js';
+import { ShapeInputError, assertFiniteNumber } from '../guard.js';
+import { type PortRef, type RouteRequest, type RouteResult, routeOrthogonal } from './route.js';
 // 标签的落位与角度走 `shapes/edge` 的那两份(标签几何只许有一处), 本刀只负责"哪条线配哪个字、
 // 字该落在哪一侧"
-import { type SceneLabel } from './audit';
-import { edgeLabel, labelAnchor, labelAngle } from '../shapes/edge';
+import { type SceneLabel } from './audit.js';
+import { edgeLabel, labelAnchor, labelAngle } from '../shapes/edge.js';
 
 /** 两条线的中心距缺省(px)。够放一个 11px 的标签 + 两侧各一点呼吸位 */
 export const PAIR_GAP = 22;

@@ -34,9 +34,9 @@
 // (结构性错误的报错口径与 `resolveKnobs` / `assertFiniteRect` 同源)。pack 自己不算面上的点。
 // =====================================================================
 
-import { type Rect, round1 } from './vec';
-import { type Size, bounds } from './box';
-import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber } from '../guard';
+import { type Rect, round1 } from './vec.js';
+import { type Size, bounds } from './box.js';
+import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber } from '../guard.js';
 
 /** 交叉轴对齐三档: `start` 贴对齐线的起点侧 · `center` 骑在对齐线上 · `end` 贴终点侧 */
 export type PackAlign = 'start' | 'center' | 'end';

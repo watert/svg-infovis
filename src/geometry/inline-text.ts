@@ -33,7 +33,7 @@
 // 落在原串哪个区间"。
 // =====================================================================
 
-import type { Attrs } from '../descriptor';
+import type { Attrs } from '../descriptor.js';
 
 /** 行内样式词表 —— **运行时值与类型同源**(加一种样式只改这里一处, 表与它由 `satisfies` 对上) */
 export const INLINE_KINDS = ['bold', 'italic', 'strike', 'paint'] as const;

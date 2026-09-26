@@ -10,7 +10,7 @@
 // 移植自 htmls/2609-svg-lab/src/lib/geometry/rounded-path.js, 逻辑零改写(仅 TS 化 + 修 idealRadius 取值)。
 // =====================================================================
 
-import { type Pt, add, clamp, fmt, len, norm, scl, sub } from './vec';
+import { type Pt, add, clamp, fmt, len, norm, scl, sub } from './vec.js';
 
 /** 闭合多边形的绕向: y-down 下 signedArea > 0 = 屏幕视角顺时针 */
 export function signedArea(pts: Pt[]): number {

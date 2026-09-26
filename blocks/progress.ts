@@ -43,15 +43,15 @@
 //     `statShape` 对 `"1.2M"` 同一立场)
 // =====================================================================
 
-import { type Attrs, type DGroup, type Descriptor, type TextAnchor, anchorAttrs, baselineY, group, path, rect } from '../src/descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, type TonePalette, TONES, type Variant, toneStyle } from '../src/theme';
-import { HINT_SPREAD_RECT, ShapeInputError, assertFiniteNumber, assertOneOf } from '../src/guard';
-import { type Rect, round1 } from '../src/geometry/vec';
-import { bounds } from '../src/geometry/box';
-import { radiusPolygonPath } from '../src/geometry/rounded-path';
-import { measureText } from '../src/knives/measure';
-import { NODE_TEXT_LAYOUT } from '../src/shapes/node';
-import { inlineTextRow } from '../src/shapes/inline';
+import { type Attrs, type DGroup, type Descriptor, type TextAnchor, anchorAttrs, baselineY, group, path, rect } from '../src/descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, type TonePalette, TONES, type Variant, toneStyle } from '../src/theme.js';
+import { HINT_SPREAD_RECT, ShapeInputError, assertFiniteNumber, assertOneOf } from '../src/guard.js';
+import { type Rect, round1 } from '../src/geometry/vec.js';
+import { bounds } from '../src/geometry/box.js';
+import { radiusPolygonPath } from '../src/geometry/rounded-path.js';
+import { measureText } from '../src/knives/measure.js';
+import { NODE_TEXT_LAYOUT } from '../src/shapes/node.js';
+import { inlineTextRow } from '../src/shapes/inline.js';
 
 // --- 块契约 -------------------------------------------------------------
 

@@ -21,8 +21,8 @@
 //   · 不做换行 / 截断 / 缩字 —— 布局决策不归 core
 // =====================================================================
 
-import { round1 } from '../geometry/vec';
-import { INLINE_STYLE, needsTextParse, parseTextRuns } from '../geometry/inline-text';
+import { round1 } from '../geometry/vec.js';
+import { INLINE_STYLE, needsTextParse, parseTextRuns } from '../geometry/inline-text.js';
 
 // --- 度量参数(宽度表的全部可调旋钮) ----------------------------------
 

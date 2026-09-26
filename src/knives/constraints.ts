@@ -33,8 +33,8 @@
 // 一趟下来每个位置拿到的就是所有下界的最小上界(最长路)。不需要迭代到不动点(那是非线性才要的)。
 // =====================================================================
 
-import { ShapeInputError, assertFiniteNumber } from '../guard';
-import { codepointSort, round1 } from '../geometry/vec';
+import { ShapeInputError, assertFiniteNumber } from '../guard.js';
+import { codepointSort, round1 } from '../geometry/vec.js';
 
 /**
  * 位置的分辨率 = 0.1 格(十分位)。乘除一律走整数十, 不写 `0.1`: `x / 10` 是正确舍入的一步,

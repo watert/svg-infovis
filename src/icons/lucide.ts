@@ -20,8 +20,8 @@
 import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, extname } from 'node:path';
-import { ShapeInputError } from '../guard';
-import { type ParsedIcon, parseIconSvg } from './svg-parse';
+import { ShapeInputError } from '../guard.js';
+import { type ParsedIcon, parseIconSvg } from './svg-parse.js';
 
 /** 本仓"裸解析"入口: lucide-static 的 package.json **无 exports 字段**, 深路径因此可用(见 ICON_SOURCE.md) */
 const require = createRequire(import.meta.url);

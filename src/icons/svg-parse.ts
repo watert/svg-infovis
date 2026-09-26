@@ -18,8 +18,8 @@
 // 定位: 纯解析, 零依赖(只 import guard 与 vec 的类型)。
 // =====================================================================
 
-import { type Rect, round1 } from '../geometry/vec';
-import { ShapeInputError } from '../guard';
+import { type Rect, round1 } from '../geometry/vec.js';
+import { ShapeInputError } from '../guard.js';
 
 /** 七种原语 —— 与 SVG 的几何元素一一对应, 不做合并(合并要写圆弧换算, 而收益只是产物短一点) */
 export const ICON_PRIM_KINDS = ['path', 'circle', 'rect', 'ellipse', 'line', 'polyline', 'polygon'] as const;

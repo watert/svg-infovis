@@ -26,9 +26,9 @@
 // 当元素审(与 `SceneGroup.noCheck` / lifeline 同族, 它更进一步: 干脆没有对象可审)。
 // =====================================================================
 
-import { type Attrs, type DDefs, type Descriptor, circle, defs, path, pattern, rect } from '../descriptor';
-import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
-import { type Pt, round1 } from '../geometry/vec';
+import { type Attrs, type DDefs, type Descriptor, circle, defs, path, pattern, rect } from '../descriptor.js';
+import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard.js';
+import { type Pt, round1 } from '../geometry/vec.js';
 
 /** 网格风格词表 —— 与 `assertOneOf` 同源, 写错的风格词会静默回落成缺省形态, 必须拦 */
 export type GridStyle = 'line' | 'dot';

@@ -12,13 +12,13 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { DELTA_TONES, STAT_DELTA_DIRS, STAT_TEXT_LAYOUT, type StatDelta, statFit, statShape } from './stat';
-import { measureText } from '../knives/measure';
-import { rowBlock } from '../geometry/text-rows';
-import { DEFAULT_THEME, THEMES } from '../theme';
-import { ShapeInputError } from '../guard';
-import { toSVG } from '../serialize';
-import { type DGroup, type DPath, type DText, baselineY, svg } from '../descriptor';
+import { DELTA_TONES, STAT_DELTA_DIRS, STAT_TEXT_LAYOUT, type StatDelta, statFit, statShape } from './stat.js';
+import { measureText } from '../knives/measure.js';
+import { rowBlock } from '../geometry/text-rows.js';
+import { DEFAULT_THEME, THEMES } from '../theme.js';
+import { ShapeInputError } from '../guard.js';
+import { toSVG } from '../serialize.js';
+import { type DGroup, type DPath, type DText, baselineY, svg } from '../descriptor.js';
 
 const V = '1.2M';
 const L = '月度调用';

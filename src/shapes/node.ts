@@ -23,14 +23,14 @@
 // 需要单点例外(如 audit 演示里的违规红)时才用 fill/stroke/textColor 直接覆盖。
 // =====================================================================
 
-import { type Attrs, type DGroup, type Descriptor, anchorAttrs, baselineY, group, path } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, type Variant, toneStyle } from '../theme';
-import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard';
-import { type Tangent, radiusPolygonPath } from '../geometry/rounded-path';
-import { rowBlock } from '../geometry/text-rows';
-import { type Pt, type Rect, fmt, round1 } from '../geometry/vec';
-import { type NodeIcon, iconRect, iconShape } from './icon';
-import { inlineTextRow } from './inline';
+import { type Attrs, type DGroup, type Descriptor, anchorAttrs, baselineY, group, path } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, type Variant, toneStyle } from '../theme.js';
+import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard.js';
+import { type Tangent, radiusPolygonPath } from '../geometry/rounded-path.js';
+import { rowBlock } from '../geometry/text-rows.js';
+import { type Pt, type Rect, fmt, round1 } from '../geometry/vec.js';
+import { type NodeIcon, iconRect, iconShape } from './icon.js';
+import { inlineTextRow } from './inline.js';
 
 /** 形状词表。**运行时值与类型同源**(`NodeShapeKind` 由它推出) —— 加一种形状只改这里一处 */
 export const NODE_SHAPE_KINDS = ['rect', 'diamond', 'cylinder'] as const;

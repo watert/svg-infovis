@@ -20,10 +20,10 @@
 // 这条缺口(边/标签压在图表上无人管)记在 `ROADMAP.md`「后续方向」, 要收口得先按纪律 9 举证 + 纪律 11 给旋钮。
 // =====================================================================
 
-import { type Attrs, type DEmbed, embed as dEmbed } from '../descriptor';
-import { ShapeInputError, assertFiniteRect } from '../guard';
-import type { Rect } from '../geometry/vec';
-import type { EmbedAsset } from '../embed/svg-asset';
+import { type Attrs, type DEmbed, embed as dEmbed } from '../descriptor.js';
+import { ShapeInputError, assertFiniteRect } from '../guard.js';
+import type { Rect } from '../geometry/vec.js';
+import type { EmbedAsset } from '../embed/svg-asset.js';
 
 /**
  * 场景里的外部素材 —— 与 `SceneNode.icon` 对位(都是一次"素材上屏"的声明)。

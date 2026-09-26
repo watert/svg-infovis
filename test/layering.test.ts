@@ -64,12 +64,16 @@ const importsOf = (file: string): Imp[] => {
   return out;
 };
 
-/** 把 `../geometry/vec` 这种相对 specifier 归一成仓内模块路径; 外部依赖给 null */
+/**
+ * 把 `../geometry/vec.js` 这种相对 specifier 归一成仓内模块路径; 外部依赖给 null。
+ * ⚠ 260926: 源码里的相对 import 一律写 `.js` 显式扩展名(nodenext 消费者要求), 磁盘上仍是 `.ts`
+ * —— 解析必须走 TS 那条 `.js → .ts` 映射, 否则整片依赖落空, 环与越层都"测不出来"(假绿比红贵)。
+ */
 const resolve = (from: Mod, spec: string): Mod | null => {
   if (!spec.startsWith('.')) return null;
-  return normalize(join(dirname(from), spec)).endsWith('.ts')
-    ? normalize(join(dirname(from), spec))
-    : normalize(join(dirname(from), `${spec}.ts`));
+  const joined = normalize(join(dirname(from), spec));
+  if (joined.endsWith('.js')) return `${joined.slice(0, -3)}.ts`;
+  return joined.endsWith('.ts') ? joined : `${joined}.ts`;
 };
 
 // ── 判据的纯函数实现(反例与正例共用) ──────────────────────────────────
@@ -117,7 +121,7 @@ const findBlocksViolations = (files: Mod[]): string[] => {
   const bad: string[] = [];
   for (const f of files.filter((p) => p.startsWith('blocks/'))) {
     for (const { spec } of importsOf(f)) {
-      if (/^\.\.\/src\/index(\.ts)?$/.test(spec)) {
+      if (/^\.\.\/src\/index(\.(js|ts))?$/.test(spec)) {
         // 走 barrel 会把 `icons/lucide` 的 `node:fs` 一并拖进来 —— 块层的"零 node:"当场破功,
         // 而它自己看不见(报错发生在 bundler 那头)。所以指名禁掉, 不靠"注意别 import index"。
         bad.push(`${f} → ${spec}  (禁走 barrel: 它带 node:fs)`);

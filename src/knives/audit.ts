@@ -28,35 +28,35 @@
 // 两档判分沿用 Archify: standard 宽松(2px) / showcase 严格(4px), 同一份 metrics 两把尺子。
 // =====================================================================
 
-import { type Pt, type Rect, clamp, expandRect, rectBottom, rectRight, round1 } from '../geometry/vec';
+import { type Pt, type Rect, clamp, expandRect, rectBottom, rectRight, round1 } from '../geometry/vec.js';
 import {
   isFinitePoint, isFiniteRect, isOrthogonalPolyline, firstBacktrackIndex, selfOverlapIndex,
   orthogonalDeviation, pointRectDistance, polylineCrossings, polylineRectsClearance, rectsOverlap,
   segmentRectIntersectionLength, normalizeRoutePoints, segmentRectClearance, projectedPortsCoincide,
   sameAxisOverlapLength, parallelSegmentGap, segmentAxis, polylineLength, ORTHO_EPS,
-} from '../geometry/predicates';
+} from '../geometry/predicates.js';
 // 组框标签的归属位与渲染共用同一个 labelAnchor: 本文件只读它的产物(见 `groupLabelBox`)
-import { groupLabelRect, type GroupLabelPlacement } from '../shapes/group';
-import { AUDIT_CODES } from './codes';
-import type { Tone, Variant } from '../theme';
+import { groupLabelRect, type GroupLabelPlacement } from '../shapes/group.js';
+import { AUDIT_CODES } from './codes.js';
+import type { Tone, Variant } from '../theme.js';
 // 形状词表与 `nodeShape` 同源(`NODE_SHAPE_KINDS`) —— scene 的形状槽必须是那个词表, 不许各写一份。
 // `NODE_TEXT_LAYOUT` 同理(260920 起): 门禁要替作者算"折成 N 行后盒高至少多少", 用的字号 / 行距
 // 必须与 `nodeShape` 真画上去的同一份 —— 手抄一个 13 就是第二个会漂的源头。**字重同规矩**:
 // `label_fit` 量的字重取节点的 `weight`(缺省 `NODE_TEXT_LAYOUT.weight`), 与渲染同一处取值。
-import { NODE_TEXT_LAYOUT, type NodeAlign, type NodeShapeKind } from '../shapes/node';
+import { NODE_TEXT_LAYOUT, type NodeAlign, type NodeShapeKind } from '../shapes/node.js';
 // 图标是**纯类型依赖**(audit 不读它, 见 `SceneNode.icon` 的说明) —— 只为了让 scene 的那个槽
 // 与渲染面共用同一个形状, 不在这里重写一份 `{ asset, size, gap … }`
-import type { NodeIcon } from '../shapes/icon';
+import type { NodeIcon } from '../shapes/icon.js';
 // 外部素材同理是纯类型依赖(见 `Scene.embeds`)
-import type { SceneEmbed } from '../shapes/embed';
+import type { SceneEmbed } from '../shapes/embed.js';
 // 行块几何(260920): `reflow-label` 的 h 补丁要按"折成 N 行"算盒高 —— 与 nodeShape / nodeFit 同一份公式
-import { rowBlock } from '../geometry/text-rows';
-import { measureText } from './measure';
-import { density } from './density';
-import { clusterAudit, type ClusterTier } from './cluster';
+import { rowBlock } from '../geometry/text-rows.js';
+import { measureText } from './measure.js';
+import { density } from './density.js';
+import { clusterAudit, type ClusterTier } from './cluster.js';
 // 尺子的定义在 thresholds。这里再导出同一绑定, 本地判据也读这一份
-export { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
-import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
+export { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds.js';
+import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds.js';
 
 // --- 契约类型 ----------------------------------------------------------
 

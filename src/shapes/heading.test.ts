@@ -14,14 +14,14 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { type Descriptor, type DGroup, type DText, baselineY, svg } from '../descriptor';
-import { toSVG } from '../serialize';
-import { THEMES } from '../theme';
-import { ShapeInputError } from '../guard';
-import { fmt, rectCenter, round1 } from '../geometry/vec';
-import { measureText } from '../knives/measure';
-import { labelBoxSize } from './edge';
-import { DIVIDER_LAYOUT, HEADING_LAYOUT, dividerShape, headingGeometry, headingShape } from './heading';
+import { type Descriptor, type DGroup, type DText, baselineY, svg } from '../descriptor.js';
+import { toSVG } from '../serialize.js';
+import { THEMES } from '../theme.js';
+import { ShapeInputError } from '../guard.js';
+import { fmt, rectCenter, round1 } from '../geometry/vec.js';
+import { measureText } from '../knives/measure.js';
+import { labelBoxSize } from './edge.js';
+import { DIVIDER_LAYOUT, HEADING_LAYOUT, dividerShape, headingGeometry, headingShape } from './heading.js';
 
 /** 拍平 descriptor 树(分隔线的标签盒是个 group, 要钻进去才读得到那块遮罩) */
 function flatten(d: Descriptor): Descriptor[] {

@@ -28,8 +28,8 @@
 // 也不设门禁: 入参坏值不在这里拦 —— 算出来就是坏数字, 由 `audit` / `finite_svg` 那层现形。
 // =====================================================================
 
-import { type Pt, type Rect, rectBottom, rectRight, round1 } from './vec';
-import { type Side, portPoint, sideDir } from './port';
+import { type Pt, type Rect, rectBottom, rectRight, round1 } from './vec.js';
+import { type Side, portPoint, sideDir } from './port.js';
 
 /** 边界与内容之间的空档: 单值 = 四边同值, `[x, y]` = 左右 / 上下(与 `nodeFit` 的 `padding` 同序) */
 export type Pad = number | [x: number, y: number];

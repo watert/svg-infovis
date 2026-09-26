@@ -33,14 +33,14 @@
 //   · **不画 delta 的折线 / 迷你走势图** —— 那是 chart, 不是排版。
 // =====================================================================
 
-import { type DGroup, type Descriptor, type TextAnchor, anchorAttrs, baselineY, group, path } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, TONES, toneStyle } from '../theme';
-import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard';
-import { fmt } from '../geometry/vec';
-import { rowBlock } from '../geometry/text-rows';
-import { measureText } from '../knives/measure';
-import { NODE_ALIGN_KINDS, NODE_TEXT_LAYOUT, type NodeAlign } from './node';
-import { inlineTextRow } from './inline';
+import { type DGroup, type Descriptor, type TextAnchor, anchorAttrs, baselineY, group, path } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, TONES, toneStyle } from '../theme.js';
+import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard.js';
+import { fmt } from '../geometry/vec.js';
+import { rowBlock } from '../geometry/text-rows.js';
+import { measureText } from '../knives/measure.js';
+import { NODE_ALIGN_KINDS, NODE_TEXT_LAYOUT, type NodeAlign } from './node.js';
+import { inlineTextRow } from './inline.js';
 
 /** delta 的方向词表。**运行时值与类型同源**(`StatDeltaDir` 由它推出) —— 写错的词当场抛, 不静默画成一个方向 */
 export const STAT_DELTA_DIRS = ['up', 'down'] as const;

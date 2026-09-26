@@ -14,7 +14,7 @@
 //   否则"不知道"会被当成"净空 0"(或相反)静默判决。
 // =====================================================================
 
-import { type Pt, type Rect, cross, dist, dot, rectBottom, rectRight, sub } from './vec';
+import { type Pt, type Rect, cross, dist, dot, rectBottom, rectRight, sub } from './vec.js';
 
 const EPS = 1e-9;
 /** 正交判定容差(px): 与 Archify 的 0.01 对齐 —— 视觉上贴线的微斜都算不正交 */

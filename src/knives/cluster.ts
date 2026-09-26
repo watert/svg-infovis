@@ -38,15 +38,15 @@
 //     对声明框说"按成员并集重算"等于让 agent 去覆盖作者的值, 所以那三处 `fit-frame` 换成手工改框的提示。
 // =====================================================================
 
-import { type Pt, type Rect, codepointSort, rectBottom, rectRight, round1 } from '../geometry/vec';
+import { type Pt, type Rect, codepointSort, rectBottom, rectRight, round1 } from '../geometry/vec.js';
 import {
   isFiniteRect, normalizeRoutePoints, parallelSegmentGap, pointInRect, rectEdges,
   rectsOverlap, segmentRectIntersectionLength,
-} from '../geometry/predicates';
-import type { Diagnostic, Scene, SceneGroup } from './audit';
-import { CLUSTER_CODES } from './codes';
+} from '../geometry/predicates.js';
+import type { Diagnostic, Scene, SceneGroup } from './audit.js';
+import { CLUSTER_CODES } from './codes.js';
 // 穿透长度与穿盒门禁同一把尺子(thresholds 的 PIERCE_MIN)
-import { PIERCE_MIN } from './thresholds';
+import { PIERCE_MIN } from './thresholds.js';
 
 /** 组语义档: `set`(缺省, 平铺集合) / `tree`(层级 ownership, opt-in) */
 export type ClusterTier = 'set' | 'tree';

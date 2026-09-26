@@ -9,8 +9,8 @@
 
 // 只作**类型**引用(type-only import): descriptor 仍是零运行期依赖 —— 但"矩形"这个概念
 // 全仓只有一份(`geometry/vec`), 在这里再写一个 `{ x, y, w, h }` 就是第二个几何真相
-import type { Rect } from './geometry/vec';
-import { assertFiniteNumber, assertOneOf, ShapeInputError } from './guard';
+import type { Rect } from './geometry/vec.js';
+import { assertFiniteNumber, assertOneOf, ShapeInputError } from './guard.js';
 
 /** SVG 属性袋: 值只允许确定性原始类型 */
 export type Attrs = Record<string, string | number | undefined>;

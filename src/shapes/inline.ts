@@ -20,9 +20,9 @@
 // 老路不过那里, 于是它的字节一动都不动)。
 // =====================================================================
 
-import { type Attrs, type Descriptor, type DTextSpan, richText, text } from '../descriptor';
-import { DEFAULT_THEME, type Theme } from '../theme';
-import { INLINE_KINDS, INLINE_STYLE, type InlineStyleBag, type InlineStyleSpec, type TextRun, needsTextParse, parseTextRuns } from '../geometry/inline-text';
+import { type Attrs, type Descriptor, type DTextSpan, richText, text } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme } from '../theme.js';
+import { INLINE_KINDS, INLINE_STYLE, type InlineStyleBag, type InlineStyleSpec, type TextRun, needsTextParse, parseTextRuns } from '../geometry/inline-text.js';
 
 /** 行基准字重(CSS 数值) —— 400 是 SVG 缺省, 写它等于白写(老产物字节也据此不含 `font-weight` 属性) */
 const DEFAULT_WEIGHT = 400;

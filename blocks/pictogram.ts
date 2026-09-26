@@ -34,14 +34,14 @@
 //   · **不画底 / 不画框 / 不写图例字** —— 与 `shapes/stat.ts` 同一立场: 那些是作者拿 `bounds` 自己垫
 // =====================================================================
 
-import { type DGroup, type Descriptor, group } from '../src/descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, TONES, toneStyle } from '../src/theme';
-import { ShapeInputError, assertFiniteNumber, assertOneOf, resolveKnobs } from '../src/guard';
-import type { Rect } from '../src/geometry/vec';
-import { bounds } from '../src/geometry/box';
-import { grid } from '../src/geometry/grid';
-import type { ParsedIcon } from '../src/icons/svg-parse';
-import { iconShape } from '../src/shapes/icon';
+import { type DGroup, type Descriptor, group } from '../src/descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, TONES, toneStyle } from '../src/theme.js';
+import { ShapeInputError, assertFiniteNumber, assertOneOf, resolveKnobs } from '../src/guard.js';
+import type { Rect } from '../src/geometry/vec.js';
+import { bounds } from '../src/geometry/box.js';
+import { grid } from '../src/geometry/grid.js';
+import type { ParsedIcon } from '../src/icons/svg-parse.js';
+import { iconShape } from '../src/shapes/icon.js';
 
 /**
  * 阵列的排布参数 —— `pictogramFit`(反算)与 `pictogramShape`(上屏)共用的唯一一份数字,

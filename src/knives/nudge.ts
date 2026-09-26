@@ -20,9 +20,9 @@
 // 没有修法的报错等于让 agent 猜, 那是这条路线最贵的失败模式)。
 // =====================================================================
 
-import { isFiniteRect } from '../geometry/predicates';
-import { type Rect, rectBottom, rectRight, round1 } from '../geometry/vec';
-import { type Diagnostic } from './audit';
+import { isFiniteRect } from '../geometry/predicates.js';
+import { type Rect, rectBottom, rectRight, round1 } from '../geometry/vec.js';
+import { type Diagnostic } from './audit.js';
 
 // --- 契约类型 ----------------------------------------------------------
 

@@ -21,9 +21,9 @@
 // 本文件的 `grid` 是**版式格子查询**(纯几何)。260920 底纹那份已改名 `grid-pattern` 让路。
 // =====================================================================
 
-import { type Pt, type Rect, round1 } from './vec';
-import { type Size, rectAnchor, rectFace } from './box';
-import type { Side } from './port';
+import { type Pt, type Rect, round1 } from './vec.js';
+import { type Size, rectAnchor, rectFace } from './box.js';
+import type { Side } from './port.js';
 
 export type GridOptions = {
   /** `cell(0, 0)` 的**左上角**(绝对坐标) */

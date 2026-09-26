@@ -15,16 +15,16 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { PROGRESS_LABEL_PLACES, PROGRESS_LAYOUT, type ProgressProps, progressBlock, stackedBarBlock } from './progress';
-import { type DGroup, type DPath, type DRect, type DText, baselineY, svg } from '../src/descriptor';
-import { toSVG } from '../src/serialize';
-import { type Rect, fmt, round1 } from '../src/geometry/vec';
-import { bounds } from '../src/geometry/box';
-import { packCol } from '../src/geometry/pack';
-import { radiusPolygonPath } from '../src/geometry/rounded-path';
-import { measureText } from '../src/knives/measure';
-import { DEFAULT_THEME, THEMES, type TonePalette, type Variant } from '../src/theme';
-import { ShapeInputError } from '../src/guard';
+import { PROGRESS_LABEL_PLACES, PROGRESS_LAYOUT, type ProgressProps, progressBlock, stackedBarBlock } from './progress.js';
+import { type DGroup, type DPath, type DRect, type DText, baselineY, svg } from '../src/descriptor.js';
+import { toSVG } from '../src/serialize.js';
+import { type Rect, fmt, round1 } from '../src/geometry/vec.js';
+import { bounds } from '../src/geometry/box.js';
+import { packCol } from '../src/geometry/pack.js';
+import { radiusPolygonPath } from '../src/geometry/rounded-path.js';
+import { measureText } from '../src/knives/measure.js';
+import { DEFAULT_THEME, THEMES, type TonePalette, type Variant } from '../src/theme.js';
+import { ShapeInputError } from '../src/guard.js';
 
 const W = 240;
 const RATIO = 0.68;

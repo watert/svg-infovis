@@ -34,14 +34,14 @@
 //     paper 主题那条), 要圆点就用无字徽章
 // =====================================================================
 
-import { type DGroup, type Descriptor, anchorAttrs, baselineY, circle, group } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, TONES, type Variant, toneStyle } from '../theme';
-import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
-import type { Rect } from '../geometry/vec';
-import { rowBlock } from '../geometry/text-rows';
-import { measureText } from '../knives/measure';
-import { NODE_TEXT_LAYOUT } from './node';
-import { inlineTextRow } from './inline';
+import { type DGroup, type Descriptor, anchorAttrs, baselineY, circle, group } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, TONES, type Variant, toneStyle } from '../theme.js';
+import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard.js';
+import type { Rect } from '../geometry/vec.js';
+import { rowBlock } from '../geometry/text-rows.js';
+import { measureText } from '../knives/measure.js';
+import { NODE_TEXT_LAYOUT } from './node.js';
+import { inlineTextRow } from './inline.js';
 
 /**
  * 徽章与列表行的排布参数 —— **反算与上屏共用的唯一一份数字**。

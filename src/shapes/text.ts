@@ -12,15 +12,15 @@
 // **chip 是另一档语义**(徽章 = 作者要它显形), 所以 `labelChip` 把缺省补回 `theme.labelBg`。
 // =====================================================================
 
-import { type Attrs, type Descriptor, type TextAnchor, type Baseline, anchorAttrs, baselineY, group, rect } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone } from '../theme';
-import { assertFiniteNumber } from '../guard';
-import { round1 } from '../geometry/vec';
+import { type Attrs, type Descriptor, type TextAnchor, type Baseline, anchorAttrs, baselineY, group, rect } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone } from '../theme.js';
+import { assertFiniteNumber } from '../guard.js';
+import { round1 } from '../geometry/vec.js';
 // 多行遮罩片(260923): 行心堆叠走共用几何, 行距取与节点标签 / 旁注同一份口径
-import { rowBlock } from '../geometry/text-rows';
-import { NODE_TEXT_LAYOUT } from './node';
+import { rowBlock } from '../geometry/text-rows.js';
+import { NODE_TEXT_LAYOUT } from './node.js';
 // 行内标记(260925): 遮罩片与旁注的文字**与节点标签同一份发射器** —— 三家各画各的正是双源
-import { inlineTextRow } from './inline';
+import { inlineTextRow } from './inline.js';
 
 export type TextProps = {
   x: number;

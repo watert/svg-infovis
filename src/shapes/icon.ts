@@ -26,12 +26,12 @@
 // `block` 留位(那是作者决策, core 不猜)。这条缺口记在 `ROADMAP.md`「后续方向」。
 // =====================================================================
 
-import { type Attrs, type DGroup, type Descriptor, group, path, circle as dCircle, rect as dRect } from '../descriptor';
-import { DEFAULT_THEME, type Theme } from '../theme';
-import { ShapeInputError, assertFiniteNumber, assertFiniteRect } from '../guard';
-import { type Rect, fmt, round1 } from '../geometry/vec';
-import { mapPathData } from '../icons/path-data';
-import type { IconPaint, ParsedIcon } from '../icons/svg-parse';
+import { type Attrs, type DGroup, type Descriptor, group, path, circle as dCircle, rect as dRect } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme } from '../theme.js';
+import { ShapeInputError, assertFiniteNumber, assertFiniteRect } from '../guard.js';
+import { type Rect, fmt, round1 } from '../geometry/vec.js';
+import { mapPathData } from '../icons/path-data.js';
+import type { IconPaint, ParsedIcon } from '../icons/svg-parse.js';
 
 /** 图标缺省尺寸 / 与盒顶的间距(px)。改这两个数会改所有不显式给值的图标 —— 别随手动 */
 export const ICON_DEFAULTS = { size: 64, gap: 12 } as const;

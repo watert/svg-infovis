@@ -22,17 +22,17 @@
 // 它**不是边**(不长端点箭头, 也不进净空门禁) —— 边是关系, 线是版式, 所以不走 `edgeShape`。
 // =====================================================================
 
-import { type DGroup, type Descriptor, type TextAnchor, TEXT_ANCHORS, anchorAttrs, baselineY, group, path } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, toneStyle } from '../theme';
-import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
-import { type Rect, fmt, rectCenter } from '../geometry/vec';
-import { type AnchorName, rectAnchor } from '../geometry/box';
-import { type PackAlign, packCol } from '../geometry/pack';
-import { measureText } from '../knives/measure';
+import { type DGroup, type Descriptor, type TextAnchor, TEXT_ANCHORS, anchorAttrs, baselineY, group, path } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, toneStyle } from '../theme.js';
+import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard.js';
+import { type Rect, fmt, rectCenter } from '../geometry/vec.js';
+import { type AnchorName, rectAnchor } from '../geometry/box.js';
+import { type PackAlign, packCol } from '../geometry/pack.js';
+import { measureText } from '../knives/measure.js';
 // 遮罩片尺寸的**唯一来源**(与 `edgeLabel` 上屏那块同源): 分隔线的居中标签就是一块遮罩片
-import { labelBoxSize } from './edge';
-import { labelBoxShape } from './text';
-import { inlineTextRow } from './inline';
+import { labelBoxSize } from './edge.js';
+import { labelBoxShape } from './text.js';
+import { inlineTextRow } from './inline.js';
 
 /** 行角色词表。**运行时值与类型同源**, 且**行序恒定**: kicker → title → sub */
 export const HEADING_ROLES = ['kicker', 'title', 'sub'] as const;

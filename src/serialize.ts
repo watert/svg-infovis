@@ -4,8 +4,8 @@
 // 同一份 descriptor 在任何机器上必须产出同一串字节 —— 否则 golden 无从谈起。
 // =====================================================================
 
-import { easingSpline, type Attrs, type Descriptor, type DSvg } from './descriptor';
-import { fmt, round1 } from './geometry/vec';
+import { easingSpline, type Attrs, type Descriptor, type DSvg } from './descriptor.js';
+import { fmt, round1 } from './geometry/vec.js';
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const escapeXml = (s: string): string => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);

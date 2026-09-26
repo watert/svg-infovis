@@ -23,10 +23,10 @@
 // 归 `pack` 的 `pitch`, 两个词别互相代用(那是"差一个盒尺寸"的错法, 图上门禁看不出来)。
 // =====================================================================
 
-import { type AnchorName, type Size, placeRect, rectAnchor, rectFace } from './box';
-import type { Rect } from './vec';
-import type { Side } from './port';
-import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard';
+import { type AnchorName, type Size, placeRect, rectAnchor, rectFace } from './box.js';
+import type { Rect } from './vec.js';
+import type { Side } from './port.js';
+import { HINT_KNOB_SIZE, ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard.js';
 
 /** 交叉轴对齐三档(与 `pack` 同一套词): `start` 贴交叉轴起点侧 · `center` 骑中线 · `end` 贴终点侧 */
 export type PlaceAlign = 'start' | 'center' | 'end';

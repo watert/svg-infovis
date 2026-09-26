@@ -30,13 +30,13 @@
 // 判断, 就是又一份会漂的口径。
 // =====================================================================
 
-import { round1 } from '../geometry/vec';
-import { deriveGroupRect } from '../scene';
-import { type AuditLevel, type AuditReport, type Diagnostic, type Scene, audit, labelRect } from './audit';
+import { round1 } from '../geometry/vec.js';
+import { deriveGroupRect } from '../scene.js';
+import { type AuditLevel, type AuditReport, type Diagnostic, type Scene, audit, labelRect } from './audit.js';
 // `GROUP_FIT_PAD` = 派生框的缺省内边距(与 `cluster_border_clearance` 的门槛同源): 读板上报出这个数,
 // 是为了让"派生框凭什么这么大"在读数里可见 —— 不复制这个数字, 直接用那份常量
-import { GROUP_FIT_PAD } from './cluster';
-import { textUnits } from './measure';
+import { GROUP_FIT_PAD } from './cluster.js';
+import { textUnits } from './measure.js';
 
 /** 段落开关。缺省除了 `metrics` 全开(metrics 有 47 项, 默认只报条数, 要看再开) */
 export type DescribeSections = {

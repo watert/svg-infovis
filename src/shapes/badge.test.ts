@@ -15,15 +15,15 @@
 // =====================================================================
 
 import { describe, expect, it } from 'bun:test';
-import { type Descriptor, type DGroup, type DText, baselineY, circle as dCircle, svg } from '../descriptor';
-import { toSVG } from '../serialize';
-import { DEFAULT_THEME, THEMES, type Theme, toneStyle } from '../theme';
-import { ShapeInputError } from '../guard';
-import { rowBlock } from '../geometry/text-rows';
-import { packCol } from '../geometry/pack';
-import { measureText } from '../knives/measure';
-import { NODE_TEXT_LAYOUT } from './node';
-import { BADGE_LAYOUT, badgeFit, badgeShape, listRowFit, listRowShape } from './badge';
+import { type Descriptor, type DGroup, type DText, baselineY, circle as dCircle, svg } from '../descriptor.js';
+import { toSVG } from '../serialize.js';
+import { DEFAULT_THEME, THEMES, type Theme, toneStyle } from '../theme.js';
+import { ShapeInputError } from '../guard.js';
+import { rowBlock } from '../geometry/text-rows.js';
+import { packCol } from '../geometry/pack.js';
+import { measureText } from '../knives/measure.js';
+import { NODE_TEXT_LAYOUT } from './node.js';
+import { BADGE_LAYOUT, badgeFit, badgeShape, listRowFit, listRowShape } from './badge.js';
 
 const FS = BADGE_LAYOUT.fontSize;
 const W = BADGE_LAYOUT.weight;

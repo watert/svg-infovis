@@ -4,12 +4,12 @@
 // 注意: group 只画框, 不含任何"框住谁"的判断 —— 归属是决策, 活在 HTML 里(设计稿 §4.1)。
 // =====================================================================
 
-import { type Descriptor, baselineY, group, path, text } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone, groupToneStyle } from '../theme';
-import { assertFiniteNumber, assertFiniteRect } from '../guard';
-import { radiusPolygonPath } from '../geometry/rounded-path';
-import type { Pt, Rect } from '../geometry/vec';
-import { measureText } from '../knives/measure';
+import { type Descriptor, baselineY, group, path, text } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone, groupToneStyle } from '../theme.js';
+import { assertFiniteNumber, assertFiniteRect } from '../guard.js';
+import { radiusPolygonPath } from '../geometry/rounded-path.js';
+import type { Pt, Rect } from '../geometry/vec.js';
+import { measureText } from '../knives/measure.js';
 
 export type GroupProps = {
   x: number;

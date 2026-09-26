@@ -32,10 +32,10 @@
 // `lanes[i] === null` 的边一律**原样带过**(连它原本的 `lane` 一起) —— null 的语义是"不干涉"。
 // =====================================================================
 
-import { type Diagnostic } from './audit';
-import { LANE_CODES } from './codes';
-import { type LaneSlot, type RouteRequest, laneSlot } from './route';
-import { round1 } from '../geometry/vec';
+import { type Diagnostic } from './audit.js';
+import { LANE_CODES } from './codes.js';
+import { type LaneSlot, type RouteRequest, laneSlot } from './route.js';
+import { round1 } from '../geometry/vec.js';
 
 /**
  * 同带内相邻腰线的最小间距缺省值 —— 与 `audit` 的 `TRACK_SHIFT_MIN`(`OVERLAP_MIN` 8 + `PARALLEL_GAP_MAX` 7 = 15) 同源:

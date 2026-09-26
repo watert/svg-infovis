@@ -10,9 +10,9 @@
 //   · 深浅两档各写各的, 不做运行时颜色数学 —— 免得"A 模式下好看、B 模式下字看不见"
 // =====================================================================
 
-import { type Descriptor, rect } from './descriptor';
+import { type Descriptor, rect } from './descriptor.js';
 // 主题层网格缺省的**形状**来自 grid-pattern 的零件(纯类型导入: 它不认识主题, 运行时无环)
-import type { GridDefaults } from './shapes/grid-pattern';
+import type { GridDefaults } from './shapes/grid-pattern.js';
 
 export type Tone = 'slate' | 'blue' | 'emerald' | 'amber' | 'rose' | 'violet' | 'teal';
 export type Mode = 'light' | 'dark' | 'paper';

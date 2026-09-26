@@ -10,7 +10,7 @@
 // barrel 不要另写一条 `export *`: 与 route 的 `export *` 同名, 这些名字会从 barrel 消失。
 // =====================================================================
 
-import { type Pt, type Rect, rectBottom, rectCenter, rectRight } from './vec';
+import { type Pt, type Rect, rectBottom, rectCenter, rectRight } from './vec.js';
 
 export type Side = 'top' | 'right' | 'bottom' | 'left';
 

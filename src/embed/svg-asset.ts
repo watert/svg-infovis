@@ -31,8 +31,8 @@
 // 定位: 纯解析, **零运行期依赖**(只 import guard 与 vec), 不读盘 —— 素材文本由调用方给。
 // =====================================================================
 
-import { type Rect, round1 } from '../geometry/vec';
-import { ShapeInputError } from '../guard';
+import { type Rect, round1 } from '../geometry/vec.js';
+import { ShapeInputError } from '../guard.js';
 
 /** 解析产物 —— **进 scene 的就是它**(纯数据, 可 JSON 往返) */
 export type EmbedAsset = {

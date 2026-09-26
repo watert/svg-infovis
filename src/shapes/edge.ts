@@ -11,24 +11,24 @@
 // 审计读哪个矩形, 画的就是哪个矩形。
 // =====================================================================
 
-import { type Descriptor, group, path } from '../descriptor';
-import { DEFAULT_THEME, type Theme, type Tone } from '../theme';
-import { ShapeInputError, assertFiniteNumber, assertFinitePoints } from '../guard';
+import { type Descriptor, group, path } from '../descriptor.js';
+import { DEFAULT_THEME, type Theme, type Tone } from '../theme.js';
+import { ShapeInputError, assertFiniteNumber, assertFinitePoints } from '../guard.js';
 import {
   type EndpointMarker, type MarkerStyle, type PolylineTangent,
   endpointTrim, polylineEndpoints, radiusPolylinePath, trimPolyline,
-} from '../geometry/rounded-path';
-import { type Pt, dist, norm, perpL, round1, sub } from '../geometry/vec';
-import { normalizeRoutePoints, polylineLength } from '../geometry/predicates';
+} from '../geometry/rounded-path.js';
+import { type Pt, dist, norm, perpL, round1, sub } from '../geometry/vec.js';
+import { normalizeRoutePoints, polylineLength } from '../geometry/predicates.js';
 // 行块几何(260923): 遮罩片的高不再是"字号 + 2×padY"的近似, 而是真行块并集 —— 与
 // `shapes/node.ts` 的节点标签 / `export.ts` 的 `scene.texts` / `knives/fit.ts` 的 `textFit`
 // 共用同一份堆法(`geometry/text-rows`), 行距口径也共用 `NODE_TEXT_LAYOUT.lineGapEm`。
 // **行高**是唯一分道的地方(260925): 那三处吃 `measureText` 的行盒(1.4em, 宁宽不窄), 遮罩吃
 // `MASK_ROW_INK_EM`(1.15em 墨迹) —— 见该常量的注释。
-import { rowBlock } from '../geometry/text-rows';
-import { NODE_TEXT_LAYOUT } from './node';
-import { ESTIMATE_SAFETY_FACTOR, measureText } from '../knives/measure';
-import type { SceneLabel } from '../knives/audit';
+import { rowBlock } from '../geometry/text-rows.js';
+import { NODE_TEXT_LAYOUT } from './node.js';
+import { ESTIMATE_SAFETY_FACTOR, measureText } from '../knives/measure.js';
+import type { SceneLabel } from '../knives/audit.js';
 
 export type EdgeProps = {
   /** route 给出的折点列(至少 2 点) */

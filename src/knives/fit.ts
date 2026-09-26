@@ -47,20 +47,20 @@
 // **audit 不许反过来 import 本文件**, 会成环。
 // =====================================================================
 
-import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard';
-import { type Pt, type Rect, round1 } from '../geometry/vec';
+import { ShapeInputError, assertFiniteNumber, assertOneOf } from '../guard.js';
+import { type Pt, type Rect, round1 } from '../geometry/vec.js';
 // 落点改走盒查询(`placeRect` + `rectAnchor`): 手写 `at - w/2` 这类减法只该有一份口径
-import { type AnchorName, placeRect, rectAnchor } from '../geometry/box';
-import { rowBlock } from '../geometry/text-rows';
+import { type AnchorName, placeRect, rectAnchor } from '../geometry/box.js';
+import { rowBlock } from '../geometry/text-rows.js';
 // 对齐词表取 descriptor 那一份(运行时值与类型同源): "字按 start 对齐"与"盒左端落在锚点上"是同一件事
-import { TEXT_ANCHORS, type TextAnchor } from '../descriptor';
-import { NODE_TEXT_LAYOUT, type NodeShapeKind, assertCapRadius, assertNodeShape, nodeOuterSize } from '../shapes/node';
+import { TEXT_ANCHORS, type TextAnchor } from '../descriptor.js';
+import { NODE_TEXT_LAYOUT, type NodeShapeKind, assertCapRadius, assertNodeShape, nodeOuterSize } from '../shapes/node.js';
 // 卡片可以带图标, 而"图标离卡片多远"只有一个缺省 —— 读它, 不在本文件重写一个 12
-import { ICON_DEFAULTS } from '../shapes/icon';
+import { ICON_DEFAULTS } from '../shapes/icon.js';
 // `SCENE_TEXT_DEFAULTS` 跟 `SceneText` 住在 audit; 呼吸位跟别的尺子住在 thresholds。两边都读, 都别抄
-import { type SceneOwner, type SceneText, SCENE_TEXT_DEFAULTS } from './audit';
-import { type AuditLevel, THRESHOLDS } from './thresholds';
-import { measureText } from './measure';
+import { type SceneOwner, type SceneText, SCENE_TEXT_DEFAULTS } from './audit.js';
+import { type AuditLevel, THRESHOLDS } from './thresholds.js';
+import { measureText } from './measure.js';
 
 /**
  * 主 / 次标签的字重。主标签 600 是 `nodeShape` 画上去的那个值(声明在 `NODE_TEXT_LAYOUT.weight`,

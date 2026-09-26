@@ -33,12 +33,12 @@
 //   · 竖腰线 Z 与 L 拐仍是原来的控制流。放开弯数 / 穿盒 / 走廊 / 交叉会改产物, 要单独拍板再重出 golden。
 // =====================================================================
 
-import { type Pt, type Rect, round1 } from '../geometry/vec';
+import { type Pt, type Rect, round1 } from '../geometry/vec.js';
 import {
   polylineCrossings, polylineLength, polylineRectsClearance, polylineSegmentLengths,
   sameAxisOverlapLength, segmentRectIntersectionLength,
-} from '../geometry/predicates';
-import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds';
+} from '../geometry/predicates.js';
+import { type AuditLevel, PIERCE_MIN, STUB_MIN, THRESHOLDS } from './thresholds.js';
 
 // --- 维度表(**单一来源**) -----------------------------------------------
 //
