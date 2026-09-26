@@ -2,7 +2,7 @@
 name: svg-infovis-roadmap
 description: "svg-infovis 的立项依据、当前能力与后续方向"
 tags: [svg-infovis, roadmap]
-date: 2026-09-26T00:00:00+08:00
+date: 2026-09-26T21:30:00+08:00
 ---
 
 # ROADMAP
@@ -44,8 +44,8 @@ date: 2026-09-26T00:00:00+08:00
 - **行内标记的第二档** —— v1(260925)只有四种样式: `**粗**` / `*斜*` / `~~删~~` / `[字]{tone|#hex}`。未做且已知: ① 等宽 `code`(加一种 `InlineKind` + `INLINE_STYLE` 一行即可: 样式袋 / `DTextSpan.attrs` 都吃得下 `font-family` —— 刻意**没**预置空字段, 见 QUICKREF「边界」那条"不提前给空位"); ② 链接 / 上标 / 名字引用(`name` / `link` / `sup`); ③ 着色的 **tint 底**(现在只改文字色, 给底就得同时动 `labelBoxShape` 的背景片); ④ **落单标记的报位诊断**(`TextRun.start/end` 已经带出来了, 门禁还没拿它指路); ⑤ `knives/describe.ts` 的读数板走 `textUnits(原串)` —— 带标记的标签在终端里会多算那几个标记字符(`cells(plainText(s))` 一行可收, 但那会改 `describe` 的既有输出字节, 等下次一并做)。前三项都要"先有真需求再开", 第四项等下一次"作者写歪了却没人喊"的实例
 - **web playground / 薄壳演示页** —— ✅ 260926 已起步: `website/`(Vite + React 静态站, 独立
   package, 依赖单向 —— core 一行不动、零依赖不破; 画廊 SVG 全走 prerender 管线直出, hero 是内核在
-  浏览器里现场算)。原记作 "v0.2", 而 v0.2 这个号 260925 起归排版层; 后续(playground 交互编辑 /
-  React 薄壳狗粮场)仍按 `docs/infograph-roadmap.md` 的"划界"排
+  浏览器里现场算)。后续(playground 交互编辑 / React 薄壳狗粮场)按 `docs/infograph-roadmap.md`
+  的"划界"排 —— **不占 v0.x 号**(260925 起 v0.x 归 infograph 排期)
 - **动画: descriptor 缺"随时间变的量"这一维(260926 缺口盘点, 按证据排期, 别当 v0.4 的并列项)** ——
   全仓零动画能力: `Attrs` 是**静态**的, 值在构造时定死; 无插值、无 easing、无薄壳。三档成本差三个数量级:
   ① **SVG 内建动画(SMIL / CSS `@keyframes`)** —— 最便宜且**不破任何现有纪律**: 动画在浏览器端跑,

@@ -35,7 +35,7 @@ date: 2026-09-17T22:30:00+08:00
 
 ## 三条单向依赖
 
-- `core ← react 薄壳 ← playground`（v0.2）—— core 永不引 React / vite
+- `core ← react 薄壳 ← playground` —— core 永不引 React / vite
 - `core ← blink` —— **已废弃** (见 `docs/blink-archive.md`)。图上留着, 是为了记住它不在主链上, 不是还要做
 - 决策 → 几何，不许反向 —— HTML 变则 `html_rev++`，量框写回则 `scene_rev++`；
   **core 没有任何写决策的入口**（这是刻意的）
