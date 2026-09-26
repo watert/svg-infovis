@@ -5,7 +5,15 @@ tags: [svg-infovis, architecture, diagram, svg, reference, aesthetics]
 date: 2026-09-17T22:30:00+08:00
 ---
 
-# svg-infovis 架构
+# svg-infovis 架构（v1/v2 产品管线 · **演进史存档**）
+
+> ⚠ **本篇是演进史, 不是现状契约**。它讲的是 v0.1 的**产品管线五层**(决策 / 缓存 / 内核 / 出口 /
+> 分发), 其中**决策层(HTML 骨架)与 blink 旁路均已废弃**, 只留下论证价值。
+> 现行**模块分层**(七层职责 / 依赖方向 / 准入门槛 / 三条边界轴)看
+> [`layering.md`](./layering.md), 配图 [`architecture-v3.svg`](./architecture-v3.svg)。
+>
+> 两篇的分层不是一回事: 本篇分的是**一次出图经过几道工序**, layering 分的是**代码按什么职责摆**。
+> 缺 `blocks/` 与 `templates/` 的正是本篇 —— 所以别拿它回答"某件东西该放哪层"。
 
 ![架构 v2](architecture-v2.svg)
 

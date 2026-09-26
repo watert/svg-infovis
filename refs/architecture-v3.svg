@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="760.00" height="824.00" viewBox="0 0 760.00 824.00" font-family="ui-sans-serif, system-ui, &quot;PingFang SC&quot;, sans-serif">
+  <rect x="0.00" y="0.00" width="760.00" height="824.00" rx="0.00" fill="#ffffff" stroke="none" />
+  <g data-shape="group">
+    <path d="M 140.00 164.00 A 16.00 16.00 0 0 1 156.00 148.00 L 696.00 148.00 A 16.00 16.00 0 0 1 712.00 164.00 L 712.00 652.00 A 16.00 16.00 0 0 1 696.00 668.00 L 156.00 668.00 A 16.00 16.00 0 0 1 140.00 652.00 L 140.00 164.00 Z" fill="none" stroke="#cbd5e1" stroke-dasharray="6 5" stroke-width="1.5" />
+    <text x="140.00" y="140.20" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600">core · 零依赖纯函数</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 60.00 A 12.00 12.00 0 0 1 202.00 48.00 L 398.00 48.00 A 12.00 12.00 0 0 1 410.00 60.00 L 410.00 88.00 A 12.00 12.00 0 0 1 398.00 100.00 L 202.00 100.00 A 12.00 12.00 0 0 1 190.00 88.00 L 190.00 60.00 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="1.5" />
+    <text x="300.00" y="70.40" fill="#ffffff" font-family="inherit" font-size="13" font-weight="600" text-anchor="middle">作者声明 · 决策唯一源</text>
+    <text x="300.00" y="86.00" fill="#ffffff" font-family="inherit" font-size="11" opacity="0.7" text-anchor="middle">坐标 / 比例 / 计数 / 折点 / 间距</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 208.00 A 12.00 12.00 0 0 1 202.00 196.00 L 398.00 196.00 A 12.00 12.00 0 0 1 410.00 208.00 L 410.00 244.00 A 12.00 12.00 0 0 1 398.00 256.00 L 202.00 256.00 A 12.00 12.00 0 0 1 190.00 244.00 L 190.00 208.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="300.00" y="222.60" fill="#0f172a" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">shapes/ 无数值语义排版件</text>
+    <text x="300.00" y="237.50" fill="#0f172a" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">node · edge · stat · badge · heading</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 324.00 A 12.00 12.00 0 0 1 202.00 312.00 L 398.00 312.00 A 12.00 12.00 0 0 1 410.00 324.00 L 410.00 360.00 A 12.00 12.00 0 0 1 398.00 372.00 L 202.00 372.00 A 12.00 12.00 0 0 1 190.00 360.00 L 190.00 324.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="300.00" y="338.60" fill="#0f172a" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">blocks/ 数值语义块</text>
+    <text x="300.00" y="353.50" fill="#0f172a" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">{ shape, bounds } · 可嵌套</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 448.00 324.00 A 12.00 12.00 0 0 1 460.00 312.00 L 676.00 312.00 A 12.00 12.00 0 0 1 688.00 324.00 L 688.00 360.00 A 12.00 12.00 0 0 1 676.00 372.00 L 460.00 372.00 A 12.00 12.00 0 0 1 448.00 360.00 L 448.00 324.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="568.00" y="338.70" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">templates/ 场景骨架</text>
+    <text x="568.00" y="353.00" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">槽位吃块 · 仓内按路径引</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 440.00 A 12.00 12.00 0 0 1 202.00 428.00 L 398.00 428.00 A 12.00 12.00 0 0 1 410.00 440.00 L 410.00 476.00 A 12.00 12.00 0 0 1 398.00 488.00 L 202.00 488.00 A 12.00 12.00 0 0 1 190.00 476.00 L 190.00 440.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="300.00" y="454.60" fill="#0f172a" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">serialize 唯一字符串出口</text>
+    <text x="300.00" y="469.50" fill="#0f172a" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">属性键 codepoint 序 · 禁 Date.now</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 448.00 440.00 A 12.00 12.00 0 0 1 460.00 428.00 L 676.00 428.00 A 12.00 12.00 0 0 1 688.00 440.00 L 688.00 476.00 A 12.00 12.00 0 0 1 676.00 488.00 L 460.00 488.00 A 12.00 12.00 0 0 1 448.00 476.00 L 448.00 440.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="568.00" y="454.70" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">geometry/ 纯几何原语</text>
+    <text x="568.00" y="469.00" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">shapes 与 blocks 的共同底座</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 556.00 A 12.00 12.00 0 0 1 202.00 544.00 L 398.00 544.00 A 12.00 12.00 0 0 1 410.00 556.00 L 410.00 592.00 A 12.00 12.00 0 0 1 398.00 604.00 L 202.00 604.00 A 12.00 12.00 0 0 1 190.00 592.00 L 190.00 556.00 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1.5" />
+    <text x="300.00" y="570.60" fill="#451a03" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">export · fail-closed</text>
+    <text x="300.00" y="585.50" fill="#451a03" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">tryExport 草稿 / exportScene 拒出图</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 448.00 556.00 A 12.00 12.00 0 0 1 460.00 544.00 L 676.00 544.00 A 12.00 12.00 0 0 1 688.00 556.00 L 688.00 592.00 A 12.00 12.00 0 0 1 676.00 604.00 L 460.00 604.00 A 12.00 12.00 0 0 1 448.00 592.00 L 448.00 556.00 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="568.00" y="570.70" fill="#0f172a" font-family="inherit" font-size="12" font-weight="600" text-anchor="middle">knives/ 推导与判决</text>
+    <text x="568.00" y="585.00" fill="#0f172a" font-family="inherit" font-size="10" opacity="0.7" text-anchor="middle">route 折点 · fit 反算 · audit</text>
+  </g>
+  <g data-shape="node">
+    <path d="M 190.00 736.00 A 12.00 12.00 0 0 1 202.00 724.00 L 398.00 724.00 A 12.00 12.00 0 0 1 410.00 736.00 L 410.00 764.00 A 12.00 12.00 0 0 1 398.00 776.00 L 202.00 776.00 A 12.00 12.00 0 0 1 190.00 764.00 L 190.00 736.00 Z" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.5" />
+    <text x="300.00" y="746.60" fill="#064e3b" font-family="inherit" font-size="12.5" font-weight="600" text-anchor="middle">烘焙 SVG · 自包含单文件</text>
+    <text x="300.00" y="761.50" fill="#064e3b" font-family="inherit" font-size="10.5" opacity="0.7" text-anchor="middle">属性内联 · 零 marker · 零 CSS 变量</text>
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 100.00 L 300.00 189.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 196.00 L 296.85 189.00 L 303.15 189.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 256.00 L 300.00 305.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 312.00 L 296.85 305.00 L 303.15 305.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 372.00 L 300.00 421.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 428.00 L 296.85 421.00 L 303.15 421.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 488.00 L 300.00 537.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 544.00 L 296.85 537.00 L 303.15 537.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 300.00 604.00 L 300.00 717.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 300.00 724.00 L 296.85 717.00 L 303.15 717.00 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 410.00 342.00 L 441.00 342.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 448.00 342.00 L 441.00 345.15 L 441.00 338.85 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 410.00 574.00 L 441.00 574.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 448.00 574.00 L 441.00 577.15 L 441.00 570.85 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <g data-shape="edge">
+    <path d="M 410.00 342.00 L 423.00 342.00 A 6.00 6.00 0 0 1 429.00 348.00 L 429.00 452.00 A 6.00 6.00 0 0 0 435.00 458.00 L 441.00 458.00" fill="none" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <path d="M 448.00 458.00 L 441.00 461.15 L 441.00 454.85 Z" fill="#64748b" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+  </g>
+  <text x="52.00" y="77.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">声明</text>
+  <text x="52.00" y="287.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">组件</text>
+  <text x="52.00" y="461.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">序列化</text>
+  <text x="52.00" y="577.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">出口</text>
+  <text x="52.00" y="753.90" fill="#475569" font-family="inherit" font-size="11" text-anchor="end">产出</text>
+  <text x="456.00" y="229.70" fill="#475569" font-family="inherit" font-size="10.5">props → descriptor; 留白归作者</text>
+  <text x="456.00" y="403.70" fill="#475569" font-family="inherit" font-size="10.5">≥2 个消费者才上提 core</text>
+  <text x="456.00" y="625.70" fill="#475569" font-family="inherit" font-size="10.5">门禁三档 —— fail-closed 挡出口,</text>
+  <text x="456.00" y="641.70" fill="#475569" font-family="inherit" font-size="10.5">warning 只是读数; 块 / 图标 / 底纹</text>
+  <text x="456.00" y="657.70" fill="#475569" font-family="inherit" font-size="10.5">/ embed 不进净空门禁, 靠作者留位</text>
+  <text x="456.00" y="753.70" fill="#475569" font-family="inherit" font-size="10.5">不写 dominant-baseline · 不用 marker</text>
+</svg>
