@@ -19,6 +19,7 @@ import { below } from '../../src/geometry/place';
 import { nodeFit } from '../../src/knives/fit';
 import { dividerShape, headingGeometry, headingShape } from '../../src/shapes/heading';
 import { nodeShape } from '../../src/shapes/node';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段是手写的数 ------------------------------------------
 
@@ -69,7 +70,7 @@ const foot = headingShape(FOOT);
 const W = X + RULE_W + PAD;
 const H = round1(footBox.y + footBox.h + PAD);
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(图走 stdout): 行数 / 块高 / 逐条缝 —— 缝应恒为 `HEADING_LAYOUT.rowGap`
   const rows = headingGeometry(HEAD).rows;
   const seams = rows.slice(1).map((r, i) => round1(r.rect.y - (rows[i].rect.y + rows[i].rect.h)));

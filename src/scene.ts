@@ -36,9 +36,9 @@
 // 废弃理由与"为何最后选了 `measure` 估宽"见 docs/blink-archive.md 与 refs/architecture.md。
 // =====================================================================
 
-import { type Rect, codepointSort, rectBottom, rectRight, round1 } from './geometry/vec';
-import { type Diagnostic, type Scene, type SceneGroup, type SceneNode as AuditSceneNode, groupLabelBox } from './knives/audit';
-import { GROUP_FIT_PAD, type ClusterTier, declaredMemberIds, isDeclaredFrame, memberRef } from './knives/cluster';
+import { type Rect, codepointSort, rectBottom, rectRight, round1 } from './geometry/vec.js';
+import { type Diagnostic, type Scene, type SceneGroup, type SceneNode as AuditSceneNode, groupLabelBox } from './knives/audit.js';
+import { GROUP_FIT_PAD, type ClusterTier, declaredMemberIds, isDeclaredFrame, memberRef } from './knives/cluster.js';
 
 // --- 契约类型 ----------------------------------------------------------
 
@@ -242,20 +242,45 @@ export const decisionSourceText = (source: DecisionSource): string =>
 export const decisionDigest = (source: DecisionSource): string =>
   sha256Hex(new TextEncoder().encode(decisionSourceText(source)));
 
-/** bun 内置 CryptoHasher 的最小结构签名 —— 不为它引 @types/bun(B 端浏览器 demo 也要能编译本文件) */
-type HasherCtor = new (algorithm: string) => { update(data: Uint8Array): void; digest(encoding: 'hex'): string };
+/**
+ * hasher 的最小结构签名 —— bun 的 `CryptoHasher` 与 node 的 `createHash()` 都长这样。
+ * 不为它引 @types/bun / @types/node: B 端浏览器 demo 也要能编译本文件
+ */
+type Hasher = { update(data: Uint8Array): unknown; digest(encoding: 'hex'): string };
+type HasherCtor = new (algorithm: string) => Hasher;
+/** node `createHash()` 的那一档多一个链式返回(它的 `update` 回自己) —— 单独描一笔, 不去动上面的公共签名 */
+type NodeHash = { update(data: Uint8Array): { digest(encoding: 'hex'): string } };
+
+/** node 内置的**调用期**取用口 —— 见下面 sha256Hex 的"为什么不许静态 import" */
+function nodeBuiltin<T>(specifier: string): T | undefined {
+  const proc = (globalThis as { process?: { getBuiltinModule?: (id: string) => unknown } }).process;
+  try {
+    return (proc?.getBuiltinModule?.(specifier) as T | undefined) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
- * sha256 hex。走 **bun 内置** `Bun.CryptoHasher`(同步, 零依赖)。
- * 刻意在**调用期**取构造器: scene 经 barrel 进浏览器 demo, import 期不许解析 bun 专有全局,
- * 只有真在浏览器里算指纹才报"需要 bun 运行时"(这条边界写在 README)。
+ * sha256 hex(同步)。两档, 各自**都在调用期**取: ① bun 内置 `Bun.CryptoHasher` ② node 的
+ * `node:crypto.createHash`(经 `process.getBuiltinModule` 取, bun 与 node ≥20.16 都有)。
+ *
+ * 为什么坚持调用期取、且**一句静态 `node:` import 都不许有**: scene 经 barrel 进浏览器 demo,
+ * import 期解析 node 内置就让整条浏览器路径当场炸 —— 而指纹只在 server 侧算。所以浏览器里
+ * (`globalThis.process` 不存在)才落进下面那个"两档都没有"的错误。
+ * `decisionDigest` 是同步判据(audit 在一个函数里连着调它), 不许为了兼容改成 async。
  */
 function sha256Hex(bytes: Uint8Array): string {
-  const Ctor = (globalThis as { Bun?: { CryptoHasher?: HasherCtor } }).Bun?.CryptoHasher;
-  if (!Ctor) throw new Error('源指纹需要 sha256: 本模块用 bun 内置 Bun.CryptoHasher —— 请在 bun 运行时下算指纹');
-  const hasher = new Ctor('sha256');
-  hasher.update(bytes);
-  return hasher.digest('hex');
+  const BunCtor = (globalThis as { Bun?: { CryptoHasher?: HasherCtor } }).Bun?.CryptoHasher;
+  if (BunCtor) {
+    const hasher = new BunCtor('sha256');
+    hasher.update(bytes);
+    return hasher.digest('hex');
+  }
+  const crypto = nodeBuiltin<{ createHash(algorithm: string): NodeHash }>('node:crypto');
+  if (crypto) return crypto.createHash('sha256').update(bytes).digest('hex');
+  throw new Error('源指纹需要 sha256, 但当前运行时两档都没有: bun 内置 Bun.CryptoHasher, 或 node'
+    + ' `process.getBuiltinModule("node:crypto")`(node ≥20.16, getBuiltinModule 回移档) —— 浏览器侧算源指纹暂不支持');
 }
 
 // --- 建缓存 / 标 HTML 变更 ---------------------------------------------

@@ -29,6 +29,7 @@ import { THEMES } from '../../src/theme';
 import { sceneChildren } from '../../src/export';
 import { svg } from '../../src/descriptor';
 import { toSVG } from '../../src/serialize';
+import { isMainModule } from '../../src/runtime';
 
 // 描红的色: **单点例外**才用(角色该写 scene 的 tone 里, 见 nodeStyles 那条口径) —— 三处共用一份
 const RED = '#dc2626';
@@ -157,9 +158,9 @@ const culprits = (diags: Diagnostic[]): string[] => [...new Set(diags.flatMap((d
 }))];
 
 // 断言式自检在 `test/audit-demo.test.ts`(同一份 `dirty` / `clean` 数据): 本文件只把诊断打给人看。
-// 打印与出图都收在 `import.meta.main` 里 —— 被 import 时本模块是**纯数据**, 不往 stderr 灌 54 行噪声
+// 打印与出图都收在 `isMainModule(import.meta.url)` 里 —— 被 import 时本模块是**纯数据**, 不往 stderr 灌 54 行噪声
 // (那份测试 import 它, 过去每次 `bun test` 都要带上这段)。
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   const r1 = show('dirty scene', dirty, 'standard');
   show('dirty scene', dirty, 'showcase');
   show('clean scene', clean, 'showcase');

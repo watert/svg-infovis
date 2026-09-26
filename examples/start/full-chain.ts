@@ -13,6 +13,7 @@ import { routeOrthogonal } from '../../src/knives/route';
 import { edgeLabel } from '../../src/shapes/edge';
 import { packCol, packRow } from '../../src/geometry/pack';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const W = 640;
 const H = 400;
@@ -70,7 +71,7 @@ const projected = [e1, e2, e3, e4, loop].filter((r) => r.laneProjected).length;
 
 // 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 全在那一处(见该文件头注)。
 // 本文件只给"这条链该怎么画", 出口纪律不再由每个示例各守一遍。
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, {
     level: 'showcase',
     title: '几何内核工具环',

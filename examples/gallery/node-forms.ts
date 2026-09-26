@@ -18,6 +18,7 @@ import { nodeFit } from '../../src/knives/fit';
 import { routeOrthogonal } from '../../src/knives/route';
 import { packRow } from '../../src/geometry/pack';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const LEVEL = 'showcase';
 
@@ -57,7 +58,7 @@ export const scene: Scene = {
 };
 
 // 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, {
     level: LEVEL,
     fit: true,

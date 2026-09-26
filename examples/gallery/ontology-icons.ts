@@ -37,6 +37,7 @@ import { edgeLabel, labelAngle } from '../../src/shapes/edge';
 import { THEMES } from '../../src/theme';
 import { round1 } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const LEVEL = 'showcase';
 const FONT_SIZE = 12;
@@ -153,7 +154,7 @@ export const scene: Scene = {
 const styles = Object.fromEntries(nodes.map((n) => [n.id, { fill: CARD_FILL }]));
 
 // 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, {
     level: LEVEL,
     fit: { padding: 40 },

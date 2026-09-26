@@ -25,6 +25,7 @@ import { packCol } from '../../src/geometry/pack';
 import { type Pt, round1 } from '../../src/geometry/vec';
 import type { Tone, Variant } from '../../src/theme';
 import { listRowFit, listRowShape } from '../../src/shapes/badge';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段的数是手写的 ---------------------------------------
 
@@ -81,7 +82,7 @@ const rows = STEPS.map((s, i) => {
   return listRowShape({ ...s, badgeSize: BADGE_SIZE, x: round1(r.x + O.x), y: round1(r.y + O.y) });
 });
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检(只走 stderr): 列齐 = 全列文本左缘同一个偏移(徽章直径取大就是为了它), 顺带量一眼自然宽
   const offsets = [...new Set(fits.map((f) => f.textOffset))];
   if (offsets.length !== 1) console.error('警告: 文本列不齐, textOffset =', offsets.join(' / '));

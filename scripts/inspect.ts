@@ -28,13 +28,14 @@
 //   那种文件的顶层会往 stdout 吐 SVG, 把读数冲成混合产物。
 // =====================================================================
 
-import { type Rect } from '../src/geometry/vec';
-import { bounds } from '../src/geometry/box';
-import { GROUP_FIT_PAD } from '../src/knives/cluster';
-import { routeOrthogonal } from '../src/knives/route';
-import { type Scene, audit } from '../src/knives/audit';
-import { describeScene } from '../src/knives/describe';
-import { type FitOptions, fitScene } from '../src/export';
+import { type Rect } from '../src/geometry/vec.js';
+import { bounds } from '../src/geometry/box.js';
+import { GROUP_FIT_PAD } from '../src/knives/cluster.js';
+import { routeOrthogonal } from '../src/knives/route.js';
+import { type Scene, audit } from '../src/knives/audit.js';
+import { describeScene } from '../src/knives/describe.js';
+import { type FitOptions, fitScene } from '../src/export.js';
+import { isMainModule } from '../src/runtime.js';
 
 const USAGE = `用法: bun run scripts/inspect.ts [<scene-module.ts>] [--fit] [--metrics] [--showcase] [--rows=N] [--notes=N]
 
@@ -219,4 +220,4 @@ export async function main(argv: string[]): Promise<number> {
   return report.pass ? 0 : 1;
 }
 
-if (import.meta.main) process.exitCode = await main(process.argv.slice(2));
+if (isMainModule(import.meta.url)) process.exitCode = await main(process.argv.slice(2));

@@ -77,6 +77,7 @@ import { rightOf } from '../../src/geometry/place';
 import { grid } from '../../src/geometry/grid';
 import { type Rect, rectRight } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 // 档位与 fit 参数**导出**给 test 用 —— 判据里复述一遍这两个字面量就是第二权威(档位一漂,
 // test 量的是另一档的图; 本仓最贵的事故就是"两个口径"这族)。
@@ -325,7 +326,7 @@ export const scene: Scene = {
 };
 export default scene;
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 出口走 `scripts/runner.ts`(260920): 摘要 / 诊断(含 evidence) / 草稿 / exit code 都在那一处。
   // 深色画布的细线格仍在这里给 —— dark 主题**刻意不带**底纹, 要就得自己给(与 paper 自带那层同族)。
   runScene(scene, {

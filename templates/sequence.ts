@@ -36,8 +36,10 @@
 //   · **样式永远走覆盖表** —— 模板给的 lifeline 缺省样式只是"没意见时的样子",
 //     调用方的 `edgeStyles` / `nodeStyles` 一个字都优先于它(SKILL.md 纪律 10)。
 //
-// 用法一(库):
-//   import { buildSequence, emitSequence } from 'svg-infovis/templates/sequence.ts';
+// 用法(库): 模板**不在包的 `exports` 白名单里** —— `import 'svg-infovis/templates/sequence.ts'` 解析不到
+// (模板源码随包发布, 但没进白名单)。先把它拷成你自己项目里的一份, 再 import 本地那份; 要改就改本地:
+//   svginfo new my-seq.ts          # 拷本文件到 ./my-seq.ts, 并把 import 换成包名 / `svg-infovis/runtime`
+//   import { buildSequence, emitSequence } from './my-seq.ts';
 //   const { scene, opts, plan } = buildSequence({ actors, messages, activations }); // 想接着改停在这
 //   const r = emitSequence({ ..., out: '/tmp/seq.svg' });                          // 一步到产物
 //   if (!r.report.pass) process.exitCode = 1;
@@ -98,6 +100,7 @@ import {
   type Tone,
   type Variant,
 } from '../src/index';
+import { isMainModule } from '../src/runtime';
 
 // --- 契约 --------------------------------------------------------------
 
@@ -623,7 +626,7 @@ export const DEMO_SEQUENCE: SequenceSpec = {
   ],
 };
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   const outArg = process.argv.find((a) => a.startsWith('--out='));
   const out = outArg ? outArg.slice('--out='.length) : undefined;
   const dark = process.argv.includes('--dark'); // 笔记配图走 light, deck / 深色页走 dark

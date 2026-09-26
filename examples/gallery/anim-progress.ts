@@ -47,6 +47,7 @@ import { iconShape } from '../../src/shapes/icon';
 import { iconAsset } from '../../src/icons/lucide';
 import { PROGRESS_LAYOUT, progressBlock } from '../../blocks/progress';
 import { pictogramFit, pictogramShape } from '../../blocks/pictogram';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段是手写的数 -----------------------------------------
 
@@ -200,10 +201,10 @@ const content: Descriptor[] = [
   line(foot, DEFAULT_THEME.label),
 ];
 
-/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `import.meta.main` */
+/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `isMainModule(import.meta.url)` */
 export const doc: DSvg = svg(W, H, content, { 'font-family': 'ui-sans-serif, system-ui, "PingFang SC", sans-serif' });
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(图走 stdout): 条的几何 / 阵列格数 / 时间的错峰读数
   console.error(`条: 满额 ${BAR_W} → 声明 ${BAR_RATIO} 实墨 ${goal.w}(块解的盒) · 圆角 ${FILL_R}(块声明的两数之差)`);
   console.error(`阵列 ${fit.cols}×${fit.rows} 格(边长 ${fit.size})· 染色 ${LIT}/${TOTAL} 格 · 格位 ${cells.cell(0, 0).x},${cells.cell(0, 0).y}`);

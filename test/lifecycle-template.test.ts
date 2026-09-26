@@ -166,7 +166,7 @@ describe('templates/lifecycle · 判据', () => {
     }
   });
 
-  it('⑥ 决策量比手排小一个量级 —— demo 的 spec 行数 vs 手排示例的 339 行', () => {
+  it('⑥ 决策量比手排小一个量级 —— demo 的 spec 行数 vs 手排示例的 340 行', () => {
     const src = readFileSync(new URL('../templates/lifecycle.ts', import.meta.url), 'utf8');
     const from = src.indexOf('export const DEMO_LIFECYCLE');
     const specLines = src.slice(from, src.indexOf('\n};', from)).split('\n').length;
@@ -176,7 +176,9 @@ describe('templates/lifecycle · 判据', () => {
     // 手排量是历史证人, 变了就说明审的不是同一张图。
     // 260923: 341 → 339 —— 手搓旁注 helper 收敛到 `textNote` 少了 2 行, 图本身一字未动
     // (同日的产物 metrics 逐字段对照相同, 见 `examples/gallery/lifecycle-agent-run.ts` 的验证)
-    expect(hand).toBe(339);
+    // 260926: 339 → 340 —— 出口判定从 bun 专有 `import.meta.main` 换成 `isMainModule(import.meta.url)`
+    // (跨运行时化), 只多一行 import, 图本身一字未动
+    expect(hand).toBe(340);
   });
 
   it('附 · via 永远赢(声明折点按原样走, plan 标 declarative)', () => {

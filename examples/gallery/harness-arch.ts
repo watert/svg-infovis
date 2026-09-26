@@ -25,6 +25,7 @@ import { fitGroupFrames } from '../../src/scene';
 import { rectFace } from '../../src/geometry/box';
 import { mid, type Rect } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const H = 54;           // 版式: 节点高。nodeFit 的内容下限是 39(带 PAD_X 的纵向内边距时 51), 高度这一侧没有门禁 —— 节奏由版式说了算
 const PAD_X = 16;       // 版式: 标签呼吸位(比 showcase 档的 10 宽 6, 观感更松)。它同时进 `nodeFit` 的 `padding` —— 横竖两轴同一个数
@@ -161,7 +162,7 @@ export default scene;
 // 折线自重叠(相邻段反向 / 隔段同轴反向)归门禁 `no_backtrack` —— 260919 前它是本文件里手写的一段自检,
 // 现在读数直接看 metrics 的 `backtracks`(本图 0), 示例不再自己重复一遍判据。
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 出口走 `scripts/runner`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
   runScene(scene, { level: 'showcase', fit: { padding: 24, bleed: 1 }, title: 'DeepSeek-Harness 装配链路' });
 }

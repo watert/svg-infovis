@@ -42,6 +42,7 @@ import { nodeFit } from '../../src/knives/fit';
 import { nodeShape } from '../../src/shapes/node';
 import { edgeGeometry, edgeShape, labelAnchor, labelBoxSize } from '../../src/shapes/edge';
 import { labelBoxShape, textShape } from '../../src/shapes/text';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段是手写的数 -----------------------------------------
 
@@ -216,10 +217,10 @@ const content: Descriptor[] = [
   circle(dot.x, dot.y, DOT_R, { fill: HOT_EDGE, class: 'svx-hint' }),
 ];
 
-/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `import.meta.main` */
+/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `isMainModule(import.meta.url)` */
 export const doc: DSvg = svg(W, H, content, { 'font-family': 'ui-sans-serif, system-ui, "PingFang SC", sans-serif' });
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(图走 stdout): 版位读数 + 折法 + 比例
   console.error(`盒 ${BOX.w}×${BOX.h} · 三列 ${COL_GAP}/缝 · 右列 ${svc.bounds!.h} 高(两服务 ${SVC_GAP} 缝)`);
   console.error(`折数: ${drawn.map((e) => `${e.id}=${e.points.length - 1}`).join(' / ')} 段 · 可点单元 ${TOPICS.length} 个(高亮层 id hot-*)`);

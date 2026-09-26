@@ -26,6 +26,7 @@ import { packCol } from '../../src/geometry/pack';
 import { type Pt, type Rect, round1 } from '../../src/geometry/vec';
 import type { Tone, Variant } from '../../src/theme';
 import { type ProgressProps, progressBlock, stackedBarBlock } from '../../blocks/progress';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段的数是手写的 ---------------------------------------
 
@@ -72,7 +73,7 @@ const singles = SINGLES.map((s, i) => progressBlock({ ...s, ...move(col.rects[i]
 const stack = stackedBarBlock({ ...STACK, ...move(col.rects[2]) });
 const content = [...singles.map((b) => b.shape), stack.shape];
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检只走 stderr(诊断不污染图): 满额 / 逐段宽 / 块高 —— 逐段宽应与"比例 × 条内区宽"对得上
   const segW = stack.segments.map((s) => s.w);
   console.error(`单值条: 满额 ${BAR_W} → 填充 ${singles.map((b) => b.fill!.w).join(' / ')}`);

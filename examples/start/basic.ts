@@ -25,6 +25,7 @@ import {
   type Pt, type Rect,
 } from '../../src/index';
 import type { Descriptor } from '../../src/descriptor';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段的数是手写的, 每个都说清为什么 ----------------------
 //
@@ -113,7 +114,7 @@ const content: Descriptor[] = [
   labelBoxShape({ ...moveP(loopCenter), w: loopSize.width, h: loopSize.height, content: '不过就回环' }),
 ];
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 解算结果自检(诊断只走 stderr): 半径被钳制的角必须为 0(本例盒子够大)
   const g = nodeGeometry({ ...html, radius: 10 });
   if (g.clamped.length) console.error('警告: 被钳制的角', g.clamped, 'minActualRadius=', g.minActualRadius);

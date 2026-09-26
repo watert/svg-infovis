@@ -42,6 +42,7 @@ import { nodeFit } from '../../src/knives/fit';
 import { nodeShape } from '../../src/shapes/node';
 import { edgeGeometry, labelBoxSize } from '../../src/shapes/edge';
 import { labelBoxShape, textShape } from '../../src/shapes/text';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段是手写的数 -----------------------------------------
 
@@ -215,10 +216,10 @@ const content: Descriptor[] = [
   ...foot.map((b) => line(b, DEFAULT_THEME.label)),
 ];
 
-/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `import.meta.main` */
+/** 出口: 顶层只持**纯数据**(测试 / 读数板 / 网站 import 它都不会吐图), 序列化留在 `isMainModule(import.meta.url)` */
 export const doc: DSvg = svg(W, H, content, { 'font-family': 'ui-sans-serif, system-ui, "PingFang SC", sans-serif' });
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(图走 stdout): 版式读数 + 比例 —— 交付尺寸与画廊画框都对得上才算这张图站得住
   console.error(`盒 ${BOX.w}×${BOX.h}(nodeFit 取大) · 行宽 ${rowBox.w} · 走廊 y ${loopY}`);
   console.error(`墨迹 ${INK.w}×${INK.h} → 画布 ${W}×${H} · 比例 ${round1(W / H)}(画廊带 1.3~1.7)`);

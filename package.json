@@ -24,7 +24,7 @@
   "type": "module",
   "sideEffects": false,
   "engines": {
-    "node": ">=22.3"
+    "node": ">=20.16"
   },
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -296,7 +296,7 @@
     "prepare": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "test": "bun test",
-    "verify": "tsc -p tsconfig.build.json && bun test && tsc --noEmit",
+    "verify": "bun run build && bun test && tsc --noEmit",
     "example": "bun run examples/start/basic.ts",
     "chain": "bun run examples/start/full-chain.ts",
     "manifest": "bun run examples/manifest.ts",

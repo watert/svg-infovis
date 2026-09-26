@@ -19,6 +19,7 @@ import {
   type Rect, type Scene, type SceneOwner, type SceneText,
 } from '../../src/index';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const theme = THEMES.paper;
 const W = 1280, H = 740;                          // 占位: 出口 `fit: true` 会按内容重定
@@ -130,6 +131,6 @@ export const scene: Scene = { width: W, height: H, nodes, edges, groups, texts, 
 // 260920 起出口**统一到 stdout**(过去本文件自己 `writeFileSync('/tmp/academic-figure.svg')`)——
 // 它曾是全仓唯一一个"图不走 stdout"的出图示例, 出图清单得为它单独登记一条产物路径;
 // **出口不统一本身就是一处纪律裂缝**(清单里多一个特例, 就多一个漏登记的机会)。
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, { level: 'showcase', theme, fit: true, nodeStyles, edgeStyles });
 }

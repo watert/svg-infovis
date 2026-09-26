@@ -28,6 +28,7 @@ import { textShape } from '../../src/shapes/text';
 import type { Tone } from '../../src/theme';
 import { iconAsset } from '../../src/icons/lucide';
 import { type PictogramFitOptions, pictogramFit, pictogramShape } from '../../blocks/pictogram';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 只有这一段是手写的数 ------------------------------------------
 
@@ -84,7 +85,7 @@ const H = round1(INK.y + INK.h + PAD);
 const capLine = (box: { x: number; y: number; w: number; h: number }, content: string) =>
   textShape({ x: box.x, y: round1(box.y + box.h / 2), content, size: CAP_SIZE, weight: CAP_WEIGHT, baseline: 'central' });
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(图走 stdout): 两块各自的格数与墨迹盒, 顺带量一眼自然宽
   console.error(`单行 ${fits.row.cols}×${fits.row.rows} 格 · 墨迹 ${fits.row.w}×${fits.row.h}`);
   console.error(`网格 ${fits.grid.cols}×${fits.grid.rows} 格 · 墨迹 ${fits.grid.w}×${fits.grid.h}`);

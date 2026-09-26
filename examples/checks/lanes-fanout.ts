@@ -30,6 +30,7 @@ import { audit } from '../../src/knives/audit';
 import { packRow } from '../../src/geometry/pack';
 import { THEMES } from '../../src/theme';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const W = 1200;
 const H = 520;
@@ -69,7 +70,7 @@ export const scene: Scene = shared;
 /** 另两张留给外部对账(反例 / 分配后), 不想读就当它不存在 */
 export const referenceScenes = { spread, spaced } as const;
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 诊断走 stderr —— 产物才走 stdout(见 SKILL「出口纪律」: 别让诊断混进 SVG)
   const report = (s: Scene) => audit(s, { level: 'showcase' });
   const overlap = (s: Scene) => report(s).diagnostics.filter((d) => d.code === 'edge_overlap');

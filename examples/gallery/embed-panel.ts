@@ -32,6 +32,7 @@ import { edgeLabel } from '../../src/shapes/edge';
 import { contentBounds } from '../../src/export';
 import { type Rect } from '../../src/geometry/vec';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 export const LEVEL = 'showcase';
 /** 素材路径走 `fileURLToPath`(不能用 `.pathname`): 本仓绝对路径含空格, 会被 percent-encode */
@@ -92,7 +93,7 @@ const before = contentBounds({
 })!;
 const captionRect = below(before, capFit, 40);
 
-/** 具名导出: 顶层是纯几何(判据在 `test/embed-scene.test.ts`), 出口全在 `import.meta.main` */
+/** 具名导出: 顶层是纯几何(判据在 `test/embed-scene.test.ts`), 出口全在 `isMainModule(import.meta.url)` */
 export const scene: Scene = {
   width: 0, // 交给 `fit` 按内容重定(先 fit 再审 —— 审计吃的是平移后的那份)
   height: 0,
@@ -114,7 +115,7 @@ export const scene: Scene = {
 };
 
 // 出口走 `scripts/runner`(260920): 摘要 / 诊断 / 草稿 / exit code 都在那一处(见该文件头注)
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, {
     level: LEVEL,
     fit: { padding: 48 },

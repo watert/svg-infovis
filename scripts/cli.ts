@@ -1,11 +1,11 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 // =====================================================================
-// cli · `svginfo` —— 本仓能力的**唯一命令行面**(260923)
+// cli · `svginfo` —— 本仓能力的**唯一命令行面**(260923; 260926 跨运行时化)
 //
 // 一条原则: **薄壳**。每个命令都不把底下那件事重写一遍, 而是把参数整理好, 交给**已经存在的那一处
 // 出口**(它自己带着纪律与判据), 自己只管两件事 —— 产物落到哪儿、判决怎么变成 exit code:
 //
-//   run      → **文件自己的出口优先**: 原样跑它自己(`bun run <file>`, 它的门禁档 / 读数 / 退出码说了算)
+//   run      → **文件自己的出口优先**: 原样跑它自己(在可用运行时下, 它的门禁档 / 读数 / 退出码说了算)
 //              它没吐图 ⇒ 当成纯场景模块, 交 `runner.ts` 的 `runScene`(门禁 / 诊断 / 草稿 / 退出码都在那里)
 //   inspect  → `inspect.ts` 的 `main`(读数表; 不给路径就跑它的内置演示场景)
 //   render   → 上面那条链 + `svg2png.sh` 栅格化(单张出 PNG)
@@ -16,23 +16,53 @@
 // 与 PNG 快照一起于 260926 退役 —— 一次删干净, 不留半兼容的过渡档(过渡层 = 第二权威)。
 // 全量出图现在归网站管线(`website/scripts/prerender.ts`, 产物 `website/public/svg/`, 不上 git)。
 //
+// 两处**跨运行时**的机关(260926 起本文件不再绑 bun):
+//   · 包根 ROOT 从本文件所在目录**逐级向上**找 `name: 'svg-infovis'` 的 `package.json` ——
+//     源码态(`scripts/cli.ts`)与 `tsc` 产物态(`dist/scripts/cli.js`)都落在包根底下, 于是
+//     `templates/` 与 `scripts/svg2png.sh` 这两份**住包根的资源**在两种形态下算出同一个路径
+//     (只按 `..` 猜层级的话, 产物态会指到 `dist/` 里那个不存在的 templates/)
+//   · 跑用户的 `.ts` 场景文件按**可用性探测**, 见 `spawnTs`
+//
 // 出口纪律(与仓内其余出口同一条):
 //   · 图走 stdout / 文件, 工具自己的话**只走 stderr** —— 别 `2>&1`(混进来会烂在 SVG 头部)
 //   · `-o` / `--png` 一律**由本进程落盘**, 不指望调用方重定向
-//   · 退出码三段: **0** 过 / **1** 图有病或跑失败 / **2** 命令写错(与 `inspect.ts` 同一约定)
+//   · 退出码三段: **0** 过 / **1** 图有病或跑失败 / **2** 命令写错或环境不成立(与 `inspect.ts` 同一约定)
 // =====================================================================
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, extname, join } from 'node:path';
+import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findIcon, iconNames } from '../src/icons/lucide';
-import { type Scene } from '../src/knives/audit';
-import { loadRedirecting, main as inspectMain } from './inspect';
-import { runScene } from './runner';
+import { findIcon, iconNames } from '../src/icons/lucide.js';
+import { type Scene } from '../src/knives/audit.js';
+import { isMainModule } from '../src/runtime.js';
+import { loadRedirecting, main as inspectMain } from './inspect.js';
+import { runScene } from './runner.js';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+/**
+ * 包根 = 从本文件所在目录向上找到的第一个 `name === 'svg-infovis'` 的 package.json 所在目录。
+ * 校验 name 而不是"第一个 package.json"是刻意的: 产物态 `dist/` 底下若混进别的 package.json
+ * (打包/复制出来的), 只认"第一个"会当场指错包根, 而这里的错法全是静默的路径错。
+ */
+function findRoot(from: string): string {
+  for (let dir = from; ; ) {
+    const pkg = join(dir, 'package.json');
+    if (existsSync(pkg)) {
+      try {
+        if ((JSON.parse(readFileSync(pkg, 'utf8')) as { name?: string }).name === 'svg-infovis') return dir;
+      } catch { /* 不是合法 JSON 的 package.json 不算锚, 继续往上 */ }
+    }
+    const up = dirname(dir);
+    if (up === dir) {
+      throw new Error(`从 ${from} 向上找不到 name 为 svg-infovis 的 package.json —— `
+        + '本 CLI 要用包根下的 templates/ 与 scripts/svg2png.sh, 装到别处就先确认包根还在');
+    }
+    dir = up;
+  }
+}
+
+const ROOT = findRoot(dirname(fileURLToPath(import.meta.url)));
 const SVG2PNG = join(ROOT, 'scripts/svg2png.sh');
 
 const USAGE = `svginfo · svg-infovis 命令行入口
@@ -40,9 +70,11 @@ const USAGE = `svginfo · svg-infovis 命令行入口
 用法: svginfo <命令> [参数]
 
   run <scene.ts> [-o out.svg] [--golden] [转发参数…]
-        出一张图。两种入口都认: ① 出图脚本(顶层在 import.meta.main 里调 runScene)
+        出一张图。两种入口都认: ① 出图脚本(顶层在 \`isMainModule(import.meta.url)\` 里调 runScene)
         ② 场景模块(export default scene / export const scene ← 这种走门禁出口)
         -o 不给则图走 stdout; 诊断一律走 stderr(别 2>&1)
+        跑 .ts 要一个能跑 TS 的运行时: 有 bun 用 bun, 否则 node ≥22.18(22.6–22.17 要给**本 CLI** 也带
+        --experimental-strip-types, 否则「场景模块」那条回退路加载不了 .ts)
 
   inspect <scene.ts> [--fit] [--metrics] [--showcase] [--rows=N] [--notes=N]
         不出图, 只 dump 一张读数表(与 \`bun run scripts/inspect.ts\` 同一个实现)
@@ -103,11 +135,56 @@ function emit(bytes: Uint8Array, to: 'stdout' | string): void {
   }
 }
 
+/** node 那一档的门槛(见 `nodeCanRunTs`) */
+const NODE_STRIP_MIN = [22, 6] as const;      // `--experimental-strip-types` 自 22.6 起有
+const NODE_STRIP_ALWAYS = [22, 18] as const;  // 22.18 起类型剥离默认开, 不给 flag 也带得动
+
+/**
+ * node 那一档能不能用。**两问都过才行**:
+ *   ① 版本够(≥22.6): 跑用户的 `.ts` 要 `--experimental-strip-types` 这一步剥离
+ *   ② **本 CLI 这份进程也带得动 TS**: `export default scene` 那条回退路要在本进程里再 import 一次
+ *      用户的 `.ts`。22.18 起默认开这问自动过; 22.6–22.17 只有 CLI 自己带了 flag 才过 —— 不带就会
+ *      加载不了 `.ts`、静默落进"它没导出场景", 正是本 CLI 最该避免的那种错(宁可退 2 说清怎么跑)
+ */
+function nodeCanRunTs(): boolean {
+  const [maj, min] = process.versions.node.split('.').map(Number);
+  if (maj > NODE_STRIP_ALWAYS[0] || (maj === NODE_STRIP_ALWAYS[0] && min >= NODE_STRIP_ALWAYS[1])) return true;
+  return maj === NODE_STRIP_MIN[0] && min >= NODE_STRIP_MIN[1]
+    && process.execArgv.includes('--experimental-strip-types');
+}
+
+/**
+ * 跑用户 `.ts` 入口的子进程。**按可用性探测**, 顺序不许反:
+ *
+ *   ① `bun` —— 本仓主运行时, 快路径。探测靠**真去起一次**: spawn 的 `ENOENT` 就是"PATH 里没有
+ *      bun", 比自己拆 PATH 可靠(Windows 的 `.cmd` 垫片 / 版本管理器都不用特判), 且正常路径下
+ *      不多起进程
+ *   ② 没有 bun ⇒ node 的 `process.execPath` + `--experimental-strip-types`(`nodeCanRunTs` 判门槛)。
+ *      用户的场景文件不在 `node_modules` 里, 类型剥离这一档可用; 22.18 起默认开, 带 flag 不变行为
+ *      (实测 22.18 也不打 ExperimentalWarning), 图仍只走 stdout(出口纪律没松)
+ *   ③ 两样都不可用 ⇒ 退出码 2(环境不成立)+ 三条出路写清, 不静默失败
+ *
+ * 用户文件本身跑失败**不算**探测失败(那时退出码是它的判决), 所以只有"没有 bun"才落到 ②。
+ */
+function spawnTs(file: string, passthrough: string[]): { stdout: Uint8Array; status: number | null; error?: Error } {
+  const io = { stdio: ['ignore', 'pipe', 'inherit'] as ('ignore' | 'pipe' | 'inherit')[] };
+  const bun = spawnSync('bun', ['run', file, ...passthrough], io);
+  if ((bun.error as { code?: string } | undefined)?.code !== 'ENOENT') return bun;
+
+  if (!nodeCanRunTs()) {
+    fail(`${file} 要一个能跑 TS 的运行时, 但 PATH 里没有 bun, 本机 node ${process.versions.node} 也带不动 TS`
+      + ` —— 三条路: 装 bun, 换 node ≥${NODE_STRIP_ALWAYS.join('.')},`
+      + ` 或用 node ≥${NODE_STRIP_MIN.join('.')} 并给**本 CLI** 也加上 --experimental-strip-types`, 2);
+  }
+  console.error(`# PATH 里没有 bun, 改用 node ${process.versions.node} 的类型剥离档跑它(工具自己的话只走 stderr)`);
+  return spawnSync(process.execPath, ['--experimental-strip-types', file, ...passthrough], io);
+}
+
 /**
  * 一份**出图入口** → 图落到 `out`(`'stdout'` 或文件路径)。**文件自己的出口优先**:
  *
- *   ① 原样跑它自己(`bun run <file>`)。出图脚本的门禁档 / 额外读数 / 退出码都是它自己定的 ——
- *      CLI 不替它做第二遍决定(同一份文件跑出两种图, 是比"跑不动"更坏的事)
+ *   ① 原样跑它自己(在 `spawnTs` 选出的运行时下)。出图脚本的门禁档 / 额外读数 / 退出码都是它
+ *      自己定的 —— CLI 不替它做第二遍决定(同一份文件跑出两种图, 是比"跑不动"更坏的事)
  *   ② 它一个字节都没吐 ⇒ 它是**纯场景模块**(`export default scene`), 那就由 CLI 出图:
  *      走 `runner.ts` 的 `runScene` —— 门禁 / 诊断 / 草稿 / 退出码全在那一处守着
  *
@@ -117,8 +194,8 @@ function emit(bytes: Uint8Array, to: 'stdout' | string): void {
  */
 async function emitSvg(file: string, passthrough: string[], out: 'stdout' | string): Promise<number> {
   if (!existsSync(file)) fail(`找不到文件: ${file}`, 1);
-  const r = spawnSync('bun', ['run', file, ...passthrough], { stdio: ['ignore', 'pipe', 'inherit'] });
-  if (r.error) fail(`跑不起来: bun run ${file}(${r.error.message})`, 1);
+  const r = spawnTs(file, passthrough);
+  if (r.error) fail(`跑不起来: ${file}(${r.error.message})`, 1);
   const svg = r.stdout;
   if (svg.length) {
     emit(svg, out);
@@ -142,7 +219,7 @@ async function emitSvg(file: string, passthrough: string[], out: 'stdout' | stri
     console.error(`# ${file} 退出 0 但 stdout 没有字节 —— golden / 自落盘那一档; 产物在它自己说的位置(判决见上)`);
     return 0;
   }
-  console.error(`✗ ${file} 既没吐出图, 也没导出场景对象 —— 出图脚本要在 \`import.meta.main\` 里调 runScene,`);
+  console.error(`✗ ${file} 既没吐出图, 也没导出场景对象 —— 出图脚本要在 \`isMainModule(import.meta.url)\` 里调 runScene,`);
   console.error('  场景模块要 `export default <scene>`; 只读坐标不出图请用 `svginfo inspect <file>`(诊断见上)');
   return r.status;
 }
@@ -179,8 +256,11 @@ function cmdNew(args: string[]): number {
   const target = name.endsWith('.ts') ? name : `${name}.ts`;
   if (existsSync(target) && !force) fail(`${target} 已存在 —— 要覆盖请加 --force`, 1);
 
-  // 只改一处: 模板在仓内用相对路径 import 内核, 起手文件可能落在仓外 ⇒ 认包名(仓内也解析得到自己)
-  const body = readFileSync(join(ROOT, 'templates/sequence.ts'), 'utf8').replace("'../src/index'", "'svg-infovis'");
+  // 模板在仓内用相对路径 import 内核, 起手文件可能落在仓外 ⇒ 一律改认包名(仓内也解析得到自己)。
+  // 两处都要换: `../src/index` → 包出口, `../src/runtime` → 同名的 `./runtime` 子路径
+  const body = readFileSync(join(ROOT, 'templates/sequence.ts'), 'utf8')
+    .replaceAll("'../src/index'", "'svg-infovis'")
+    .replaceAll("'../src/runtime'", "'svg-infovis/runtime'");
   try {
     writeFileSync(target, body, 'utf8');
   } catch (e) {
@@ -188,8 +268,8 @@ function cmdNew(args: string[]): number {
   }
   const stem = basename(target, '.ts');
   console.error(`✓ 起手文件: ${target}(拷自 templates/sequence.ts —— 决策表在文件尾部, 照它改)`);
-  console.error(`  跑: bun run ${target} --out=${stem}.svg   或   svginfo render ${target} --png ${stem}.png`);
-  console.error('  ⚠ 落在仓外时先让包可解析(bun link / npm i -g svg-infovis), 否则 import 不到内核');
+  console.error(`  跑: svginfo run ${target} -o ${stem}.svg   或   svginfo render ${target} --png ${stem}.png`);
+  console.error('  ⚠ 起手文件 import 的是包名 svg-infovis —— 落在仓外时先让包可解析(bun link / npm i -g svg-infovis)');
   return 0;
 }
 
@@ -244,4 +324,4 @@ async function main(argv: string[]): Promise<number> {
   }
 }
 
-if (import.meta.main) process.exitCode = await main(process.argv.slice(2));
+if (isMainModule(import.meta.url)) process.exitCode = await main(process.argv.slice(2));

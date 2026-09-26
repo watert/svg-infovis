@@ -28,6 +28,7 @@ import {
 import { gridLayer } from '../../src/shapes/grid-pattern';
 import { routeOrthogonal } from '../../src/knives/route';
 import { toSVG } from '../../src/serialize';
+import { isMainModule } from '../../src/runtime';
 
 const FONT = 'ui-sans-serif, system-ui, "PingFang SC", sans-serif';
 
@@ -132,7 +133,7 @@ export function gridLab(): string {
   return toSVG(svg(W, H, children, { 'font-family': theme.fontFamily }), { declaration: false });
 }
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   const arg = process.argv[2];
   // 不认识的分档当场说清, 不静默落回缺省(缺省档 `light` —— 与合并前的 theme-lab 一致; 2 = 用法错)
   if (arg !== undefined && arg !== 'light' && arg !== 'dark' && arg !== 'grid') {

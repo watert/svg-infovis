@@ -25,6 +25,7 @@
 // =====================================================================
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { isMainModule } from '../src/runtime.js';
 
 const USAGE = `用法: bun run scripts/svg-varflatten.ts <in.svg> [out.svg] [--theme dark|light]
   不给 out.svg 则写 stdout。产物走 stdout / 诊断走 stderr, 别 2>&1。
@@ -165,4 +166,4 @@ function main(argv: string[]): number {
   return 0;
 }
 
-if (import.meta.main) process.exitCode = main(process.argv.slice(2));
+if (isMainModule(import.meta.url)) process.exitCode = main(process.argv.slice(2));

@@ -33,8 +33,8 @@
 
 import { createHash } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
-import { type Diagnostic, type Scene } from '../src/knives/audit';
-import { type ExportOptions, ExportBlockedError, exportScene } from '../src/export';
+import { type Diagnostic, type Scene } from '../src/knives/audit.js';
+import { type ExportOptions, ExportBlockedError, exportScene } from '../src/export.js';
 
 export type RunOptions = ExportOptions & {
   /** 图去哪: `'stdout'`(缺省)或文件路径 */
@@ -60,7 +60,7 @@ function dump(d: Diagnostic, indent: string): void {
 }
 
 /**
- * 出图一次。**必须在 `import.meta.main` 里调用** —— 出图示例的顶层要是纯几何,
+ * 出图一次。**必须在 `isMainModule(import.meta.url)` 里调用** —— 出图示例的顶层要是纯几何,
  * 否则 `scripts/inspect.ts` / web 一 import 它就往 stdout 吐图。
  */
 export function runScene(scene: Scene, o: RunOptions = {}): void {

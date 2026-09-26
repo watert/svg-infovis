@@ -95,6 +95,7 @@ import {
   type Tone,
   type Variant,
 } from '../src/index';
+import { isMainModule } from '../src/runtime';
 
 // --- 契约 --------------------------------------------------------------
 
@@ -887,7 +888,7 @@ export const decorateDemoLegend = (scene: Scene, plan: LifecyclePlan, theme: The
   return { ...scene, nodes, texts };
 };
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   const outArg = process.argv.find((a) => a.startsWith('--out='));
   const out = outArg ? outArg.slice('--out='.length) : undefined;
   const dark = process.argv.includes('--dark'); // 笔记配图走 light, deck / 深色页走 dark

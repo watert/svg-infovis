@@ -28,6 +28,8 @@
 // 也不进: 非出口示例(`audit-demo` / `style-lab`)仍然在清单里 —— 它们出图, 只是不过门禁。
 // =====================================================================
 
+import { isMainModule } from '../src/runtime';
+
 export type ExampleGroup = 'start' | 'checks' | 'gallery' | 'labs' | 'templates';
 
 export type ExampleEntry = {
@@ -122,7 +124,7 @@ export function toTSV(entries: readonly ExampleEntry[] = EXAMPLES): string {
   return entries.map((e) => [e.key, e.file, e.arg ?? ''].join('\t')).join('\n') + '\n';
 }
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   if (process.argv.includes('--tsv')) process.stdout.write(toTSV());
   else {
     let group: ExampleGroup | '' = '';

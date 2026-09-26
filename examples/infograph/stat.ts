@@ -24,6 +24,7 @@ import { svg } from '../../src/descriptor';
 import { toSVG } from '../../src/serialize';
 import { type StatFitOptions, statFit, statShape } from '../../src/shapes/stat';
 import { type Pt, type Rect, bounds, grid, round1 } from '../../src/index';
+import { isMainModule } from '../../src/runtime';
 
 // --- 作者决策: 四条文案 + 几个版式常量 ---------------------------------------
 
@@ -57,7 +58,7 @@ const move = (r: Rect): Rect => ({ ...r, x: round1(r.x + O.x), y: round1(r.y + O
 /** 统一格比内容宽(取的是最大那块) ⇒ 块内骑格心; 盒宽 = 内容宽时两种对齐同图 */
 const content = cells.map((r, i) => statShape({ ...move(r), ...STATS[i], align: 'center' }));
 
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   // 自检走 stderr(诊断不污染图): 自然宽是交付尺寸的硬约束, 经验档 ≤900
   console.error(`4 块 stat · 逐块拟合 ${fits.map((f) => `${f.w}×${f.h}`).join(' / ')} · 格 ${cell.w}×${cell.h}`);
   console.error(`自然尺寸 ${W} × ${H}(比 ${(W / H).toFixed(2)} · 交付经验档宽 ≤900)`);

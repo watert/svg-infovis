@@ -20,7 +20,7 @@
 //   bun run examples/checks/port-folds.ts > /tmp/port-folds.svg     # 门禁不过 → exit 1
 //   scripts/svg2png.sh /tmp/port-folds.svg /tmp/port-folds.png 1200
 //
-// 出口放在 `import.meta.main` 里面是刻意的: **被 import 时本模块是纯 scene**(门禁不跑、不写文件、
+// 出口放在 `isMainModule(import.meta.url)` 里面是刻意的: **被 import 时本模块是纯 scene**(门禁不跑、不写文件、
 // 不动退出码) —— `scripts/inspect.ts` 与后续 web 展示都按这个契约接, 谁也不该因为"读了一眼图"
 // 而收到 exit 1。跑门禁只有一条路: 直接 `bun run` 本文件。
 // =====================================================================
@@ -30,6 +30,7 @@ import {
   ORTHO_EPS, THEMES, add, below, bounds, grid, nodeFit, rectBottom, rectRight, rightOf, routeAll, textFit,
 } from '../../src/index';
 import { runScene } from '../../scripts/runner';
+import { isMainModule } from '../../src/runtime';
 
 const theme = THEMES.paper;
 
@@ -138,7 +139,7 @@ export const scene: Scene = { width: rectRight(g.bounds) + PAD, height: rectBott
 // 260920 起出口收进 `scripts/runner.ts`: 门禁没过时**草稿仍走同一条通道**(stdout —— 也就是
 // `> /tmp/port-folds.svg` 重定向的那个文件), 判决落到退出码。于是这个迭代回路在被拦下的那次
 // 也有图可看, 而"带病产物"由 exit 1 拦在 shell 的 `&&` 链上(过去是草稿落 /tmp、stdout 留空)。
-if (import.meta.main) {
+if (isMainModule(import.meta.url)) {
   runScene(scene, {
     level: 'showcase', theme, fit: true, title: '端口朝向 → 折法',
     extra: [`bends: ${routes.map((r, i) => `${COMBOS[i].from}→${COMBOS[i].to}=${r.bends}`).join(' ')}`],
