@@ -1,5 +1,16 @@
 // svg-infovis core · barrel 出口
 // 消费者(demo / playground)只从这里或其子路径 import, 不碰 src 内部相对路径。
+//
+// ⚠ **260926 口径订正(重要)**: 本文件过去把"读 barrel 的顺序即依赖顺序, 被依赖的先出"当成纪律,
+// 各段注释还逐条解释"为什么排在这"(那是可读性导航, 无害)。260926 拿 `refs/layering.md` 的判据
+// 回头审依赖图时, 一次探测就在本文件里抓出 **11 处违反** —— 一条没人守的纪律等于没有纪律。
+// 更关键的是它**对运行时零影响**: ESM 按模块图拓扑求值, re-export 的书写顺序不决定求值顺序。
+// 故它已从纪律降级为**阅读导航**("大致按依赖分段"), 不再有任何约束力, 也不值得为它重排本文件。
+//
+// 真正有后果、且由 `test/layering.test.ts` 守着的只有两条:
+//   ① 运行时依赖图**无环**            ② **分层不越界**(geometry 不碰 shapes/blocks; blocks 只吃 src/ 的刀)
+// 而底层刀反过来吃高层东西的那些(例: `knives/route` 值导入 `knives/audit` 的 `PIERCE_MIN` 阈值)
+// 不是顺序问题, 是**层次倒置** —— 记在 `ROADMAP.md` 的契约归属待办里, 别拿重排顺序糊过去。
 
 export * from './geometry/vec';
 export * from './geometry/rounded-path';
@@ -87,9 +98,9 @@ export * from './knives/route-cost';
 // scene 的 SceneNode 与 audit 同名(它是 audit 的扩展, 多了 bounds_source) ——
 // barrel 里给 audit 让位: 需要 scene 版节点类型时用 SceneDoc['nodes'][number]
 //
-// ⚠ 260926: `./export` 从这里挪到**本块之后** —— 它运行时调 `scene` 的 `assertFreshForExport` /
-// `sceneStatus`, 而"读 barrel 的顺序即依赖顺序, 被依赖的先出"要求 scene 先出。原来 export 排在
-// scene 之前(依赖者在前), 属纪律擦伤: 引用在函数体内所以不会 TDZ 崩, 但纪律破了就该焊回去(P1)
+// ⚠ 260926: `./export` 排在本块之后, 因为它运行时调 `scene` 的 `assertFreshForExport` /
+// `sceneStatus`, 让读的人一眼看出"出口站在 scene 之上"。**只是导航, 不是纪律** —— 顺序错了不会
+// 崩(引用在函数体内), 真约束是无环 + 分层, 见文件头与 test/layering.test.ts
 export {
   createScene, markHtmlChanged, applyBounds, sceneStatus, assertFreshForExport, SceneStaleError,
   deriveGroupRect, fitGroupFrames,

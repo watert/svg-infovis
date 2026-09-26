@@ -34,6 +34,12 @@ date: 2026-09-23T16:00:00+08:00
   6 个形状/块件消费, 按"≥2 消费者"判据更像 `geometry/` 原语, 但搬家要改 `exports` 子路径 = L3 破坏
   ③ `theme` 反向依赖 `shapes/grid-pattern` 的 `GridDefaults`(纯 `import type`, 运行时无环) ——
   正解是该类型下沉到 `descriptor`, 小改但要连带 import 调整
+- **④ `knives/audit.ts` 兼职"全仓共享常量与契约仓库"(260926 与 ① 同源, 一起做才划算)** —— 低层刀反向
+  吃高层阈值: `route` 与 `route-cost` 值导入 `PIERCE_MIN`、`fit` 与 `route-cost` 值导入 `THRESHOLDS` /
+  `STUB_MIN`; 外加 `Scene` 系列类型也住这儿。正解是阈值与场景契约下沉(阈值 → `geometry/predicates`,
+  场景契约 → `scene.ts`), audit 只留"判据与判决"。⚠ 这是 P4 级设计任务, **不许重排 barrel 顺序糊过去** ——
+  260926 探测发现这类倒置共 11 处, 而"读 barrel 顺序即依赖顺序"那条被写进注释的纪律本身是错的
+  (ESM 按模块图求值, 顺序零影响), 已降级为阅读导航
 
 - **行内标记的第二档** —— v1(260925)只有四种样式: `**粗**` / `*斜*` / `~~删~~` / `[字]{tone|#hex}`。未做且已知: ① 等宽 `code`(加一种 `InlineKind` + `INLINE_STYLE` 一行即可: 样式袋 / `DTextSpan.attrs` 都吃得下 `font-family` —— 刻意**没**预置空字段, 见 QUICKREF「边界」那条"不提前给空位"); ② 链接 / 上标 / 名字引用(`name` / `link` / `sup`); ③ 着色的 **tint 底**(现在只改文字色, 给底就得同时动 `labelBoxShape` 的背景片); ④ **落单标记的报位诊断**(`TextRun.start/end` 已经带出来了, 门禁还没拿它指路); ⑤ `knives/describe.ts` 的读数板走 `textUnits(原串)` —— 带标记的标签在终端里会多算那几个标记字符(`cells(plainText(s))` 一行可收, 但那会改 `describe` 的既有输出字节, 等下次一并做)。前三项都要"先有真需求再开", 第四项等下一次"作者写歪了却没人喊"的实例
 - **web playground / 薄壳演示页** —— 另立项(原记作 "v0.2", 而 v0.2 这个号 260925 起归排版层, 编号待重定 —— 判据是 `docs/infograph-roadmap.md` 的"划界"); core 不引前端框架, 依赖单向

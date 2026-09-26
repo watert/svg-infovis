@@ -78,9 +78,9 @@ date: 2026-09-26T01:10:00+08:00
 - `src/shapes/` —— 判据是**几何里有没有一个比例 / 计数**。没有 → shapes; 有 → blocks。
   stat 的大数字是**字**(几何不编码数值), 所以它在 shapes; 进度条的 `ratio` 是几何, 所以它在 blocks。
 - `blocks/` —— 必须满足**块契约**(下节); 不满足的先用 shapes 垫, 别硬塞。
-- barrel(`src/index.ts`) —— 读 barrel 的顺序即依赖顺序, **被依赖的先出**。默认进 barrel;
-  两类刻意**不进**: `icons/lucide`(有 `node:fs`, 挂上 barrel 就炸浏览器消费方)与 `blocks/*`
-  (数值语义关在这一层, 走独立子路径)。
+- barrel(`src/index.ts`) —— 默认进 barrel; 两类刻意**不进**: `icons/lucide`(有 `node:fs`, 挂上 barrel
+  就炸浏览器消费方)与 `blocks/*`(数值语义关在这一层, 走独立子路径)。barrel 的**书写顺序只是阅读导航**,
+  不构成纪律(见下"机器判决")。
 - `templates/` —— **不在 `exports` 里**, 仓内按路径引。它是骨架不是库件, 出公共面要付版本债。
 - 一个文件**一个主出口**。别开 `xShape` / `xFit` / `xBlock` 五件套 —— 读数盒可以多吐, 主出口只许一个。
 - **测试住哪**: 判据写进 `.test.ts`, **新件与源旁**(一个 describe 块)—— 这是 v0.2 起的规矩,
@@ -112,6 +112,23 @@ type Block = { shape: DGroup; bounds: Rect };   // 主出口恒返回这两位
   收益中等, 别顺手改。
 - **`guard` 是零依赖根层横切**, 但异常名 `ShapeInputError` 暗示 shapes 层, 实际 `geometry/pack` 与
   `geometry/place` 也抛它。命名债, 不影响分层。
+
+## 机器判决: 本文的门槛由 `test/layering.test.ts` 守着
+
+文档若只给人读, 它就是装饰。本文以下四条有运行时后果的准入门槛已变成断言(每条配反例自证):
+
+1. **运行时依赖图无环** —— 有环 = 半个模块图 + TDZ。⚠ 纯 `import type` 与纯 type specifier 不算
+   运行时依赖(不参与求值), 否则 `geometry/inline-text → descriptor` 这类同层回引会被误判。
+2. **`geometry/` 不依赖 `shapes/` / `blocks/`** —— 连纯类型依赖也判红(底座知道外壳的形状就是层裂);
+   `geometry/` 依赖 `knives/` 的**只在备案名单**(`box` / `grid` / `place`, 见「已知越层」)——
+   备案一旦被清掉(例如端口公式下沉到 geometry), 测试会红, 那正是提醒你更新名单的时刻。
+3. **`blocks/` 只组合 `../src/<刀>`** —— 禁第三方、禁 `node:`、**禁走 barrel**(barrel 带 `node:fs`)。
+4. **`package.json#exports` 的子路径都落在真实文件上** —— 子路径是公共面, 指向不存在的文件要说得清。
+
+⚠ **曾经被写成纪律、现已作废的一条**: "读 barrel 的顺序即依赖顺序, 被依赖的先出"。260926 一次探测就在
+`src/index.ts` 里抓出 11 处违反, 而它对运行时零影响(ESM 按模块图拓扑求值)—— 没人守的纪律等于没纪律,
+写进注释只会让人以为该找的都找过了。底层刀反向吃高层阈值(例 `knives/route` 值导入 `knives/audit` 的
+`PIERCE_MIN`)不是顺序问题而是**层次倒置**, 归 `ROADMAP.md` 的契约归属待办。
 
 ## 三条边界轴
 
