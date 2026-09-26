@@ -16,7 +16,7 @@
 import { type Scene } from '../../src/knives/audit';
 import { nodeFit } from '../../src/knives/fit';
 import { routeOrthogonal } from '../../src/knives/route';
-import { packCol } from '../../src/geometry/pack';
+import { packRow } from '../../src/geometry/pack';
 import { runScene } from '../../scripts/runner';
 
 const LEVEL = 'showcase';
@@ -26,13 +26,21 @@ const sceneFit = nodeFit({ label: 'scene', sub: '几何缓存', level: LEVEL });
 const diaFit = nodeFit({ label: '装得下?', sub: 'label_fit', level: LEVEL, shape: 'diamond' });
 const dbFit = nodeFit({ label: 'Postgres', sub: 'primary', level: LEVEL, shape: 'cylinder' });
 
-// 一列三格, **中心线对齐** —— `(w1-w2)/2` 与 `y+h+40` 这类算术全归 `packCol`(`x` 是中心线,
-// 由首格左缘 240 推出来); 三格同心 ⇒ 菱形 / 圆柱与矩形同轴 ⇒ 直连边端口对称、不折弯
-const col = packCol({ items: [sceneFit, diaFit, dbFit], gap: 40, x: 240 + sceneFit.w / 2, y0: 30, align: 'center' });
-const [box, dia, db] = col.rects;
+// 一行三格, **中心线对齐** —— `(w1-w2)/2` 与 `x+w+40` 这类算术全归 `packRow`(`y` 是那条中心线);
+// 高心重合 ⇒ 菱形 / 圆柱与矩形同轴 ⇒ 左右直连边端口同 y、不折弯
+//
+// 版式: 三格横排是这个形状族的**物理下限** —— 三盒宽 74 / 161 / 86 与最高盒 107 定死了画幅 ≈ 3.1 : 1,
+// `fit` 收紧后 435×141(旧版式竖排 195×382 在 3:2 画框里只剩一撮, 横排把宽度用满)。
+// 剩下的 3.1 vs 3:2 那点差是**内容形状**说了算: 往画布垫空白凑比例不会把字放大(contain 缩放本来
+// 就按宽对齐), 只会把"这张图是什么形状"说错, 所以不垫。
+// **对齐线**抬到最高那格的一半 ⇒ 三格都落在 y ≥ 0: 读数板 `scripts/inspect.ts` 不走 `fit` 而声明画布
+// 非零, 负坐标会被它报成 `single_svg` 越界(出口 `fit` 反正按内容并集重定画布, 这里只求归零)
+const midY = Math.max(sceneFit.h, diaFit.h, dbFit.h) / 2;
+const row = packRow({ items: [sceneFit, diaFit, dbFit], gap: 40, x0: 0, y: midY, align: 'center' });
+const [box, dia, db] = row.rects;
 
-const e1 = routeOrthogonal({ from: box, fromPort: { side: 'bottom' }, to: dia, toPort: { side: 'top' } });
-const e2 = routeOrthogonal({ from: dia, fromPort: { side: 'bottom' }, to: db, toPort: { side: 'top' } });
+const e1 = routeOrthogonal({ from: box, fromPort: { side: 'right' }, to: dia, toPort: { side: 'left' } });
+const e2 = routeOrthogonal({ from: dia, fromPort: { side: 'right' }, to: db, toPort: { side: 'left' } });
 
 export const scene: Scene = {
   width: 640,

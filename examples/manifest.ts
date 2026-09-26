@@ -80,7 +80,7 @@ export const EXAMPLES: ExampleEntry[] = [
   // v0.2 排版层(260925): 三件 shapes 排版件 + 两件 blocks —— 五张都是描述符层直出
   // (拼 `svg()` 出图, 不过门禁: 它们画的是压在版式上的墨迹, 没有可审计的拓扑)
   { key: 'stat', group: 'gallery', file: 'examples/infograph/stat.ts',
-    what: '大数字块 4 块同排: 块宽高走 `statFit` 反算 + 位置走 `packRow`, 一个手写坐标都没有; delta 标记是路径小三角(mono 字体栈下 `▲` 实测出 tofu)' },
+    what: '大数字块 4 块排成 2×2: 块宽高走 `statFit` 反算 + 格位走 `grid`(统一格取最大那块), 一个手写坐标都没有; delta 标记是路径小三角(mono 字体栈下 `▲` 实测出 tofu)' },
   { key: 'badge-list', group: 'gallery', file: 'examples/infograph/badge-list.ts',
     what: '编号徽章 + 列表行 5 行: `listRowFit` 的返回面**直接喂** `packCol` 堆成一列, 徽章一图摆出 tone × variant 三档' },
   { key: 'heading', group: 'gallery', file: 'examples/infograph/heading.ts',
