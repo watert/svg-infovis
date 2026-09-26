@@ -74,18 +74,18 @@ bun run scripts/inspect.ts /path/to/my-scene.ts --metrics --rows=80 --showcase
 | `BORDER_CLEARANCE` | **24** | `cluster.ts` | 组成员距框线的门禁内距(`cluster_border_clearance`) |
 | `GROUP_FIT_PAD` | **28** | `cluster.ts` | 派生框缺省 pad = 24 + 4px 余量。**刚派生的框必然过门禁, 不必再调** |
 | `BORDER_RUN_GAP` | **6** | `cluster.ts` | 边"沿框线跑"的垂距上限(还要投影重叠 ≥ 24px) |
-| `STUB_MIN` | **10** | `audit.ts` | 端点前直段下限 —— 仅**存在折弯**时才判(直连边不在此列, 否则与 `node_gap` 打架) |
+| `STUB_MIN` | **10** | `thresholds.ts` | 端点前直段下限 —— 仅**存在折弯**时才判(直连边不在此列, 否则与 `node_gap` 打架) |
 | `END_BAND` | **18** | `audit.ts` | 倒数第二段"蹭"本端盒的距离; 这条是 **warning**, 不拦出口 |
 | `PORT_SHARED_ATTACH` | **3** | `audit.ts` | 端口同源的"贴住"档(分工: ≤2px 且同向 / ≤3px 不问方向 / 更远但 clamp 回盒重合) |
 | `NODE_TEXT_LAYOUT.fontSize` | **13** | `shapes/node.ts` | 节点主标签字号。**`nodeFit` 与 `nodeShape` 共用的唯一一份** |
 | `.subSizeDelta` | **2** | `shapes/node.ts` | 次标签 = 主字号 − 2 |
 | `.lineGapEm` | **1.25** | `shapes/node.ts` | 两行**行中心**距 = 字号 × 1.25 |
-| `THRESHOLDS.standard` | 净空 **2** / 间距 **8** / 呼吸位 **6** | `audit.ts` | 起手档(也是 `nodeFit` 的缺省档) |
-| `THRESHOLDS.showcase` | 净空 **4** / 间距 **12** / 呼吸位 **10** | `audit.ts` | 交付档。**两档呼吸位差 2×(10−6) = 8px 可用宽** |
+| `THRESHOLDS.standard` | 净空 **2** / 间距 **8** / 呼吸位 **6** | `thresholds.ts` | 起手档(也是 `nodeFit` 的缺省档) |
+| `THRESHOLDS.showcase` | 净空 **4** / 间距 **12** / 呼吸位 **10** | `thresholds.ts` | 交付档。**两档呼吸位差 2×(10−6) = 8px 可用宽** |
 | `fit` 缺省 | `bleed 1` / `padding 16` | `export.ts` | `fit: true` = 用这对缺省 |
-| 端口缺省 | 面中点 | `route.ts` | `portPoint` 取值序: `at` → `t` → `0.5` |
+| 端口缺省 | 面中点 | `geometry/port.ts` | `portPoint` 取值序: `at` → `t` → `0.5`。`knives/route` 再导出同一函数 |
 | 自重叠 `eps` | **0.5px** | `predicates.ts` | 非相邻段同轴反向的投影重叠阈值 |
-| `PIERCE_MIN` | **0.5px** | `audit.ts` | 边穿盒 / 端点擦边的**半像素**分界。导出是给 `route-cost` 当尺子用的 —— 门禁与代价层同一把尺子, 别另定一个数 |
+| `PIERCE_MIN` | **0.5px** | `thresholds.ts` | 边穿盒 / 端点擦边 / 组框穿越的**半像素**分界。门禁、代价层、cluster 读同一份, 别另定一个数 |
 | `CYLINDER_CAP_RATIO` | **1/8** | `shapes/node.ts` | 圆柱盖高占盒高的比例 ⇒ 盒高 +4×盖高 = **×2**(与菱形两轴 ×2 同档)。`nodeFit({ shape: 'cylinder' })` 已含这一步 |
 | `BASELINE_FACTORS.central` | **0.35em** | `descriptor.ts` | `baselineY` 的 central 折算 = 行心 + 0.35em, **纯公式、无 px 修正**(实测墨心: CJK 0.3555–0.3594em / 大写 0.3636 / 小写 0.3413, 残差 ≤0.1px)。⚠ 曾有一个 `OPTICAL_CENTRAL_FIX = 1.2`(260917 按两行块校准的常数补偿), 260925 已移除 —— 那是**内容依赖**的修正, 进了共享折算层就把每个单行场景(节点单标签 / 边标签 / 旁注 / 组标题)统一往下推 1.2px |
 | `GRID_ID` | **`md-grid`** | `shapes/grid-pattern.ts` | 底纹 `<pattern>` 的缺省 id。**一图铺两种网格 / 同页多张带网格的图必须各自给 id** —— 重复 id 下 `url(#md-grid)` 全解析到第一个定义(实测四格整片渲染成第一种) |

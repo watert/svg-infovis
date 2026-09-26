@@ -12,7 +12,7 @@ date: 2026-09-26T01:20:00+08:00
 
 ## 公共面就是 `package.json` 的 `exports` 子路径
 
-现状 **46 条**(按目录: `geometry` 9 / `shapes` 11 / `knives` 13 / `icons` 3 / `blocks` 2 /
+现状 **48 条**(按目录: `geometry` 10 / `shapes` 11 / `knives` 14 / `icons` 3 / `blocks` 2 /
 descriptor · serialize · embed · scene · export · theme · guard · barrel 各 1)。数它别数人脑。
 
 - `exports` 直指 `./src/*.ts` —— **纯 TS, 无 `dist/`, 不发 npm**。裸 import

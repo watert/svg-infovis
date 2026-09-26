@@ -63,7 +63,8 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./geometry/predicates` — 几何谓词(相交 / 净空 / 正交 / 自重叠 / 有限性守卫)
 - `./geometry/text-rows` — 多行文本行块堆法(度量与渲染共用)
 - `./geometry/inline-text` — 行内标记解析(`**粗**` / `*斜*` / `~~删~~` / `[字]{accent}`; 度量与渲染同一份 run 表 + 一张 `INLINE_STYLE`)
-- `./geometry/box` — 面上的点 / 九点锚 / `bounds` / `placeRect`(面上点复用 `knives/route` 的 `portPoint`, 故非零依赖)
+- `./geometry/port` — 面的朝外法线与面上的点(`Side` / `sideDir` / `portPoint` / `PortRef`)。`knives/route` 再导出同一绑定
+- `./geometry/box` — 面上的点 / 九点锚 / `bounds` / `placeRect`(面上点复用 `geometry/port` 的 `portPoint`)
 - `./geometry/grid` — 均匀格子(格位 / 格心 / 格面 / 缝中线)
 - `./geometry/pack` — 行 / 列摆放(`packRow` / `packCol`; 主轴间距 `gap`(缝, 单值或**逐项**数组)与 `pitch`(节距)二选一)
 - `./geometry/place` — 锚点糖面(`rightOf` / `leftOf` / `below` / `above` / `centeredOn`: 把盒摆到另一个盒的某侧)
@@ -102,6 +103,7 @@ bun run examples/start/full-chain.ts > /tmp/chain.svg  # scene → route → aud
 - `./knives/route-cost` — 候选折点列代价向量(读数, 不是门禁)
 - `./knives/lanes` — 共享走廊的腰线批量分配(旋钮, 不是门禁)
 - `./knives/constraints` — 一维约束账本 + 最长路("从 a 到 b 至少 N" → 位置列, 带归因)
+- `./knives/thresholds` — 门禁与排序共用的尺子(`AuditLevel` / `THRESHOLDS` / `PIERCE_MIN` / `STUB_MIN`)。`knives/audit` 再导出同一绑定
 - `./knives/audit` — 门禁审计(十九项 + 两档阈值) → `{ pass, metrics, diagnostics }`
 - `./knives/measure` — 无浏览器文本估宽
 - `./knives/fit` — `nodeFit` / `cardFit` / `textFit` 盒反算(与 `label_fit` 同源)

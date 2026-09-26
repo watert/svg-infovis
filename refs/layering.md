@@ -44,19 +44,24 @@ date: 2026-09-26T01:10:00+08:00
   作者声明的 bounds ──▶ knives/(audit 判决) ──▶ export 决定出不出图 ──▶ 作者改旋钮
 ```
 
-- **几何层不知道形状层**: `geometry/` 不得 import `shapes/` / `blocks/` / `knives/`(例外见下)。
+- **几何层不知道形状层, 也不知道刀**: `geometry/` 不得 import `shapes/` / `blocks/` / `knives/`。
 - **形状层不知道块层**; `blocks/` 只组合 `src/` 的刀, 不引第三方。
 - **`knives/` 不写 scene**: 判决是读数, 旋钮归作者(`assignLanes` 不显式调用就完全不发生分配)。
 - **core 永不引 React / vite / 浏览器**; 依赖方向永远是 `core ← 薄壳 ← 上层`, 反向即破。
+
+### 已收口(260926)
+
+面上的点与门禁尺子曾经把 `geometry/box → knives/route → knives/audit` 串成一条链。`rectFace` 会把整座门禁求值进来, `shapes/node` 与 `shapes/group`(audit 已经值导入它们)一旦改用盒查询就会成环。两处都已下沉, 旧导入路径保留的是**同一绑定**的再导出:
+
+- `geometry/port.ts` —— `Side` / `PortRef` / `sideDir` / `portPoint`。`box` / `grid` / `place` 不再 import `knives/`。`route` 再导出这四个名字。
+- `knives/thresholds.ts` —— `AuditLevel` / `THRESHOLDS` / `PIERCE_MIN` / `STUB_MIN`。`route` 不再为了 `0.5` 值导入 `audit`。`cluster` 里手写的那份 `0.5` 改读这一份。`audit` 再导出这四个名字。
+
+barrel **不要**再 `export *` 这两个文件。route / audit 的 `export *` 已经带出这些名字, 再来一条同名 `export *`, 这些名字会从 barrel 消失。判据在 `test/layering.test.ts` 的同一性断言。
 
 ### 已知越层(现状, 不是设计意图 —— 别当规律抄)
 
 "无环"不等于"单向"。全仓**没有真正的 import 环**, 但下列反向依赖确实存在, 查依赖图时按"已备案"读:
 
-- ⚠ **`geometry/{box,grid,place}` → `knives/route`(三处, 不是一处)**: 都为复用 `portPoint` / `sideDir`
-  (面上的点只许一份公式)。三者的文件头都自称"README 分层段记的那条有意例外", 而 README 只在
-  `geometry/box` / `geometry/grid` 两行零散提到 —— **以本节为准**。它们是"纯函数"但**不是零内部依赖**,
-  纯函数 ≠ 无依赖。新增几何件若也要 `route` 的东西, 先问"能不能把那份公式提到更底下", 别再叠一个反向 import。
 - **`knives/fit` → `shapes/node` / `shapes/icon`**(值导入 `NODE_TEXT_LAYOUT` / `assertNodeShape` /
   `nodeOuterSize` / `ICON_DEFAULTS`): 盒反算与上屏共用同一份字号与外径公式, 是**有意的同源**,
   方向为 knives → shapes。
@@ -119,16 +124,15 @@ type Block = { shape: DGroup; bounds: Rect };   // 主出口恒返回这两位
 
 1. **运行时依赖图无环** —— 有环 = 半个模块图 + TDZ。⚠ 纯 `import type` 与纯 type specifier 不算
    运行时依赖(不参与求值), 否则 `geometry/inline-text → descriptor` 这类同层回引会被误判。
-2. **`geometry/` 不依赖 `shapes/` / `blocks/`** —— 连纯类型依赖也判红(底座知道外壳的形状就是层裂);
-   `geometry/` 依赖 `knives/` 的**只在备案名单**(`box` / `grid` / `place`, 见「已知越层」)——
-   备案一旦被清掉(例如端口公式下沉到 geometry), 测试会红, 那正是提醒你更新名单的时刻。
+2. **`geometry/` 不依赖 `shapes/` / `blocks/` / `knives/`** —— 连纯类型依赖也判红(底座知道外壳或刀就是层裂)。
+   端口公式下沉之后, 这条不再有备案名单。
 3. **`blocks/` 只组合 `../src/<刀>`** —— 禁第三方、禁 `node:`、**禁走 barrel**(barrel 带 `node:fs`)。
 4. **`package.json#exports` 的子路径都落在真实文件上** —— 子路径是公共面, 指向不存在的文件要说得清。
 
 ⚠ **曾经被写成纪律、现已作废的一条**: "读 barrel 的顺序即依赖顺序, 被依赖的先出"。260926 一次探测就在
 `src/index.ts` 里抓出 11 处违反, 而它对运行时零影响(ESM 按模块图拓扑求值)—— 没人守的纪律等于没纪律,
-写进注释只会让人以为该找的都找过了。底层刀反向吃高层阈值(例 `knives/route` 值导入 `knives/audit` 的
-`PIERCE_MIN`)不是顺序问题而是**层次倒置**, 归 `ROADMAP.md` 的契约归属待办。
+写进注释只会让人以为该找的都找过了。底层刀反向吃高层阈值那条(route 为了 `PIERCE_MIN` 值导入 audit)
+已经随尺子下沉收口。还没动的层次倒置是 Scene 契约仍住在 `audit.ts`, 见 `ROADMAP.md`。
 
 ## 三条边界轴
 
