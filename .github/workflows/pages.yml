@@ -1,0 +1,69 @@
+# =====================================================================
+# pages · 示例站发布(GitHub Pages, 260926)
+#
+# 站址: https://<owner>.github.io/svg-infovis/ —— base 已在 website/vite.config.ts 写死。
+#
+# 产物链: 根 `bun install`(示例要 lucide-static) → website 装包 → **预渲染**
+#   (跑 examples/manifest.ts 里的全部出图入口, 落 public/svg/ + src/generated/examples.json)
+#   → vite build → 上传 website/dist。
+#   预渲染必须在 build 之前: 它是 vite 的**输入**(public/ 要拷进 dist), 不是后处理。
+#
+# 两处刻意为之:
+#   · 拆 build / deploy 两个 job —— 出图与打包不进 environment, 只有 deploy 那一下
+#     才需要 pages/id-token 那套 OIDC 写权限, 权限面收在真正用它的 job 里。
+#   · concurrency 挂在 workflow 级且 `cancel-in-progress: false` —— 排队, 但不打断
+#     已经起飞的生产部署(半路掐掉会留下 Pages 上的半成品)。
+#
+# 本地跑同一套: cd website && bun run prerender && bun run build
+# =====================================================================
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # 根包装的是示例的运行时依赖(lucide-static), 不装 prerender 就出不了图
+      - run: bun install
+
+      - run: bun install --cwd website
+
+      - run: bun run --cwd website prerender
+
+      - run: bun run --cwd website build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+# 以下由 scripts/prerender.ts 生成, 不入 git
+public/svg/
+src/generated/

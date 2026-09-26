@@ -1,0 +1,184 @@
+/* =====================================================================
+   styles.css · 全局主题变量 + 站点骨架(首页 / 顶栏 / 页脚)
+
+   暗色打底; 组件级样式各归各的文件(画廊那一档全在 gallery.css, 变量用 `--gal-` 前缀)。
+   唯一的取值约定: `--bg` 与内核产物 THEMES.dark 的画布同色(#0b1120) —— hero 那张现场
+   渲染的图于是像直接长在页面上, 只靠一圈边框说明"这是一份 SVG 文档"。
+   ===================================================================== */
+
+:root {
+  --bg: #0b1120;          /* 页底 = 内核暗色主题的画布色 */
+  --panel: #111a2e;
+  --panel-2: #0d1626;     /* 卡片底(比页底亮一档) */
+  --line: #1e293b;
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #7c3aed;      /* 与 hero 里那格 export 的 violet 同族 */
+  --accent-ink: #c4b5fd;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Cascadia Mono", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --wrap: 1240px;
+  --pad-x: max(20px, calc((100vw - var(--wrap)) / 2));
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font: 15px/1.75 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent-ink); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+::selection { background: rgba(124, 58, 237, 0.35); }
+
+/* --- 站骨架 ------------------------------------------------------------- */
+
+.site { min-height: 100vh; display: flex; flex-direction: column; }
+.site-main { flex: 1; }
+
+.site-header {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px var(--pad-x);
+  border-bottom: 1px solid var(--line);
+  background: rgba(11, 17, 32, 0.86);
+  backdrop-filter: blur(10px);
+}
+.site-brand { display: flex; align-items: baseline; gap: 8px; color: var(--ink); }
+.site-brand:hover { text-decoration: none; }
+.site-brand-mark { color: var(--accent-ink); font-size: 15px; }
+.site-brand-name { font: 600 15px/1 var(--mono); letter-spacing: 0.01em; }
+.site-brand-tag { color: var(--muted); font-size: 12px; }
+
+.site-nav { display: flex; align-items: center; gap: 4px; }
+.site-nav-link {
+  padding: 6px 10px; border-radius: 8px;
+  color: var(--muted); font-size: 13.5px;
+}
+.site-nav-link:hover { color: var(--ink); background: var(--panel); text-decoration: none; }
+.site-nav-link[aria-current='page'] { color: var(--ink); background: var(--panel); }
+.site-nav-ext { color: var(--accent-ink); }
+
+/* 画廊区: 锚点跳转时给吸顶栏让位 */
+.site-gallery { max-width: var(--wrap); margin: 0 auto; padding: 0 20px 40px; scroll-margin-top: 68px; }
+
+.site-footer { padding: 34px var(--pad-x) 44px; border-top: 1px solid var(--line); }
+.site-creed {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;
+  margin: 0 0 20px; padding: 0; list-style: none;
+}
+.site-creed li { display: flex; flex-direction: column; gap: 3px; }
+.site-creed strong { color: var(--ink); font: 600 13px/1.4 var(--mono); }
+.site-creed span { color: var(--muted); font-size: 12.5px; }
+.site-legal { margin: 0; color: var(--muted); font-size: 12.5px; }
+
+/* --- 首页 --------------------------------------------------------------- */
+
+.home { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
+.home code { font-family: var(--mono); }
+
+.home-hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr);
+  gap: 32px; align-items: center;
+  padding: 56px 0 44px;
+}
+.home-kicker {
+  margin: 0 0 10px; color: var(--muted);
+  font: 12px/1.6 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.home-title { margin: 0 0 14px; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.2; letter-spacing: -0.01em; }
+.home-title em { font-style: normal; color: var(--accent-ink); }
+.home-lede { margin: 0 0 18px; max-width: 46ch; color: var(--muted); }
+.home-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; padding: 0; list-style: none; }
+.home-chips li {
+  padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--muted); font: 11.5px/1.5 var(--mono);
+}
+.home-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.home-btn {
+  padding: 9px 16px; border: 1px solid var(--accent); border-radius: 10px;
+  background: var(--accent); color: #fff; font-size: 14px;
+}
+.home-btn:hover { background: #6d28d9; text-decoration: none; }
+.home-btn-ghost { border-color: var(--line); background: transparent; color: var(--accent-ink); }
+.home-btn-ghost:hover { background: var(--panel); }
+
+/* hero 的实时渲染图: 一圈边框 = "这是一份 SVG 文档"; 画布色与页底同色, 于是它像浮在页面上 */
+.home-live { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.home-live-frame {
+  padding: 10px; border: 1px solid var(--line); border-radius: 14px;
+  background: rgba(17, 26, 46, 0.45); overflow: hidden;
+}
+.home-live-frame svg { display: block; width: 100%; height: auto; }
+.home-live-cap { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 12.5px; }
+.home-live-cap p { margin: 0; }
+.home-live-stat b { color: var(--ink); }
+.home-live-cap code { color: var(--accent-ink); font-size: 12px; }
+.home-live-problems { color: #fecaca; }
+.home-live-problems summary { cursor: pointer; }
+.home-live-problems ul { margin: 6px 0 0; padding-left: 18px; }
+
+.home-section { padding: 40px 0; border-top: 1px solid var(--line); }
+.home-h2 { margin: 0 0 18px; font-size: 19px; letter-spacing: 0.01em; }
+
+.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 14px; }
+.home-card { padding: 16px 18px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.home-card h3 { margin: 10px 0 6px; font-size: 14.5px; }
+.home-card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+.home-card-tag {
+  display: inline-block; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--muted); font: 11px/1.6 var(--mono);
+}
+.home-card-is { color: #6ee7b7; border-color: #047857; }
+
+.home-code {
+  margin: 0 0 14px; padding: 16px 18px; overflow-x: auto;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: #060b14; color: #cbd5e1;
+  font: 12.5px/1.8 var(--mono);
+}
+.home-warn {
+  margin: 0; padding: 10px 14px; border-left: 2px solid var(--accent); border-radius: 0 8px 8px 0;
+  background: rgba(124, 58, 237, 0.08); color: var(--muted); font-size: 13px;
+}
+.home-entries { display: grid; gap: 10px; margin: 18px 0 0; }
+.home-entry { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 14px; align-items: baseline; }
+.home-entry dt { color: var(--ink); font-size: 13px; }
+.home-entry dd { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+.home-layers { margin: 0; padding: 0; list-style: none; }
+.home-layer {
+  display: grid; grid-template-columns: 10px minmax(0, 170px) minmax(0, 1fr);
+  gap: 12px; align-items: baseline; padding: 10px 12px; border-radius: 10px;
+}
+.home-layer:hover { background: var(--panel-2); }
+.home-layer-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--tone); }
+.home-layer-name { color: var(--ink); font-size: 13px; }
+.home-layer-body { color: var(--muted); font-size: 13.5px; }
+.home-layer[data-tone='slate'] { --tone: #475569; }
+.home-layer[data-tone='blue'] { --tone: #2563eb; }
+.home-layer[data-tone='violet'] { --tone: #7c3aed; }
+.home-layer[data-tone='emerald'] { --tone: #059669; }
+.home-layer[data-tone='amber'] { --tone: #d97706; }
+.home-layer[data-tone='teal'] { --tone: #0d9488; }
+
+.home-note { margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 920px) {
+  .home-hero { grid-template-columns: minmax(0, 1fr); gap: 26px; padding: 36px 0 32px; }
+  .home-lede { max-width: none; }
+  .home-entry, .home-layer { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .home-layer-dot { display: none; }
+  .home-layer { padding: 12px; border: 1px solid var(--line); margin-bottom: 8px; }
+}
+@media (max-width: 560px) {
+  .site-brand-tag { display: none; }
+  .home-section { padding: 30px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
