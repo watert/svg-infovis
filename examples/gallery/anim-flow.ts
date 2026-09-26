@@ -3,8 +3,8 @@
 //   bun run examples/gallery/anim-flow.ts > /tmp/anim-flow.svg
 //
 // 这张图证明什么(ROADMAP 动画条 ① 档的活体):
-//   · **不动版图, 只加时间轴** —— 版式与一张静态流水线图一字不差; 动画是压在同一批坐标上的
-//     第二层墨迹(虚线 overlay + 高亮环), 于是"在跑"这件事不花任何版面代价
+//   · **不动版图, 只加时间轴** —— 版式与一张静态流水线图一字不差; 会动的虚线**就是边的杆身**
+//     (不铺静态底线, 两层墨必打架), 静态层只剩箭头与盒 —— "在跑"这件事不花任何版面代价
 //   · **`stroke-dashoffset` 只能走 href** —— 它不是可继承属性: animate 挂在自己的组上只会动那个
 //     `<g>`(容器根本没这个属性), 图上**静默不动**。所以四条蚂蚁线都指名道姓:
 //     `attrs: { href: '#<path id>' }` 把目标钉在**那条 path 自己**身上(口径见 src/descriptor.ts 动画段)。
@@ -40,7 +40,7 @@ import { below } from '../../src/geometry/place';
 import { measureText } from '../../src/knives/measure';
 import { nodeFit } from '../../src/knives/fit';
 import { nodeShape } from '../../src/shapes/node';
-import { edgeGeometry, edgeShape, labelBoxSize } from '../../src/shapes/edge';
+import { edgeGeometry, labelBoxSize } from '../../src/shapes/edge';
 import { labelBoxShape, textShape } from '../../src/shapes/text';
 
 // --- 作者决策: 只有这一段是手写的数 -----------------------------------------
@@ -135,8 +135,10 @@ for (const content of FOOT) {
 
 // --- 动画层 ---------------------------------------------------------------
 //
-// ① 蚂蚁线: 一段虚线 overlay 钉在**边自己的 d** 上(不是第二条几何), 靠 href 指名道姓动它的
-//    `stroke-dashoffset`。位移量恰好一个 dash 周期 ⇒ 循环处无缝; 0→负 = 顺 path 方向(顺着箭头)爬
+// ① 蚂蚁线**就是杆身**: 不再铺静态实线底(底 + overlay 是两层墨, 虚线压虚线打架、压实线也像描边
+//    重影 —— 260926 三连修后定稿: 杆身整个交给会动的那条虚线, 静态层只留箭头)。`d` 取无端点
+//    裁切的整杆(见 edgeOf), 靠 href 指名道姓动它的 `stroke-dashoffset`; 位移量恰好一个 dash
+//    周期 ⇒ 循环处无缝; 0→负 = 顺 path 方向(顺着箭头)爬
 const ants = (e: { id: string; d: string }): Descriptor => {
   const dashId = `ant-${e.id}`;
   return group([
@@ -152,6 +154,14 @@ const ants = (e: { id: string; d: string }): Descriptor => {
     }),
   ]);
 };
+
+/** 静态层只画箭头: marker 几何取自 `edgeGeometry`(与杆身同一份入参), 颜色与蚂蚁线同槽 */
+const arrowOf = (e: { points: Pt[]; radius?: number }): Descriptor[] =>
+  edgeGeometry({ points: e.points, radius: e.radius, end: 'arrow-triangle' }).markers.flatMap((m) =>
+    m.tag && m.d
+      ? [path(m.d, { fill: m.filled ? ACCENT : 'none', stroke: ACCENT, 'stroke-width': 1.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })]
+      : [],
+  );
 
 // ② 高亮环: 从盒外扩一圈(同心靠 `NODE_RADIUS` 同一个数), 常态透明、走到时间点才亮。
 //    末环多一条时间轴: 亮完接住自己那个 `.end` 开始呼吸 —— 两条轨在**不相交的时刻**上接力
@@ -192,12 +202,11 @@ const content: Descriptor[] = [
   canvasLayer(DEFAULT_THEME, W, H),
   line(title, DEFAULT_THEME.tones.slate.text),
   line(sub, DEFAULT_THEME.label),
-  // 静态版式: 边(实线 + 箭头)→ 节点。**回流也是实线底子** —— 虚线底 + 蚂蚁线 overlay 是两条
-  // 错开的虚线互相打架(实测观感), "往回走"由方向、标签与箭头说, 不靠底子换花样
-  ...mains.map((e) => edgeShape({ points: e.points, end: 'arrow-triangle' })),
-  edgeShape({ points: loop.points, radius: LOOP_RADIUS, end: 'arrow-triangle' }),
+  // 静态版式: 杆身不画(整个交给会动的蚂蚁线), 只留箭头 → 节点
+  ...mains.flatMap(arrowOf),
+  ...arrowOf(loop),
   ...boxes.map((r, i) => nodeShape({ ...r, ...STAGES[i], radius: NODE_RADIUS })),
-  // 动画层: 蚂蚁线 + 高亮环(整层排在静态版式之上 —— 两层墨谁都盖不着谁)
+  // 动画层: 蚂蚁线(它**就是**杆身, 不是 overlay)+ 高亮环
   ...mains.map((e) => ants(e)),
   ants(loop),
   ...boxes.map(ring),
