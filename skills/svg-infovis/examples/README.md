@@ -11,7 +11,7 @@ date: 2026-09-26T23:35:00+08:00
 一张合格的结构图长什么样, 以及画出它的那份代码。**配上读**, 比十段散文都管用。
 
 ⚠ 三份 `.ts` 是仓内源文件的**逐字节副本**, import 走**仓根相对路径**(`../../src/index`) ——
-它们在这里**不能直接跑**, 是**读本**不是可运行副本。要真跑, 见下面「import 换算」。
+它们在这里**不能直接跑**, 是**读本**不是可运行副本。要真跑: 改 import 见「import 换算」, 或直接用现成的可跑起手件见「想要一份**能跑**的」。
 
 ## 三张表
 
@@ -58,6 +58,25 @@ date: 2026-09-26T23:35:00+08:00
 
 装包消费时 `src/` `templates/` `scripts/` `blocks/` `assets/` **都在包里**(能读), 但**不在 `exports` 白名单**里 ——
 不能用包名 import 它们。三层入口与引法的完整口径见 [`../refs/contract.md`](../refs/contract.md)。
+
+## 想要一份**能跑**的: `svginfo new`(一行 import 都不用改)
+
+上面三份是**读本**; **能跑的起手件是现成的** —— 装包之后:
+
+```bash
+svginfo new my-fig                                # 拷 templates/sequence.ts, 并把 import 就地改成包名
+svginfo run my-fig.ts -o my-fig.svg               # 真出图(门禁不过也给草稿; 退出码 0/1/2 是判决)
+svginfo inspect my-fig.ts --showcase --metrics    # ⚠ 见下: 起手件**不是** scene 模块
+```
+
+- 拷出来那份的 import 已经指向 `@watert/svg-infovis` 与 `.../runtime` —— 与上面那张换算表**是同一件事**,
+  只是由命令做掉, 所以**一行都不用手改**。这就是"改一个参数就能跑"的那个最小输入。
+- `svginfo new` 只从 `templates/sequence.ts` 起手(序列图); 另两类图型(分层带 / 阶段带)读包内
+  `templates/{layered,lifecycle}.ts` 照抄, 或克隆本仓跑 `examples/`。
+- ⚠ **起手件是「出图脚本」, 不是 scene 模块** —— 它有 `isMainModule(import.meta.url)` + `runScene`,
+  而 `svginfo inspect` 要的是 `export default <scene>` / `export const scene = <scene>`。拿 `inspect`
+  去点它, 会得到"没找到场景 + 该模块导出的是 …"(退出码 2)。想看某种摆法的**逐对象坐标**,
+  自己把模板里那几十行收敛成一个只有 `scene` 的模块 —— 那才是 `inspect` 的常规用法。
 
 ## 重出这三张(改了内核 / 改了示例之后)
 

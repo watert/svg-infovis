@@ -72,7 +72,7 @@ if (draft || !report.pass) process.exitCode = 1;                          // 判
 | 你的处境 | 手上有 | 能跑的命令 | 起手代码 |
 |---|---|---|---|
 | ① **clone 了本仓** | 全部(`src/` `examples/` `test/` `templates/` `scripts/` `docs/` …) | 本节这些 `bun run examples/...` / `scripts/*.ts` 命令**只在这里成立** | 抄 `examples/start/full-chain.ts` |
-| ② **装了包**(`bun add @watert/svg-infovis`) | 包里的 `dist/` `src/` `blocks/` `scripts/` `templates/` `assets/` `skills/` + `README.md` | `svginfo run/inspect/render/new/icons`(CLI 随包发) | 照抄 [`QUICKREF.md`](./QUICKREF.md)「30 秒起手」 |
+| ② **装了包**(`bun add @watert/svg-infovis`) | 包里的 `dist/` `src/` `blocks/` `scripts/` `templates/` `assets/` `skills/` + `README.md` | `svginfo run/inspect/render/new/icons`(CLI 随包发) | `svginfo new <name>` 拷一份**能跑**的起手件(import 已就地改成包名), 或照抄 [`QUICKREF.md`](./QUICKREF.md)「30 秒起手」 |
 | ③ **只装了本 skill** | 这七份(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,diagnostics,aesthetics}.md` / `examples/`) | **什么都没有** —— skill 里没有可跑的代码 | 先按②装包拿到 API, 再照 QUICKREF 起手 |
 
 - ②③ 手上**没有** `examples/` 与 `test/`(不在包内), 所以文档里凡是 `bun run examples/…` 的示例命令都别照打 —— 它们是①的路径。
