@@ -44,7 +44,7 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 - **图片(260926 起)**: 仓库不囤**快照** —— PNG 快照那一套已退役(`examples/images/` 整目录 + `scripts/build-example-pngs.sh` 一并删除, `package.json` 的 `pngs` 也随之撤): 出图产物就是 SVG 文本, 全量出图归网站管线(→ `website/public/svg/`, gitignored), 回归对账走 **SVG 文本 diff**(同输入 → 同字节, 比 PNG 像素精确)
 - committed 的图**只有两类**, 各有各的守卫 —— 判据是**"这图有没有读者"**, 不是"图多好看":
   - `assets/hero.svg`(README 首图): `bun run examples/start/full-chain.ts > assets/hero.svg` 重出(**别 `2>&1`**), 字节守卫在 `test/hero-svg.test.ts` —— 内核改了字节而它没重出, `bun test` 当场红。它是**字节确定**的产物, 所以守得住字节
-  - `skills/svg-infovis/examples/*.png`(**skill 参考图**, 260926 起): 给"只装了 skill 的 agent"当校准样本(它读不了一张 SVG 文本, 只能读图)。生成器一把出副本 + 图 + 清单: `bun run scripts/build-skill-shots.ts`; 守卫在 `test/skill-shots.test.ts`。⚠ **它不做字节守卫** —— 栅格化器随机器而变(`rsvg-convert` / `qlmanage`, 版本不同字节就不同), 拿字节当基线会在别人机器上假红; 钉住的是**导出指纹**(= `bun run <源>` 的 stdout sha256)那一层
+  - `skills/svg-infovis/examples/*.png`(**skill 参考图**, 260926 起): 给"只装了 skill 的 agent"当校准样本(它读不了一张 SVG 文本, 只能读图)。生成器一把出副本 + 图 + 清单: `bun run scripts/build-skill-shots.ts`; 守卫在 `test/skill-shots.test.ts`。⚠ **它不做字节守卫** —— 栅格化器随机器而变(`rsvg-convert` / `qlmanage`, 版本不同字节就不同), 拿字节当基线会在别人机器上假红; 钉住的是**导出指纹**(= `bun run <源>` 的 stdout sha256)那一层。⚠ 出盘时还要过一道 **pngquant 调色板量化**(≤256 色保留 alpha: 三张 336 kB → 90 kB, 而 JPEG 实测更糊还更大 —— 别用), pngquant 缺了生成器**当场炸**, 免得静默重出真彩大图; 单张 ≤80 kB 的预算守卫同在那个测试里
 - 栅格化仍走 `scripts/svg2png.sh`(通用工具, 产物落在调用方指定的地方); **除了上面那两类, 别的图一律现出** —— 别再立新的产物目录
 
 ## 验证链路三件套

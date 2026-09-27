@@ -7,10 +7,10 @@
 // 产物三件一套, 每个 key 各一份:
 //   · `<key>.ts`      仓内源文件的**逐字节副本**(不重排、不改 import —— 见下)
 //   · `<key>.svg`     不出盘; 它是中间态(`bun run <source>` 的 stdout), 只用来算指纹与栅格化
-//   · `<key>.png`     栅格化结果(渲染宽度见下), 给 agent 的**眼睛**读
-//   · `shots.json`    机读清单: 每个 key 的源路径 / 副本路径 / PNG 路径 / 渲染宽度 / **导出指纹**
+//   · `<key>.png`     栅格化 + **调色板量化**的结果(渲染宽度见下), 给 agent 的**眼睛**读
+//   · `shots.json`    机读清单: 每个 key 的源路径 / 副本路径 / PNG 路径 / 渲染宽度与字节 / **导出指纹**
 //
-// 三条设计取舍(改这个脚本前先认下):
+// 四条设计取舍(改这个脚本前先认下):
 //   · **副本逐字节, 不重写 import**。这三份的 import 是**仓根视角**的相对路径(`../../src/index`),
 //     搬进 skill 目录后**不能跑** —— 这是有意的: 它是"读本", 不是"可运行副本"。重写 import 就得
 //     同时造出口样板, 而那份样板已经在 QUICKREF「30 秒起手」里有一份(第二份必然漂)。
@@ -18,6 +18,11 @@
 //   · **PNG 不做字节守卫**。栅格化器随机器而变(rsvg / qlmanage, 版本不同字节就不同), 拿它当基线
 //     会在别人机器上假红。守卫改钉**导出指纹**(`renderSha256` = `bun run <source>` stdout 的 sha256):
 //     内核一改字节, 指纹即过期 → 提醒重出; 而 PNG 是不是"对着这一版图"出的, 由指纹这一条兜住。
+//   · **量化成调色板 PNG, 而不是 JPEG**(260927)。这类图是大色块 + 细线 + 小字, JPEG 的 DCT **既糊字又更肥**:
+//     实测 q88(4:4:4)比原 PNG 还大 40%, 只有 lifecycle 那张小 10% —— 那条路直接否掉。改走 pngquant
+//     压到 ≤256 色(保留 alpha、不开抖动): 三张 344 kB → 93 kB(**−73%**), 与白底参考的 RMSE 0.35%
+//     (肉眼无差, 纸感底纹不糊)。⚠ pngquant 是外部工具, 缺了**当场炸** —— 静默重出真彩大图等于
+//     悄悄给每个 npm 用户多塞 250 kB, 而没人会看见。守卫: 单张 ≤ 80 kB 的预算(在 test/skill-shots.test.ts)。
 //   · **渲染宽度**: `max(1200, 自然宽)`。图是矢量, 放大重渲不糊; 统一到 1200 是为了让 agent 读得清
 //     (交付尺寸仍看根 `<svg>` 的 `width` —— PNG 只是给人看的渲染, 不是交付件)。
 //
@@ -57,6 +62,8 @@ export type Shot = {
   /** PNG 的像素宽 / 高(守卫拿它核对 PNG 头) */
   pngWidth: number;
   pngHeight: number;
+  /** 量化后的 PNG 字节数 —— 记下来是给"这版包多重"一个出处, 守卫只卡上限(见 test) */
+  pngBytes: number;
   /** `bun run <source>` stdout 的 sha256 —— 产物字节的指纹, 唯一那条"图过没过期"的判据 */
   renderSha256: string;
 };
@@ -70,6 +77,18 @@ export function readPngSize(buf: Buffer): { width: number; height: number } | nu
 }
 
 const sha256 = (b: Buffer | string): string => createHash('sha256').update(b).digest('hex');
+
+/** 调色板量化(原地改这一个文件, 保留 alpha)。缺 pngquant 就炸 —— 理由见文件头那条取舍 */
+function quantize(file: string): void {
+  const r = spawnSync('pngquant', ['--quality=70-95', '--nofs', '--strip', '--force', '--output', file, file], {
+    encoding: 'utf8',
+  });
+  if (r.error) throw new Error(`没有 pngquant —— 装一个: brew install pngquant\n  ${r.error.message}`);
+  if (r.status !== 0) {
+    const hint = r.status === 99 ? '\n  (99 = 达不到 --quality 下限, 把下界放宽成 0-95)' : '';
+    throw new Error(`pngquant 压 ${file} 失败(退出码 ${r.status})${hint}\n${r.stderr?.trim() ?? ''}`);
+  }
+}
 
 /** 根 `<svg>` 的声明宽度(取第一个 `width="…"`; 认小数, 序列化器写的是两位小数) */
 const declaredWidth = (svg: string): number => {
@@ -110,15 +129,19 @@ function build(): Shot[] {
         cwd: ROOT, encoding: 'utf8',
       });
       if (r.status !== 0) throw new Error(`svg2png.sh 失败: ${r.stderr}`);
+      const raw = readFileSync(pngPath).length; // 量化前的真彩体积, 只用来在日志里报一句"省了多少"
+      quantize(pngPath);
 
-      const size = readPngSize(readFileSync(pngPath));
+      const pngBuf = readFileSync(pngPath);
+      const size = readPngSize(pngBuf);
       if (!size) throw new Error(`${key}.png 不是合法 PNG`);
       if (size.width !== width) console.error(`⚠ ${key}: 栅格化器没按声明宽出图(${size.width} ≠ ${width})`);
       out.push({
         key, source, copy: `${SHOTS_DIR}/${key}.ts`, png: `${SHOTS_DIR}/${key}.png`,
-        pngWidth: size.width, pngHeight: size.height, renderSha256: sha256(svg),
+        pngWidth: size.width, pngHeight: size.height, pngBytes: pngBuf.length, renderSha256: sha256(svg),
       });
-      console.error(`✓ ${key}: ${size.width}×${size.height} · ${sha256(src).slice(0, 8)} → ${sha256(svg).slice(0, 8)}`);
+      const kb = (n: number) => `${Math.round(n / 1024)}kB`;
+      console.error(`✓ ${key}: ${size.width}×${size.height} · ${kb(raw)} → ${kb(pngBuf.length)} · ${sha256(src).slice(0, 8)} → ${sha256(svg).slice(0, 8)}`);
     }
     const json = {
       note: '机读清单 —— 由 `bun run scripts/build-skill-shots.ts` 生成, 别手改; 守卫在 test/skill-shots.test.ts',

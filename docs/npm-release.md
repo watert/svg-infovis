@@ -64,8 +64,8 @@ date: 2026-09-26T22:30:00+08:00
 
 ```bash
 npm view @watert/svg-infovis version            # 发新版之前先看当前线上是哪个版本
-cd ~/www/github/svg-infovis && bun run verify   # exit 0 / 947 pass / 0 fail
-npm publish --dry-run                           # 286 文件 / ~833 kB / 零 warn
+cd ~/www/github/svg-infovis && bun run verify   # exit 0 / 959 pass / 0 fail
+npm publish --dry-run                           # 300 文件 / ~949 kB / 零 warn(260927: skill 参考图过 pngquant, tarball 由 1.2 MB 降到 949 kB)
 ```
 
 ## 验收(读路径放行之后才谈得上)
