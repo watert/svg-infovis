@@ -289,7 +289,9 @@
     "!**/*.test.ts"
   ],
   "bin": {
-    "svginfo": "dist/scripts/cli.js"
+    "svginfo": "dist/scripts/cli.js",
+    "svg2png": "scripts/svg2png.mjs",
+    "svg-varflatten": "scripts/svg-varflatten.mjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

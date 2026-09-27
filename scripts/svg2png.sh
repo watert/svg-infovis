@@ -71,8 +71,8 @@ fi
 if grep -q 'var(--' "$in"; then
   {
     echo "⚠ $in 用了 CSS 自定义属性(var(--…)), 而 rsvg-convert / qlmanage 都不认 —— 栅格化结果会是黑底黑块, 且不报错。"
-    echo "  先展平变量再栅格化:"
-    echo "      bun run scripts/svg-varflatten.ts \"$in\" \"${in%.svg}.flat.svg\" && $0 \"${in%.svg}.flat.svg\" \"$out\" \"$max\""
+    echo "  先展平变量再栅格化(两者都是包级 bin, 在 PATH 里; 没装就用 npx -p @watert/svg-infovis <名>):"
+    echo "      svg-varflatten \"$in\" \"${in%.svg}.flat.svg\" && svg2png \"${in%.svg}.flat.svg\" \"$out\" \"$max\""
   } >&2
 fi
 

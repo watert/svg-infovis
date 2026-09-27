@@ -214,4 +214,46 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
     }
     expect(dead, 'docs/internals 里的相对链接指到了不存在的地方').toEqual([]);
   });
+
+  // ── svg2png / svg-varflatten 两个 bin(260927) ─────────────────────────
+  // 升 bin 的动机是**消费方不该再知道包根在哪**: 此前栅格化只以「包内文件路径」暴露, 于是下游
+  // 文档里长出一串 `~/github/svg-infovis/scripts/svg2png.sh` 硬编码, 那串路径一失效就全线报废
+  // 且没有任何自检会喊。命令是新的契约面, 所以下面钉的是「**文案里不许漏包根**」。
+  describe('栅格化两个 bin', () => {
+    const BIN = join(ROOT, pkg.bin.svg2png);
+    const run = (...a: string[]) => spawnSync(process.execPath, [BIN, ...a], { encoding: 'utf8' });
+    const hasRasterizer = existsSync('/opt/homebrew/bin/rsvg-convert')
+      || spawnSync('qlmanage', ['-h'], { stdio: 'ignore' }).status === 0;
+
+    it('零参数: 给用法、退出码 1、且文案里不漏包内绝对路径', () => {
+      // ⚠ 反向验证的思路: shim 若图省事直接转交, shell 的 `${1:?...}` 会连 `$0` 的包内绝对路径
+      //   一起吐给用户 —— 那正是"消费方被迫知道包根"的老病, 只是换了个出口。
+      const r = run();
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain('用法: svg2png');
+      expect(r.stderr, '零参数报错漏出了包内绝对路径 —— 消费方该看到命令, 不是实现细节').not.toContain(ROOT);
+    });
+
+    it('变量守卫的建议用命令名, 不再用 $0 拼包内路径', () => {
+      // 这条守卫的价值全在"看着像成功": 含 var(--) 的产物能过完整性检查、rsvg 也照渲, 只是渲成
+      //   黑底黑块且 exit 0。给错的下一步(仓内绝对路径)等于把调用方重新赶回"必须知道包根"的老路。
+      const dir = mkdtempSync(join(tmpdir(), 'svg2png-bin-'));
+      const svg = join(dir, 'v.svg');
+      writeFileSync(svg, '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect fill="var(--x)"/></svg>');
+      const r = run(svg, join(dir, 'v.png'), '100');
+      rmSync(dir, { recursive: true, force: true });
+      expect(r.stderr, '含 var(--) 的产物没被守卫喊出来').toContain('svg-varflatten');
+      expect(r.stderr, '建议里漏出了包内绝对路径').not.toContain(ROOT);
+    });
+
+    it.skipIf(!hasRasterizer)('svg2png 真能出图(本机没有任何本地栅格化器时跳过)', () => {
+      const dir = mkdtempSync(join(tmpdir(), 'svg2png-ok-'));
+      const svg = join(dir, 'a.svg');
+      const png = join(dir, 'a.png');
+      writeFileSync(svg, '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><rect width="40" height="20" fill="#4a7cc7"/></svg>');
+      const r = run(svg, png, '200');
+      rmSync(dir, { recursive: true, force: true });
+      expect(r.status, r.stderr).toBe(0);
+    });
+  });
 });
