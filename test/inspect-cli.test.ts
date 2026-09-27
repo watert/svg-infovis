@@ -11,7 +11,7 @@
 // =====================================================================
 
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -77,6 +77,11 @@ const fixture = (name: string, body: string): string => {
 
 beforeAll(() => { dir = mkdtempSync(join(tmpdir(), 'md-inspect-')); });
 afterAll(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+/** 本机有没有 node —— 只有**真实 node 宿主**才复现得出"宿主带不动 TS"那条腿(bun test 里 execPath 是 bun) */
+const NODE_OK = Bun.spawnSync({ cmd: ['node', '--version'], stdout: 'pipe', stderr: 'pipe' }).exitCode === 0;
+/** CLI 的产物态入口(bin 指向它); dist 是派生品, 没构建时这条腿跳过 */
+const CLI_BIN = join(SKILL, 'dist', 'scripts', 'cli.js');
 
 describe('inspect CLI · 三条出口纪律', () => {
   it('不给路径: 跑内置演示场景, 退出码 0, 读数进 stdout / 提示进 stderr', () => {
@@ -171,5 +176,25 @@ describe('inspect CLI · 三条出口纪律', () => {
     expect(r.out).toContain('fit 参数 {"padding":60}(模块导出的 FIT)');
     expect(r.out).toContain('x     61 y     61');      // padding 60: 平移 60 - 39 = 21 → 40 → 61
     expect(run([fixture('zero.ts', SCENE_ZERO), '--fit']).out).toContain('fit 参数 {}(export 缺省)');
+  });
+
+  it.skipIf(!NODE_OK || !existsSync(CLI_BIN))('宿主带不动 TS 时, CLI 的 inspect 仍读得动 `.ts`', () => {
+    // 260927 实测的缺陷(修在 `cli.ts` 的 `cmdInspect`): 全局 `svginfo` 的 shebang 是 node, 而
+    //   node <22.6 的加载器 `import('.ts')` 会当场 `Unknown file extension ".ts"` + 退出码 2。
+    //   `run` 早已把判断权交给跑得动 TS 的进程(`SCENE_PROBE` 那条教训), `inspect` 却漏了这一步
+    //   —— 且**有 bun 也救不了它**: 进程内 import 走的是宿主的加载器, 不是 PATH 上的 bun。
+    // 这条腿只在**真实 node 宿主**下复现: bun test 里 `process.execPath` 是 bun, 宿主本来就跑得动 TS。
+    const scene = fixture('cmd-scene.ts', SCENE_OK);
+    const p = Bun.spawnSync({
+      cmd: ['node', CLI_BIN, 'inspect', scene, '--showcase', '--metrics'],
+      cwd: SKILL, stdout: 'pipe', stderr: 'pipe',
+    });
+    const err = p.stderr.toString();
+    // 既没有 bun、node 又带不动 TS 的机器上, 正确行为是那条"三条路"文案(环境不成立), 不是本缺陷
+    if (/要一个能跑 TS 的运行时/.test(err)) return;
+    expect(err, '又退回宿主进程内 import 了 —— 宿主带不动 TS 时这里会当场 Unknown file extension')
+      .not.toContain('Unknown file extension');
+    expect(p.exitCode, err).toBe(0);
+    expect(p.stdout.toString(), '读数没出来').toContain('场景读数');
   });
 });

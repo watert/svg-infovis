@@ -187,10 +187,33 @@ function spawnTs(file: string, passthrough: string[]): { stdout: Uint8Array; sta
     if (rt.note) console.error(rt.note);
     return r;
   }
-  fail(`${file} 要一个能跑 TS 的运行时, 但 PATH 里没有 bun, 本机 node ${process.versions.node} 也带不动 TS`
+  return noTsRuntime(file);
+}
+
+/** 一个能跑 TS 的运行时都没有 —— 三条出路写清, 不静默(文案只此一份, 别再抄第二遍) */
+function noTsRuntime(file: string): never {
+  return fail(`${file} 要一个能跑 TS 的运行时, 但 PATH 里没有 bun, 本机 node ${process.versions.node} 也带不动 TS`
     + ` —— 三条路: 装 bun, 换 node ≥${NODE_STRIP_ALWAYS.join('.')},`
     + ` 或用 node ≥${NODE_STRIP_MIN.join('.')} 并给**本 CLI** 也加上 --experimental-strip-types`, 2);
-  return { stdout: new Uint8Array(), status: 2 };
+}
+
+/** 本 CLI 的**宿主自己**能不能 `import` 用户的 `.ts` —— bun 能; node 要够格(见 `nodeCanRunTs`) */
+function hostCanRunTs(): boolean {
+  return typeof (globalThis as { Bun?: unknown }).Bun !== 'undefined' || nodeCanRunTs();
+}
+
+/**
+ * 用一个**能跑 TS 的**运行时跑同目录的兄弟模块, stdout / stderr 整张直通。
+ * 与 `spawnTs` 的分工: 那条路要把产物**收回本进程**转发(所以 stdout 得是 pipe), 这条只需原样透传。
+ */
+function spawnTsStreaming(path: string, passthrough: string[]): number {
+  for (const rt of tsRuntimes()) {
+    const r = spawnSync(rt.cmd, [...rt.pre, path, ...passthrough], { stdio: 'inherit' });
+    if ((r.error as { code?: string } | undefined)?.code === 'ENOENT') continue;
+    if (rt.note) console.error(rt.note);
+    return r.status ?? 1;
+  }
+  return noTsRuntime(path);
 }
 
 /** 同目录的兄弟模块: 源码态是 `.ts`、产物态是 `.js`(node 的剥离档不做 `.js → .ts` 改写, 得自己挑) */
@@ -295,6 +318,20 @@ async function cmdRender(args: string[]): Promise<number> {
   }
 }
 
+/**
+ * 读数板。仓外用户给的场景模块多半是 `.ts`, 而**本 CLI 的宿主可能带不动 TS**
+ * (bin 是 `#!/usr/bin/env node`, 而 node <22.6 的宿主 import `.ts` 会当场
+ * `Unknown file extension ".ts"`, 退出码 2)—— 且**有 bun 也救不了它**: bun 只在子进程里才用得上,
+ * 进程内 `import` 走的是宿主的加载器。判断权交给跑得动 TS 的进程, 与 `SCENE_PROBE` 是同一条教训。
+ *
+ * 只有"参数里那个 `.ts`"才需要换进程: 不给路径时读的是内置演示场景(纯 JS 实现, 宿主直接跑得动)。
+ */
+async function cmdInspect(args: string[]): Promise<number> {
+  const target = args.find((a) => !a.startsWith('-'));
+  if (!target || !/\.tsx?$/.test(target) || hostCanRunTs()) return inspectMain(args);
+  return spawnTsStreaming(fileURLToPath(sibling('inspect')), args);
+}
+
 function cmdNew(args: string[]): number {
   const force = args.includes('--force');
   const name = targetOf(args.filter((a) => a !== '--force'), 'new');
@@ -370,7 +407,7 @@ async function main(argv: string[]): Promise<number> {
 
   switch (cmd) {
     case 'run': return cmdRun(rest);
-    case 'inspect': return inspectMain(rest);
+    case 'inspect': return cmdInspect(rest);
     case 'render': return cmdRender(rest);
     case 'new': return cmdNew(rest);
     case 'icons': return cmdIcons(rest);
