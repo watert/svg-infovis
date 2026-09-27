@@ -97,6 +97,8 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 
 交付前把 `tryExport` 换成 `exportScene`(不带 `force`)。迭代用 `tryExport`: 不过也给草稿, `draft === true` 就不能当交付。诊断日志带上 `evidence`, 不要只打 `code` 和 `message`。
 
+**交之前逐条过 [`QUICKREF.md`](./QUICKREF.md) 的「交付前验收」** —— 那份清单是"拿什么自证"的地方(退出码 / 读数板 / density 警示 / 栅格化 / 尺寸 / 门禁审不到的)。骨架只有一句: **三种"完成"互不蕴含** —— `audit` 全绿只管几何, 栅格化看一眼不等于评审过, 好不好看只有人能判。别把"门禁全绿"说成"图没问题"。
+
 ## 出口
 
 机制只活在 `scripts/runner.ts` 的 `runScene`。新图照 `examples/start/full-chain.ts` 抄: 顶层纯几何, `isMainModule(import.meta.url)` 里调用一次(`src/runtime.ts` 的 `./runtime` 子路径)。⚠ 别再用 `import.meta.main` —— bun 认它、node 下它是 `undefined`, 会让 CLI 静默不出图。

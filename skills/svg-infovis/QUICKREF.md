@@ -354,6 +354,26 @@ UPDATE_BASELINE=1 bun test test/route-pick-equivalence.test.ts
 
 收尾: 对一遍上面的回答 → `audit` 全绿只是地板 → density 警示里, 设计期声明过的跳过, 没声明的问一句是漏写还是没想到 → `scripts/svg2png.sh` 看一眼。警示不是命令。
 
+## 交付前验收
+
+「动手前」问的是**画什么**; 这里问的是**画完了凭什么说它能交**。逐条过, 别跳 —— 前面全是"怎么画", 这一节是"交之前拿什么自证"。
+
+1. **出口是 `exportScene`, 不是 `tryExport`** —— 迭代用 `tryExport` 拿草稿, 交付换 `exportScene`(不带 `force`), 门禁不过它当场抛 `ExportBlockedError`。产物里带 `data-draft="1"` 就等于没交付。
+2. **判决落到了退出码** —— `report.pass === false` 或 `draft` 必须 `process.exitCode = 1`(照 `examples/start/full-chain.ts` 的出口)。图走文件或 stdout、**诊断只走 stderr, 绝不 `2>&1`**; 验尸: `head -c 200` 得是 `<svg` 或 `<?xml`。
+3. **读数板看一眼**(不看图也知道哪条门禁在喊) —— `svginfo inspect <scene.ts> --showcase --metrics`(仓内 `bun run scripts/inspect.ts <scene.ts> --showcase --metrics`)。退出码 `0` 通过 / `1` 门禁不过 / `2` 用法错。诊断四段 + `evidence` 里已经是原始数值, 别手算(`refs/diagnostics.md` 有 24 个码的档位与修法)。
+4. **density 警示逐条过** —— 设计期声明过的跳过; 没声明的问一句"是漏写还是没想到"。⚠ 它**警示不拦出口**, 不是命令(见 `refs/diagnostics.md` 第三节)。
+5. **栅格化看一眼** —— `svg2png <in.svg> [out.png]`: 门禁只管几何, **字会不会被缩到读不动它不看**。外来 SVG 整张靠 CSS 变量上色时先 `svg-varflatten`(否则渲成黑底黑块且 exit 0)。
+6. **交付尺寸** —— 根 `<svg>` 的 `width` 就是读者看到的大小, 经验档 ≤900(细则见上文「交付尺寸」)。
+7. **门禁审不到的自己扫一遍** —— 图标 / 网格底纹 / `embedAsset` 素材**不进任何净空门禁**; 忘记重测 HTML 走 `sceneStatus`; 出图后顺手 `grep NaN 产物`。
+
+**三种"完成"互不蕴含, 别互相顶替**(这一节真正的骨架):
+
+- `audit` 全绿证明的只是**几何**(正交 / 净空 / 重叠那些量);
+- 栅格化把产物变成人眼能看的东西, 但"**看到了**"不等于"**评审过**" —— 瞥一眼不算评审;
+- 好不好看、读不读得懂、表意对不对, 只有**人或有视觉能力的评审者**能判。门禁全绿的图照样可能丑、可能表达错。
+
+所以交付时分开说清楚: **几何过了(附退出码) · 尺寸是多少 · 视觉我看了 / 没看**。⚠ 不许把"门禁全绿"说成"图没问题" —— 前者只管几何; 也不许把"我看了"说成"我评审过了"。
+
 ## 边界(别越界)
 
 - **core 不猜意图** —— 层序 / 端口 / 折点 / 分组全是作者决策; `via` 是**声明**不是避障
