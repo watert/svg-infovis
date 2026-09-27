@@ -62,7 +62,7 @@ npx skills add watert/svg-infovis -g     # 装到全局(跨项目可见)
 npx skills add watert/svg-infovis --list # 只看看仓里有什么 skill
 ```
 
-装出来是**六项真身**: `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 源码副本 —— 给"只装了 skill、没有源码"的 agent 对着**图 + 代码**校准: 序列 / 阶段带 / 学术风各一张)。为什么是这几份、动仓结构时有哪些坑 → [`AGENTS.md`](./AGENTS.md) 的「skill 与文档的真身在哪」。
+装出来是**七项真身**: `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,diagnostics,aesthetics}.md` + `examples/`(三张参考图 + 源码副本 —— 给"只装了 skill、没有源码"的 agent 对着**图 + 代码**校准: 序列 / 阶段带 / 学术风各一张)。为什么是这几份、动仓结构时有哪些坑 → [`AGENTS.md`](./AGENTS.md) 的「skill 与文档的真身在哪」。
 
 ## 仓内开发
 
@@ -78,7 +78,7 @@ bun run verify                                          # 改完源码的唯一�
 ## 文档
 
 - [`QUICKREF.md`](./QUICKREF.md) —— **画图只读这一页**: 起手代码 / 缺省值表 / 误用 / 动手前七问(数字只在它手里)
-- [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律; 同装的还有 [`refs/contract.md`](./skills/svg-infovis/refs/contract.md)(三层入口 / `Scene` 逐字段契约 / 出口三件套)与 [`examples/`](./skills/svg-infovis/examples/README.md)(三张参考图 + 源码副本)
+- [`skills/svg-infovis/SKILL.md`](./skills/svg-infovis/SKILL.md) —— 何时用 / 怎么用(coding agent 视角)与改内核的纪律; 同装的还有 [`refs/contract.md`](./skills/svg-infovis/refs/contract.md)(三层入口 / `Scene` 逐字段契约 / 出口三件套)、[`refs/diagnostics.md`](./skills/svg-infovis/refs/diagnostics.md)(24 个门禁码全表: 档位 / 含义 / 往哪修)与 [`examples/`](./skills/svg-infovis/examples/README.md)(三张参考图 + 源码副本)
 - [`docs/internals/layering.md`](docs/internals/layering.md) · [`docs/internals/principles.md`](docs/internals/principles.md) · [`docs/internals/public-api.md`](docs/internals/public-api.md) —— 分层契约与边界规则 · 设计意图与逼它出来的事故 · 公共承诺面与破坏性改动四步
 - [`docs/`](./docs/) —— 主题研究(`theme` · `mermaid-geometry` · `infograph-roadmap` · `animation-*` · `avatar-lab-parity`)、发布 SOP(`npm-release`)、本 README 抽出的三份(`api-index` · `consuming` · `contributing`)
 - [`ROADMAP.md`](./ROADMAP.md) —— 立项依据与后续方向; [`AGENTS.md`](./AGENTS.md) —— 仓库结构、产物纪律与协作须知

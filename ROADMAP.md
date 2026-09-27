@@ -126,7 +126,7 @@ date: 2026-09-26T21:30:00+08:00
   `files` 白名单只带 `dist` / `src` / `blocks` / `scripts` / `templates` / `assets` / `skills` + `README.md` / `LICENSE`
   (`test/` / `examples/` / `website/` / `docs/` / `.github/` / `ROADMAP.md` / `AGENTS.md` 不进包; 仓根 `refs/` 只剩两条兼容软链);
   **本仓同时是一份 Agent Skill** —— 真身在 `skills/svg-infovis/`(`npx skills add watert/svg-infovis` 可装),
-  skill 只装**画图现场用得上**的那些(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,aesthetics}.md` /
+  skill 只装**画图现场用得上**的那些(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,diagnostics,aesthetics}.md` /
   `examples/` 三张参考图 + 源码副本), 它们才是真身;
   仓根的 `QUICKREF.md` 与那两份 refs 是指向真身的软链 —— 所以 QUICKREF 也在包里, 只是路径落在
   `skills/svg-infovis/` 下(软链本身不进 npm 包)。受众是内核开发者 / 发布者的那几份(`layering` /

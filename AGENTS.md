@@ -28,14 +28,14 @@ CLI 是**双运行时**: shebang `#!/usr/bin/env node`, `svginfo` 优先用 PATH
 
 ## skill 与文档的真身在哪(260926 起)
 
-- **分治原则**: skill 只装**画图现场用得上**的 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,aesthetics}.md` + `examples/`(三张参考图 + 源码副本), 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓内 `docs/internals/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用。**同理反过来**: 出图现场真的缺的东西(协议地图 = `contract.md`、看图校准 = `examples/`)要补进 skill, 别留给"你自己翻仓"
+- **分治原则**: skill 只装**画图现场用得上**的 —— `SKILL.md` + `QUICKREF.md` + `refs/{recipes,contract,diagnostics,aesthetics}.md` + `examples/`(三张参考图 + 源码副本), 真身全在 `skills/svg-infovis/`。受众是内核开发者 / 发布者的那几份(`layering` · `principles` · `public-api` · `architecture`)留在**仓内 `docs/internals/`**, 既不进 skill 也不随 npm 包 —— 别因为"顺手"把它们塞进 skill: 只装 skill 的 agent 拿不到源码, 那些契约对它无用。**同理反过来**: 出图现场真的缺的东西(协议地图 = `contract.md`、看图校准 = `examples/`)要补进 skill, 别留给"你自己翻仓"
 - 仓根的 `QUICKREF.md` 与 `refs/{recipes,aesthetics}.md` 是**指向真身的软链** —— 改内容一律改真身(`skills/svg-infovis/`), 对着软链原子写会把链替换成普通文件。⚠ 这份软链名单是**显式三条**, 不许写成"skill 里那几份"的循环: `contract.md` 与 `examples/` 是 260926 新加的 skill 真身, 仓根**没有**它们的旧路径
 - **文档的归宿只有一个 `docs/`**(260927 起): 改内核 / 发布才用的那几份从仓根 `refs/` 迁进 `docs/internals/`(`layering` / `principles` / `public-api` / **`policies.md` = 纪律全表** / `architecture.md`, 连现状分层图 `architecture-v3.svg` 与出图脚本 `build-arch*.ts`), 参照实现的对账样本进 `docs/archify-explore/`。仓根 `refs/` 从此**只剩那两条兼容软链**(vault 里的 mini-diagram skill 文档按旧路径读它们) —— 别再往 `refs/` 放第三样东西: 加顶点目录前先问一句"它是 skill 真身吗", 不是就进 `docs/`
 - ⚠ **skill 文档里的相对链接必须落在 skill 内**(守卫在 `test/npm-package.test.ts`)。260926 走查实测: 文档搬进 `skills/` 后, `SKILL.md` 的 `./refs/principles.md`(真身当时在仓根)与 `recipes.md` 的 `../templates/README.md` 都成了死链 —— 只装 skill 的 agent 拿到的是空指针。**跨出 skill 的引用一律写成代码串**(仓内 `docs/internals/principles.md`), 链接只指"装了就能拿到"的东西
 - ⚠ **根目录永远不许放 `SKILL.md`**: skills CLI 的发现规则是"根目录的 SKILL.md 盖住 `skills/` 下的"(实测: 根那份会把 `skills/` 里的顶掉), 且会把**整仓**当成 skill 拷给消费者(实测 3.3 MB, 连 `test/` 与 `website/` 一起); 真身只可能在 `skills/svg-infovis/`
 - 软链方向选"真身在 skill、仓根留链", 因为反方向会让 `npx skills add` 的**软链物化**成为外部用户能否拿到文档的前提 —— 那是 CLI 未文档化的实现细节; 现在的方向下 skill 目录里全是真身, 换哪个版本都装得对
 - Windows 上 `core.symlinks=false` 的 checkout 会把仓根那 3 条软链落成"一行路径"的文本文件; 不影响 `src/` / `dist/` / npm 包(软链本来就不进包), 但别在那台机器上改它们
-- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill; 装出来应是**那六项真身**(`SKILL.md` / `QUICKREF.md` / 3 份 refs / `examples/`), 多了就是又把仓内 refs 塞进 skill 了。布局守卫在 `test/npm-package.test.ts`(双向: 该真身的不能是软链, 该留仓根的不能变软链, 相对链接不许指到 skill 外)
+- 验收: `npx skills add <本仓路径 或 watert/svg-infovis> --list` 应**只列 `svg-infovis` 一个** skill; 装出来应是**那七项真身**(`SKILL.md` / `QUICKREF.md` / 4 份 refs / `examples/`), 多了就是又把仓内 refs 塞进 skill 了。布局守卫在 `test/npm-package.test.ts`(双向: 该真身的不能是软链, 该留仓根的不能变软链, 相对链接不许指到 skill 外)
 - **`examples/` 进 skill 的三条规矩**(它的读者是"只有 skill、没有 src"的 agent): ① 三份 `.ts` 是仓内源文件的**逐字节副本**, 生成器 `scripts/build-skill-shots.ts` 一把出(副本 + PNG + `shots.json`); ② 它的 import 走**仓根相对路径**, 所以**别把 `skills/` 加进 `tsconfig.json` 的 `include`** —— 那份相对 import 在 skill 目录下解析不到(现在 include 是 `src`/`blocks`/`examples`/`test`/`scripts`/`templates`, 刻意不含 `skills`); ③ 守卫 `test/skill-shots.test.ts`(副本逐字节 / 导出指纹 / PNG 尺寸 / 清单与 README 逐键一致)
 
 ## 产物

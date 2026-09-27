@@ -145,6 +145,9 @@ describe('npm 包形态 · 公共面 / 发布白名单 / 相对 import 的守卫
       // 260926 补的两项: 作者契约(三层入口 / Scene 契约 / 作者视角的 why)与参考图目录的 README ——
       // 受众同样是"画图现场"。而那三份改内核 / 发布才用的 (layering / principles / public-api) 仍**不在**这里。
       'refs/contract.md', 'examples/README.md',
+      // 260927 补的门禁码全表: 报出一条诊断想知道"这码什么意思 / 要不要紧 / 往哪修"时翻它 ——
+      // 它是 24 个码的**唯一正文**, 守卫(`test/skill-docs.test.ts`)盯着它与 DIAGNOSTIC_CODES 对账
+      'refs/diagnostics.md',
     ];
     for (const f of real) {
       const p = join(ROOT, 'skills/svg-infovis', f);
