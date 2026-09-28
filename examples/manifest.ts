@@ -82,6 +82,8 @@ export const EXAMPLES: ExampleEntry[] = [
     what: '真实规模手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 ROADMAP.md「立项依据」)' },
   { key: 'embed-panel', group: 'gallery', file: 'examples/gallery/embed-panel.ts',
     what: '外部素材链: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 <svg>, 素材 z 序在底)' },
+  { key: 'decision-tree-effort', group: 'gallery', file: 'examples/gallery/decision-tree-effort.ts',
+    what: '判定流紧凑单主干树: 主干 8 节点直下 + 三支路短探快收 + 贴中轴回边(坑表见文件头与配方 6)' },
   // v0.2 排版层(260925): 三件 shapes 排版件 + 两件 blocks —— 五张都是描述符层直出
   // (拼 `svg()` 出图, 不过门禁: 它们画的是压在版式上的墨迹, 没有可审计的拓扑)
   { key: 'stat', group: 'gallery', file: 'examples/infograph/stat.ts',
