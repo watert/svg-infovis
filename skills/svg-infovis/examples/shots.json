@@ -30,6 +30,16 @@
       "pngHeight": 713,
       "pngBytes": 28017,
       "renderSha256": "27d8780dd1abca4d2983e4fab846208648bd25dc56b461a63d8b025491d8c20e"
+    },
+    {
+      "key": "decision-tree-effort",
+      "source": "examples/gallery/decision-tree-effort.ts",
+      "copy": "skills/svg-infovis/examples/decision-tree-effort.ts",
+      "png": "skills/svg-infovis/examples/decision-tree-effort.png",
+      "pngWidth": 1200,
+      "pngHeight": 1281,
+      "pngBytes": 63193,
+      "renderSha256": "5908d86d0eef3688275241380d610e91b1727fe4f4adab4036a039237d107b7c"
     }
   ]
 }

@@ -1,7 +1,7 @@
 // =====================================================================
 // build-skill-shots · 出 skill 自带的参考图与源码副本(260926)
 //
-// 干什么: 把**仓内三份活体示例**连图带代码搬进 `skills/svg-infovis/examples/`, 让"只装了本 skill、
+// 干什么: 把**仓内四份活体示例**连图带代码搬进 `skills/svg-infovis/examples/`, 让"只装了本 skill、
 //   没有 clone 也没有 src/"的 agent 也能对着**一张真图 + 一份真代码**校准(这是它唯一的用途)。
 //
 // 产物三件一套, 每个 key 各一份:
@@ -11,7 +11,7 @@
 //   · `shots.json`    机读清单: 每个 key 的源路径 / 副本路径 / PNG 路径 / 渲染宽度与字节 / **导出指纹**
 //
 // 四条设计取舍(改这个脚本前先认下):
-//   · **副本逐字节, 不重写 import**。这三份的 import 是**仓根视角**的相对路径(`../../src/index`),
+//   · **副本逐字节, 不重写 import**。这四份的 import 是**仓根视角**的相对路径(`../../src/index`),
 //     搬进 skill 目录后**不能跑** —— 这是有意的: 它是"读本", 不是"可运行副本"。重写 import 就得
 //     同时造出口样板, 而那份样板已经在 QUICKREF「30 秒起手」里有一份(第二份必然漂)。
 //     ⚠ 因此**别**把 `skills/` 加进 tsconfig 的 include: 那份相对 import 在 skill 目录下解析不到。
@@ -26,7 +26,7 @@
 //   · **渲染宽度**: `max(1200, 自然宽)`。图是矢量, 放大重渲不糊; 统一到 1200 是为了让 agent 读得清
 //     (交付尺寸仍看根 `<svg>` 的 `width` —— PNG 只是给人看的渲染, 不是交付件)。
 //
-// 用法(改了内核 / 改了这三份示例之后):
+// 用法(改了内核 / 改了这四份示例之后):
 //   bun run scripts/build-skill-shots.ts
 // 判据: `test/skill-shots.test.ts`(副本逐字节 / 指纹 / PNG 头与尺寸 / README 表一致)
 // =====================================================================
@@ -44,11 +44,12 @@ export const SHOTS_DIR = 'skills/svg-infovis/examples';
 /** PNG 宽度下限: 低于它 agent 读不清; 自然宽更宽时以自然宽为准(只放大不缩) */
 const RENDER_MIN_WIDTH = 1200;
 
-/** 三个 key 与它们的**仓根相对**源路径 —— 顺序即产物顺序, 别按字母重排(diff 要稳) */
+/** 四个 key 与它们的**仓根相对**源路径 —— 顺序即产物顺序, 别按字母重排(diff 要稳) */
 export const SHOTS = [
   { key: 'sequence-archify-style', source: 'templates/sequence-archify-style.ts' },
   { key: 'lifecycle-agent-run', source: 'examples/gallery/lifecycle-agent-run.ts' },
   { key: 'academic-figure', source: 'examples/gallery/academic-figure.ts' },
+  { key: 'decision-tree-effort', source: 'examples/gallery/decision-tree-effort.ts' },
 ] as const;
 
 export type Shot = {

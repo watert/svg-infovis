@@ -1,7 +1,7 @@
 // =====================================================================
 // skill 参考图 · 副本 / 指纹 / 清单的守卫(260926)
 //
-// 背景: skill 里那三张「真图 + 真代码」是给**只装了 skill 的 agent**校准用的样本 —— 一旦静默过时,
+// 背景: skill 里那四张「真图 + 真代码」是给**只装了 skill 的 agent**校准用的样本 —— 一旦静默过时,
 // 它比没有更坏(agent 会照着一张旧图学出一个旧写法)。而它过时的路子有四条, 每条都要有人看着:
 //
 //   ① **源改了, 副本没重出** —— 副本是逐字节拷贝, 直接比字节(免重算)
@@ -69,7 +69,7 @@ describe('skill 参考图 · 副本 / 指纹 / 清单的守卫', () => {
     }
   });
 
-  it('三张图都过了 pngquant 量化(真彩重出 = 悄悄给每个 npm 用户多塞 ~250 kB)', () => {
+  it('四张图都过了 pngquant 量化(真彩重出 = 悄悄给每个 npm 用户多塞 ~250 kB)', () => {
     const fat = manifest
       .map((s) => ({ key: s.key, bytes: statSync(join(ROOT, s.png)).size }))
       .filter((s) => s.bytes > PNG_BUDGET)
@@ -90,7 +90,7 @@ describe('skill 参考图 · 副本 / 指纹 / 清单的守卫', () => {
     }).toEqual({ onlyManifest: [], onlyReadme: [] });
   });
 
-  it('三张图各自的 ts / png 都真在 skill 目录里(清单指向不存在的文件 = 安装后读不到)', () => {
+  it('四张图各自的 ts / png 都真在 skill 目录里(清单指向不存在的文件 = 安装后读不到)', () => {
     const missing = manifest
       .flatMap((s) => [s.copy, s.png])
       .filter((p) => !existsSync(join(ROOT, p)));
