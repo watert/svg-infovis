@@ -66,6 +66,8 @@ export const EXAMPLES: ExampleEntry[] = [
     what: 'fan-out 三种画法对照 —— **产物只画 ①** 共享端点(零手工, pass); ② 端口摊开并轨(10 条 edge_overlap)与 ③ assignLanes 错开只在 stderr 报条数, 不出图' },
   { key: 'port-folds', group: 'checks', file: 'examples/checks/port-folds.ts',
     what: '端口朝向 → 折法参考卡: 盒位逐字相同, 只换端口两面' },
+  { key: 'pack-spacing', group: 'checks', file: 'examples/checks/pack-spacing.ts',
+    what: '主轴间距三档对照: 同一组参差盒高(46/64/46)下, gap(恒缝) / 逐项缝 / pitch(恒节距)各自解出的缝与节距序列不同 —— 缝与节距是两个词, 别互相代用' },
 
   // ── gallery ──────────────────────────────────────────────────────────
   { key: 'node-forms', group: 'gallery', file: 'examples/gallery/node-forms.ts',

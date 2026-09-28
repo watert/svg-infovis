@@ -30,6 +30,7 @@
 | `audit-demo` | `checks/audit-demo.ts` | 门禁诊断长什么样: **四类违例** + 干净对照, 四个违例元素挨个标出 —— 节点与边**描红**(红指向真凶 `evidence.other`, 不是被点名的受害者), 标签没有 `labelStyles` 通道, 走自身 `bg` / `color` 徽章(含 `evidence` / `supportedFixes`) |
 | `lanes-fanout` | `checks/lanes-fanout.ts` | fan-out 三种画法对照 —— **产物只画 ①** 共享端点(零手工, pass); ② 端口摊开并轨(10 条 `edge_overlap`, fail)与 ③ `assignLanes` 错开(pass)**不出图**, 只在 stderr 报条数 |
 | `port-folds` | `checks/port-folds.ts` | 端口朝向 → 折法参考卡: 四格盒位**逐字相同**, 只换端口两面(端口是作者的旋钮) |
+| `pack-spacing` | `checks/pack-spacing.ts` | **主轴间距三档对照**: 同一组参差盒高(46 / 64 / 46)下, `gap`(恒缝) / 逐项缝 `gap: [24, 56]` / `pitch`(恒节距)各自解出的缝与节距序列不同 —— 缝与节距是两个词, 写错了门禁看不出来 |
 
 ### gallery · 能力举证 —— 这类图 core 画得出来
 
