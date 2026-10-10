@@ -44,12 +44,14 @@ export const SHOTS_DIR = 'skills/svg-infovis/examples';
 /** PNG 宽度下限: 低于它 agent 读不清; 自然宽更宽时以自然宽为准(只放大不缩) */
 const RENDER_MIN_WIDTH = 1200;
 
-/** 四个 key 与它们的**仓根相对**源路径 —— 顺序即产物顺序, 别按字母重排(diff 要稳) */
+/** 六个 key 与它们的**仓根相对**源路径 —— 顺序即产物顺序, 别按字母重排(diff 要稳) */
 export const SHOTS = [
   { key: 'sequence-archify-style', source: 'templates/sequence-archify-style.ts' },
   { key: 'lifecycle-agent-run', source: 'examples/gallery/lifecycle-agent-run.ts' },
   { key: 'academic-figure', source: 'examples/gallery/academic-figure.ts' },
   { key: 'decision-tree-effort', source: 'examples/gallery/decision-tree-effort.ts' },
+  { key: 'swot', source: 'examples/gallery/swot.ts' },
+  { key: 'dnd-alignment', source: 'examples/gallery/dnd-alignment.ts' },
 ] as const;
 
 export type Shot = {

@@ -1,6 +1,6 @@
 ---
 name: svg-infovis
-description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; 三层入口与 Scene 契约 refs/contract.md; 四张参考图(图 + 代码)在 examples/; API 一览 README.md。"
+description: "何时用 / 怎么用 svg-infovis 画结构图: 写一段 TS 调 core 的 shape / route / audit, bun 直跑出 SVG, scripts/svg2png.sh 本地栅格化验证(毫秒级, 不用开浏览器)。当用户要画或改流程 / 时序 / 架构图、要在文档或 deck 里嵌 SVG 配图、要检查图的几何质量(正交 / 净空 / 标签压线 / 节点重叠)、要画图标 + 说明卡片的本体图 / 关系图(图标走 lucide-static)、要画四象限 / SWOT / 九宫格这类分区图、或要改内核本身时使用。画图只读 QUICKREF; 图型骨架 refs/recipes.md; 三层入口与 Scene 契约 refs/contract.md; 六张参考图(图 + 代码)在 examples/; API 一览 README.md。"
 tags: [svg-infovis, svg, diagram, geometry, layout, bun]
 date: 2026-09-26T23:50:00+08:00
 ---
@@ -9,7 +9,7 @@ date: 2026-09-26T23:50:00+08:00
 
 README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该拿它画图、画图时守什么**。
 
-**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,contract,diagnostics,aesthetics}.md` + `examples/`(四张参考图 + 各自的源码副本) —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
+**本 skill 自带什么**: 本文件 + `QUICKREF.md` + `refs/{recipes,contract,diagnostics,aesthetics}.md` + `examples/`(六张参考图 + 各自的源码副本) —— 下面就写这些相对路径, 它们与 `SKILL.md` 同装在一个目录里(仓内真身在 `skills/svg-infovis/`)。
 **每层的受众分得开**: 本 skill 只装"画图现场用得上"的; 分层契约 / **内核**设计意图 / 公共面(改内核与发布才用)在**仓内 `docs/internals/`**, 不随 skill 也不进 npm 包 —— 下表凡标"仓内"的都属后者。
 **运行时优先 bun**: 场景文件是 `.ts`, `bun run scene.ts` 直跑零配置; 没有 bun 时 `svginfo` 退回 node ≥22.6 的类型剥离, 产物逐字节相同。
 
@@ -27,7 +27,7 @@ README 回答"这是什么"; 本文件回答**你(coding agent)什么时候该�
 | **第一张图 / 拿不准怎么起手** | [`QUICKREF.md`](./QUICKREF.md) — 起手代码、缺省值、误用、动手前的问题。**数字只在那张缺省值表** |
 | **想知道 API 的协议与意图**(三层入口怎么选、`Scene` 逐字段、出口三件套、为什么这么切) | [`refs/contract.md`](./refs/contract.md) —— 作者契约。签名的单一来源仍是源码 / 包内 `.d.ts` |
 | **报出一条诊断, 不知这个码什么意思 / 要不要紧 / 往哪修** | [`refs/diagnostics.md`](./refs/diagnostics.md) —— **24 个门禁码全表**(按档位 / 含义 / 修法), 外加不进门禁的三族 |
-| **想先看一张真图长什么样** | [`examples/`](./examples/README.md) —— 四张参考图 + 源码副本(序列 / 阶段带 / 学术风 / 判定流), 配上读 |
+| **想先看一张真图长什么样** | [`examples/`](./examples/README.md) —— 六张参考图 + 源码副本(序列 / 阶段带 / 学术风 / 判定流 / 四象限 / 九宫格), 配上读 |
 | 选图型、抄骨架 | [`refs/recipes.md`](./refs/recipes.md)。序列 / 分层 / 阶段带别手写, 用 `templates/{sequence,layered,lifecycle}.ts`(仓内; 也可 `svginfo new <name>` 拷一份起手) |
 | 查函数 / 门禁判据 / 模块在哪 | 子路径一览在 `README.md`, 逐条在 `docs/api-index.md`(仓内; 包内只有 `README.md` 那份一览) |
 | 改内核 | 仓内 `docs/internals/policies.md`(纪律全表 13 条)+ 源码。美学草案 [`refs/aesthetics.md`](./refs/aesthetics.md) **不许写成门禁** |
@@ -76,7 +76,7 @@ if (draft || !report.pass) process.exitCode = 1;                          // 判
 | ③ **只装了本 skill** | 这七份(`SKILL.md` / `QUICKREF.md` / `refs/{recipes,contract,diagnostics,aesthetics}.md` / `examples/`) | **什么都没有** —— skill 里没有可跑的代码 | 先按②装包拿到 API, 再照 QUICKREF 起手 |
 
 - ②③ 手上**没有** `examples/` 与 `test/`(不在包内), 所以文档里凡是 `bun run examples/…` 的示例命令都别照打 —— 它们是①的路径。
-- ③ 想看"一张真图长什么样"就看 [`examples/`](./examples/README.md): 四张 PNG + 各自的源码副本(读本, 不可直接跑; 换算见那份 README)。
+- ③ 想看"一张真图长什么样"就看 [`examples/`](./examples/README.md): 六张 PNG + 各自的源码副本(读本, 不可直接跑; 换算见那份 README)。
 - `templates/` 比较特殊: 源码**随包发**(能读), 但**没有包名子路径** —— 起手走 `svginfo new <name>`。
 
 **一条链跑到底**(每个示例都是这个形状; ② 把那两条 `bun run` 换成 `svginfo run` / `svginfo inspect`):
@@ -117,6 +117,7 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 | 成对关系 | `routePair` + `pairLabels` |
 | 组框 | 跟随内容: `fitGroupFrames`。版式本身: `bounds` + `frame: 'declared'`。不要两套都走 |
 | 摆一行 / 一列 / 等距格 | `packRow` / `packCol` / `grid`。签名在 README |
+| 四象限 / SWOT / 九宫格(版式分区) | `quadrantShape`(分区线 ± 外框 ± 轴端箭头 + 极标签)与 `quadrantGeometry`(格位 / 分区线 / 极标签锚点读数)。⚠ 它**不是数据坐标轴**: 无刻度 / 无比例尺 / 不碰数据 —— 分工见 QUICKREF「四象限」一节 |
 | 边标签 | `edgeLabel`(`content` 里的 `\n` 拆多行; `tone` 跟边色走字, 遮罩缺省同画布色 = 隐形)。要宽度只认 `labelBoxSize` |
 | 一行字里**加粗 / 斜体 / 删除线 / 着色** | 内容串里直接写标记: `**粗**` `*斜*` `~~删~~` `[字]{rose}`(或 `[字]{#b91c1c}`) —— 三处文字面(节点标签 / 边标签 / 旁注)同一份解析与发射器。规矩与落单退字面量见 `QUICKREF.md` 的「行内标记」 |
 | 旁注 / 自由文本块 | `textFit` + `placeText`, 一步到位用 `textNote`; 声明归属加 `owner`(只声明归属, 不做落位) |
@@ -150,11 +151,11 @@ bun run scripts/inspect.ts d.ts --fit             # 布局看不清 → 读数�
 ```
 SKILL.md          本文件 —— 何时用 / 怎么用 / 操作禁令
 QUICKREF.md       画图时只读这份 —— 起手代码与缺省值表在它手里
-refs/recipes.md         十三条图型 / 风格配方
+refs/recipes.md         十四条图型 / 风格配方
 refs/contract.md        作者契约: 三层入口 / Scene 逐字段 / 出口三件套 / 作者视角的 why
 refs/diagnostics.md     24 个门禁码全表 —— 每个码的档位 / 含义 / 往哪修
 refs/aesthetics.md      美学评估草案(含目标函数选边), 不是操作手册
-examples/               四张参考图 + 各自的源码副本(序列 / 阶段带 / 学术风 / 判定流)
+examples/               六张参考图 + 各自的源码副本(序列 / 阶段带 / 学术风 / 判定流 / 四象限 / 九宫格)
 ```
 
 **改内核 / 发布用得上的**(仓内 `docs/internals/`, 不随 skill 也不进 npm 包): `policies.md` 纪律全表 13 条 · `layering.md` 分层契约 · `principles.md` 意图与事故出处 · `public-api.md` 公共面与破坏性改动 SOP · `architecture.md` 演进史存档。

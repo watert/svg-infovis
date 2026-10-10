@@ -43,6 +43,8 @@
 | `harness-arch` | `gallery/harness-arch.ts` | **真实规模**手排样本: 15 节点装配链路(立项实验的对照组 / 手排税测量载体, 依据见 `../ROADMAP.md`「立项依据」) |
 | `embed-panel` | `gallery/embed-panel.ts` | **外部素材链**: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 `<svg>`, 素材 z 序在底) |
 | `decision-tree-effort` | `gallery/decision-tree-effort.ts` | **判定流紧凑单主干树**: 主干 8 节点直下 + 三支路短探快收 + 贴中轴回边; 菱形挂边走 `fromShape` / `toShape: 'diamond'`(端点落到圆角后的可见尖端) |
+| `swot` | `gallery/swot.ts` | **四象限(2×2)**: 内容反算格位 → 密铺四格 + 带轴十字(四端箭头) + 逐行 / 逐列极标签, 全程一个手写坐标都没有(`quadrantShape` 的分区框架) |
+| `dnd-alignment` | `gallery/dnd-alignment.ts` | **九宫格(3×3)**: 同一件 `quadrantShape` 只换分区数 —— 井字 + 外框 + 逐格行列头; 箭头在这里打不开(3×3 没有中轴线, 开了当场抛), 方向感靠行列头说 |
 | `stat` | `infograph/stat.ts` | **大数字块 4 块排成 2×2**: 块宽高走 `statFit` 反算 + 格位走 `grid`(统一格取最大那块), 生成图里一个手写坐标都没有; delta 标记是路径小三角(mono 字体栈下 `▲` 实测出 tofu) |
 | `badge-list` | `infograph/badge-list.ts` | **编号徽章 + 列表行 5 行**: `listRowFit` 的返回面**直接喂** `packCol` 堆成一列; 徽章一图摆出 tone × variant 三档(颜色是语义槽, 哪步算"走完"归作者) |
 | `heading` | `infograph/heading.ts` | **标题梯级 + 分隔线**: kicker / 标题 / 副标题三档字号只在 `HEADING_LAYOUT` 写一次(量宽与画字同一份), 每块位置从上一块底边加缝推(`below`), 一个 y 都不手拍 |

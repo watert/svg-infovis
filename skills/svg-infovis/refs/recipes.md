@@ -1,6 +1,6 @@
 ---
 name: svg-infovis-recipes
-description: "十三类图型与风格配方的起手骨架与常见坑: 三层带 / 时间线 / 依赖图 / fan-out / 访问矩阵 / 判定流 / 边形态 / 二维定位 / 序列图 / 阶段带 / 本体图 / 图表底板 / 学术风 paper。选型表在 QUICKREF, 这里只放能抄的骨架。"
+description: "十四类图型与风格配方的起手骨架与常见坑: 三层带 / 时间线 / 依赖图 / fan-out / 访问矩阵 / 判定流 / 边形态 / 二维定位 / 序列图 / 阶段带 / 本体图 / 图表底板 / 学术风 paper / 四象限与九宫格。选型表在 QUICKREF, 这里只放能抄的骨架。"
 tags: [svg-infovis, recipes, diagram, layout]
 date: 2026-09-22T18:00:00+08:00
 ---
@@ -13,7 +13,7 @@ date: 2026-09-22T18:00:00+08:00
 「何时用哪种图」是**知识**, 不是引擎能力 —— core 不猜意图(不做意图路由 / 自动排布), 但也不是"不做": 换个地方做, 配方活在文档里, 零代码成本。参照实现的 `recipes/scenarios.mjs`(391 行 / 11 条配方)是这条的实物证据: **零行排布代码**, 全是 prompt 措辞 + 关键词权重 + `useWhen` / `avoidWhen`。
 
 > **配方 1 / 9 / 10 已有可跑骨架**(`templates/{layered,sequence,lifecycle}.ts`): 那种"每次都长一个样"的
-> 结构, 起手骨架已封装成可填参的函数 —— **能填参就别重写**。其余十条仍是 prose(骨架形状每次由作者定, 模板化只会变成
+> 结构, 起手骨架已封装成可填参的函数 —— **能填参就别重写**。其余十一条仍是 prose(骨架形状每次由作者定, 模板化只会变成
 > `layout.suggest` 后门)。模板层的边界宪章与字段表见 **仓内** `templates/README.md`。
 
 下面这些配方共用的起手三步:
@@ -261,6 +261,9 @@ emit(scene, outPath, {
 
 **什么时候用它**: 要说的其实是"**哪个格子是空的**"。典型: 形态 × 开放性、成本 × 收益。
 
+> 要的是"**两个维度把画面切成几格**"(四象限 / SWOT / 九宫格)而不是"点落在哪" → 走**配方 14**
+> 的分区框架(有现成的 `quadrantShape` / `quadrantGeometry`); 本节管的是"散点 / 空位"这一支。
+
 **起手骨架**: 一条细节点当横轴(`h: 2`), 两排"产品块"按坐标摆 —— 块用**小节点**(高度交给 `nodeFit`), 不用文本, 因为 `tone` 还要表达第三维(是不是同一类东西)。
 
 ```ts
@@ -320,7 +323,7 @@ if (!r.report.pass) process.exitCode = 1;
 
 **门禁档**: `showcase`。
 
-> **序列封装完了; 其余十条别顺手也封装** —— 只有"结构每次都长一个样"的图型才配得上模板(时间线 /
+> **序列封装完了; 其余十一条别顺手也封装** —— 只有"结构每次都长一个样"的图型才配得上模板(时间线 /
 > 三层带 / fan-out 候选), 拓扑形状每次由作者临场定的(依赖图 / 判定流 / 访问矩阵 / 本体图)**不该模板化**
 > (那是 `layout.suggest` 后门)。判据与反例见 **仓内** `templates/README.md`。
 
@@ -461,3 +464,56 @@ const scene = {
 - **单点例外走覆盖表是正当的** —— 某一格就是那个色(如参照图里 LLM 那格灰底)写 `nodeStyles`; 但 **tone / variant 这类"角色"该写在 scene 里**, 别让"哪一格是什么角色"只活在一张按 id 索引的表里。
 
 **门禁档**: `showcase`。
+
+### 14. 四象限 / 九宫格(二维格局的分区框架)—— 有活体参照, 无模板
+
+**什么时候用它**: 要讲的是"**两个维度把画面切成几格**", 读者读的是**位置本身**(哪一格说什么) ——
+四象限(SWOT / 重要性 × 紧急度 / 成本 × 收益)与九宫格(阵营图 / 风险矩阵)。判据: 若读者要的是
+趋势 / 分布 / 空位(散点那一支), 走配方 8; 若是"九种立场各占一格"这种**分区语义**, 用它。
+
+**它是什么不是什么(先认边界)**: 它是**版式分区** —— 与 `dividerShape` 的分隔线同族(不进 scene /
+不进净空门禁); **不是数据坐标轴**(仓内 `docs/internals/layering.md`「轴一」: 无刻度 / 无比例尺 /
+不碰数据, 真图表走 `embed` 链)。
+
+**起手骨架**: 内容先反算格子尺寸, 区域从格子推, 格位 / 分区线 / 极标签全走一件 `quadrantShape`:
+
+```ts
+import { quadrantGeometry, quadrantShape } from '.../shapes/quadrant';
+import { nodeShape } from '.../shapes/node';
+import { nodeFit } from '.../knives/fit';
+
+// ① 尺寸账: 内容 → 格 → 区域(不落坐标)
+const fits = CELLS.map((c) => nodeFit({ label: `**${c.title}**`, sub: c.items.join('\n'), fontSize: 13, level: 'showcase', padding: [18, 16] }));
+const cell = { w: Math.max(...fits.map((f) => f.w)), h: Math.max(...fits.map((f) => f.h)) };  // 四格 / 九格统一
+const plot = { x: 0, y: 0, w: cell.w * 2, h: cell.h * 2 };       // 密铺: 格界就是轴(有缝时线画在缝中线)
+// ② 格位: 一个声明全交(格底先落)
+const g = quadrantGeometry({ rect: plot, cols: 2, rows: 2 });
+CELLS.map((c, i) => nodeShape({ ...g.cell(i % 2, Math.floor(i / 2)), ..., radius: 0, stroke: 'none' }));
+// ③ 框架(轴线后压): 分区线 ± 四端箭头 + 极标签(逐行 / 逐列)
+quadrantShape({ rect: plot, cols: 2, rows: 2, rules: { arrows: true },
+  poles: { left: ['Helpful', 'Harmful'], bottom: ['Internal', 'External'] } });
+```
+
+**两条活体**(读本在 skill 内 `examples/`, 真身在仓内 `examples/gallery/`):
+
+- `swot.ts` —— 2×2 + 带轴十字(四端箭头) + 逐行 / 逐列极标签; 四格按行分色(有益 emerald / 有害 rose)
+- `dnd-alignment.ts` —— 3×3 井字 + 外框(`rules.frame`) + 行列头(Lawful / Neutral / Chaotic ×
+  Good / Neutral / Evil); 三行按阵营分色, 列的分界交给井字线
+
+**常见坑**
+
+- **`arrows` 只在 2 分区那一维可用** —— 箭头属于"轴" = 落在区域中线上那条**唯一**分区线; 两个方向
+  都不是 2 分区(3×3)时打开**当场抛**。九宫格的方向感靠 `poles` 的行列头, 不靠轴箭头 —— 这是四象限
+  与九宫格在版式上的**真正分野**, 不是缺功能
+- **密铺格要 `radius: 0` + `stroke: 'none'`** —— 圆角会在格界上露出白缝; 描边会与轴线画成两条
+  (轴线也是 1.5px, 贴边叠一起就是重影)
+- **生成顺序: 格底先落、轴线后压** —— 倒过来轴会被格底的 tint 盖掉(轴在缝隙/格界上, 格底是大面积)
+- **极标签"整边"还是"逐格"由类型定**: 字符串 = 整边居中(一个维度名管一整边), 数组 = 逐格
+  (长度必须 = 该边格位数, 不符当场抛); 上下边按**列**、左右边按**行**; **单行** —— 含 `\n` 当场抛
+- **轴线色别吃缺省**(`theme.groupStroke` 是组框档, 压不住两侧 tint 底): 活体给的是
+  `THEMES.light.edge` —— 轴是这张图的骨架, 比组框线深一档才立得住
+- **格位是"区域等分"推出来的**: 除不尽时按 1 位小数落位(逐格公差 ≤0.1px, 肉眼不可见); 要格子逐位
+  相等的硬账, 就给一个能被整除的区域宽 —— 内核**不静默吸附**最后一格(那会让格子不等宽)
+
+**门禁档**: 不过门禁(描述符层直出, 与 `infograph/*` 同档: 分区框架与格里卡片都是压在版式上的墨迹,
+没有可审计的拓扑)。标题块若改走 scene, 那部分照常过门禁。

@@ -40,6 +40,26 @@
       "pngHeight": 1281,
       "pngBytes": 63545,
       "renderSha256": "20dff07df3b1d304fd59f32736422c530f56abfd70a555c8e082f4511913070d"
+    },
+    {
+      "key": "swot",
+      "source": "examples/gallery/swot.ts",
+      "copy": "skills/svg-infovis/examples/swot.ts",
+      "png": "skills/svg-infovis/examples/swot.png",
+      "pngWidth": 1200,
+      "pngHeight": 767,
+      "pngBytes": 37009,
+      "renderSha256": "5f29c4959091c1b38a75236e492599e9bfa4c58819ccc4c13f7432d29bee7db1"
+    },
+    {
+      "key": "dnd-alignment",
+      "source": "examples/gallery/dnd-alignment.ts",
+      "copy": "skills/svg-infovis/examples/dnd-alignment.ts",
+      "png": "skills/svg-infovis/examples/dnd-alignment.png",
+      "pngWidth": 1200,
+      "pngHeight": 800,
+      "pngBytes": 32524,
+      "renderSha256": "93b970408df6f120ca8d4c1f80214f4607f9e6d0117a161c1b2cd8c15975d4da"
     }
   ]
 }

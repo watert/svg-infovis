@@ -154,6 +154,11 @@
       "import": "./dist/src/shapes/heading.js",
       "default": "./dist/src/shapes/heading.js"
     },
+    "./shapes/quadrant": {
+      "types": "./dist/src/shapes/quadrant.d.ts",
+      "import": "./dist/src/shapes/quadrant.js",
+      "default": "./dist/src/shapes/quadrant.js"
+    },
     "./blocks/progress": {
       "types": "./dist/blocks/progress.d.ts",
       "import": "./dist/blocks/progress.js",

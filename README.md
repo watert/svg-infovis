@@ -43,7 +43,7 @@ import { nodeFit } from '@watert/svg-infovis/knives/fit';       // 子路径即 
 
 - `.` —— barrel 聚合出口(纯函数侧)
 - `geometry/` —— 纯函数几何: 向量 · 圆角路径逐角解算 · 几何谓词 · 端口与盒 · 均匀格子 · 行 / 列摆放
-- `shapes/` —— props → descriptor: 节点三形态 · 边与标签 · 组框 · 行内标记上屏 · 图标槽 · 大数字块 · 徽章 · 标题梯级
+- `shapes/` —— props → descriptor: 节点三形态 · 边与标签 · 组框 · 行内标记上屏 · 图标槽 · 大数字块 · 徽章 · 标题梯级 · 象限分区(四象限 / 九宫格)
 - `descriptor/` `serialize/` —— 纯数据描述符 → SVG 字符串(唯一字符串出口, 字节确定的地基)
 - `knives/` —— 构建期推导与判决: 正交路由 · 成对连线 · 门禁审计(十九项 / 两档阈值) · 盒宽反算 · 约束账本
 - `blocks/` —— 带数值语义的组合块(单值进度条 / 图标阵列); 独立子路径, 刻意不进 barrel

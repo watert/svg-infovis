@@ -76,6 +76,10 @@ export * from './geometry/place.js';
 export * from './shapes/stat.js';
 export * from './shapes/badge.js';
 export * from './shapes/heading.js';
+// 象限分区框架(261010): 四象限 / 九宫格这一族的版式件 —— 分区线(± 轴端箭头) + 极标签 + 格位读数。
+// 与 `dividerShape` 的分隔线同族(版式墨迹: 不进 scene / 不进净空门禁); 与「轴一」的分工:
+// 它不是数据坐标轴(无刻度 / 无比例尺 / 不碰数据), 是"把一个矩形切成 n×n"的版式分区
+export * from './shapes/quadrant.js';
 // 成对连线(260920): 单线路由**跑一次**再沿法线平移两条 —— 是 route 的包装, 不是第二个路由器
 export * from './knives/route-pair.js';
 // 一维约束账本 + 最长路(260922): `route`(一条边) / `assignLanes`(一束边) / `nodeFit`(一个盒) /

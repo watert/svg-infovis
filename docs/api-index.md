@@ -44,6 +44,7 @@ date: 2026-09-26T23:05:00+08:00
 - `./shapes/stat` — 大数字块(数字 + 标签 ± delta; 盒由 `statFit` 反算, delta 标记是几何不是字形)
 - `./shapes/badge` — 徽章与列表行(`badgeFit` / `listRowFit`; `{ shape, bounds }` 契约的先例)
 - `./shapes/heading` — 标题梯级与分隔线(kicker / 标题 / 副标题三档 + `dividerShape`)
+- `./shapes/quadrant` — 象限分区框架(四象限 / 九宫格: 格位读数 `quadrantGeometry` + 分区线 ± 轴端箭头 ± 极标签的墨迹 `quadrantShape`; 版式分区, **不是数据坐标轴**)
 
 ## `blocks/` — 带数值语义的组合块(独立子路径, **不进 barrel**)
 

@@ -1,19 +1,19 @@
 ---
 name: svg-infovis-examples
-description: "svg-infovis 的四张参考图(序列 / 阶段带 / 学术 / 判定流): 每张配一份仓内源文件的逐字节副本, 让只装了 skill 的 agent 也能对着'真图 + 真代码'校准观感与写法"
+description: "svg-infovis 的六张参考图(序列 / 阶段带 / 学术 / 判定流 / 四象限 / 九宫格): 每张配一份仓内源文件的逐字节副本, 让只装了 skill 的 agent 也能对着'真图 + 真代码'校准观感与写法"
 tags: [svg-infovis, examples, reference, png, recipe]
-date: 2026-09-26T23:35:00+08:00
+date: 2026-10-10T23:40:00+08:00
 ---
 
-# 参考图 · 四张真图 + 真代码(随 skill 发布)
+# 参考图 · 六张真图 + 真代码(随 skill 发布)
 
 本 skill 其余几份是散文(选型表 / 缺省值 / 坑清单) —— 它们给的是**参数**。这个目录给的是**样本**:
 一张合格的结构图长什么样, 以及画出它的那份代码。**配上读**, 比十段散文都管用。
 
-⚠ 三份 `.ts` 是仓内源文件的**逐字节副本**, import 走**仓根相对路径**(`../../src/index`) ——
+⚠ 六份 `.ts` 是仓内源文件的**逐字节副本**, import 走**仓根相对路径**(`../../src/…`) ——
 它们在这里**不能直接跑**, 是**读本**不是可运行副本。要真跑: 改 import 见「import 换算」, 或直接用现成的可跑起手件见「想要一份**能跑**的」。
 
-## 四张表
+## 六张表
 
 | key | 图 | 代码 | 读它读什么 |
 |---|---|---|---|
@@ -21,6 +21,8 @@ date: 2026-09-26T23:35:00+08:00
 | `lifecycle-agent-run` | [`lifecycle-agent-run.png`](./lifecycle-agent-run.png) | [`lifecycle-agent-run.ts`](./lifecycle-agent-run.ts) | **阶段带(状态机)的完整形态**: 三段 × 10 状态 + 向下岔路 + 跨全图回流, 深色主题带图例 —— 手排参照实现(339 行), 也是"手排税"的测量载体 |
 | `academic-figure` | [`academic-figure.png`](./academic-figure.png) | [`academic-figure.ts`](./academic-figure.ts) | **学术风 + 四件槽**: paper 墨线观感 / `tint` 角色框 / `struck` + `opacity` 废除格 / `SceneText` 的 weight 与 color, 外加"有意让两栏同层"的白名单写法 |
 | `decision-tree-effort` | [`decision-tree-effort.png`](./decision-tree-effort.png) | [`decision-tree-effort.ts`](./decision-tree-effort.ts) | **判定流 / 决策树的紧凑树形**: 单主干中轴直下 + 分支短探快收 + 贴中轴回边, 625×667 showcase 0 诊断 |
+| `swot` | [`swot.png`](./swot.png) | [`swot.ts`](./swot.ts) | **四象限(2×2)**: 内容反算格位 → 密铺四格 + 带轴十字(四端箭头) + 逐行 / 逐列极标签, 一个手写坐标都没有 |
+| `dnd-alignment` | [`dnd-alignment.png`](./dnd-alignment.png) | [`dnd-alignment.ts`](./dnd-alignment.ts) | **九宫格(3×3)**: 同一件 `quadrantShape` 只换分区数 —— 井字 + 外框 + 逐格行列头; 箭头在 3×3 打不开(没有中轴线) |
 
 ### `sequence-archify-style` —— 序列图: 先看骨架, 再看后处理
 
@@ -60,11 +62,34 @@ date: 2026-09-26T23:35:00+08:00
   stub 随行距收缩; 以及一条反直觉结论 —— **画布宽度地板由必须保留的旁注决定**, 压宽度先砍
   旁注文案, 不是砍节点间距。
 
+### `swot` —— 四象限: 重点读"骨架与内容怎么分工"
+
+- 内容是内核自己的 SWOT(与 `ROADMAP.md` / `AGENTS.md` 的口径对得上) —— 四象限图的值全在
+  "哪一格说什么", 空话样板会把它降级成一张色块图。**要抄的是分工**: 内容表在上, 几何在下。
+- **骨架全由 `quadrantShape` 一次交清**: 格尺寸由四份 `nodeFit` 取 max 反算 → 区域 = 格 × 分区数
+  (密铺) → 四格位置走 `quadrantGeometry().cell()`; 轴 = 缝中线上的分区线, `arrows` 给四端加箭头
+  (自画 path); 极标签 `left` 逐行一个(Helpful / Harmful)、`bottom` 逐列一个(Internal / External)。
+- 两条版式细节: ① 密铺格要 `radius: 0` + `stroke: 'none'` —— 圆角会在格界上露出白缝, 描边会与
+  轴线画成两条; ② 生成顺序**格底先落、轴线后压**, 倒过来轴会被格底盖掉。
+- 与「轴一」的关系: 这条轴**不是数据坐标轴**(无刻度 / 无比例尺 / 不碰数据), 是版式分区 ——
+  判据与分工见 `../refs/recipes.md` 配方 14。
+
+### `dnd-alignment` —— 九宫格: 重点读"四象限 → 3×3 只换了什么"
+
+- **同一件 `quadrantShape`**, 变的只有分区数: 分区线从十字变井字(`cols-1 + rows-1` 条全自动),
+  外框用 `rules.frame` 补, 极标签从"整边一个"换成"逐格一个"(`top` 三列头 / `left` 三行头)。
+- **箭头在这里打不开**(3×3 没有中轴线, 开了当场抛) —— 这是四象限与九宫格在版式上的真正分野:
+  九宫格的方向感靠行列头说, 不靠轴箭头。
+- 三行按阵营色谱分色(善良 emerald / 中立 slate / 邪恶 rose), 列的分界交给井字线 ——
+  颜色只用来说"善恶", 不重复说"守序 / 混乱"(那是列头的活)。
+- 行列头的对齐与偏移全在 `pole()` 里算好: 上下边的逐格标签按格心对齐、左右边贴边右对齐。
+
 ## import 换算(要在这里跑起一份, 照这张表改)
 
 | 副本里写的 | 换成 |
 |---|---|
 | `'../src/index'` · `'../../src/index'` | `'@watert/svg-infovis'` |
+| `'../../src/<子路径>'`(如 `'../../src/shapes/quadrant'`) | `'@watert/svg-infovis/<子路径>'`(白名单内; 逐条见 `docs/api-index.md`) |
 | `'../../src/runtime'` · `'../src/runtime'` | `'@watert/svg-infovis/runtime'` |
 | `'../scripts/runner'` · `'../../scripts/runner'` | 包内**没有**这条导出 —— 出口换成 QUICKREF「30 秒起手」那几行, 或克隆本仓 |
 | `'./sequence'`(模板) | `svginfo new seq` 拷一份起手, 或读包内 `templates/sequence.ts` |
@@ -74,7 +99,7 @@ date: 2026-09-26T23:35:00+08:00
 
 ## 想要一份**能跑**的: `svginfo new`(一行 import 都不用改)
 
-上面四份是**读本**; **能跑的起手件是现成的** —— 装包之后:
+上面六份是**读本**; **能跑的起手件是现成的** —— 装包之后:
 
 ```bash
 svginfo new my-fig                                # 拷 templates/sequence.ts, 并把 import 就地改成包名
@@ -91,7 +116,7 @@ svginfo inspect my-fig.ts --showcase --metrics    # ⚠ 见下: 起手件**不�
   去点它, 会得到"没找到场景 + 该模块导出的是 …"(退出码 2)。想看某种摆法的**逐对象坐标**,
   自己把模板里那几十行收敛成一个只有 `scene` 的模块 —— 那才是 `inspect` 的常规用法。
 
-## 重出这四张(改了内核 / 改了示例之后)
+## 重出这六张(改了内核 / 改了示例之后)
 
 ```bash
 bun run scripts/build-skill-shots.ts    # 副本 + PNG + shots.json 一起重出
@@ -99,7 +124,7 @@ bun run scripts/build-skill-shots.ts    # 副本 + PNG + shots.json 一起重出
 
 - `shots.json` 是机读清单(源路径 / 副本路径 / PNG 尺寸与字节 / **导出指纹**), 由脚本写, **别手改**。
 - 守卫在仓内 `test/skill-shots.test.ts`: 副本逐字节 == 源 · 导出指纹没过期 · PNG 头与尺寸对得上 · 图没超体积预算 · 本表与清单逐键一致。
-- 四张图出盘时过一道 **pngquant 调色板量化**(≤256 色, 保留 alpha): 四张 551 kB → 152 kB, 是包内最重的一项, 所以有预算守卫(单张 ≤ 80 kB)。
+- 六张图出盘时过一道 **pngquant 调色板量化**(≤256 色, 保留 alpha): 六张约 820 kB → 220 kB, 是包内最重的一项, 所以有预算守卫(单张 ≤ 80 kB)。
   ⚠ **别改成 JPEG**: 这类"大色块 + 细线 + 小字"的图, DCT 既糊字又更肥 —— 实测 q88(4:4:4)比原 PNG 还大 40%, 只有 `lifecycle-agent-run` 那张勉强小 10%。
 - ⚠ **PNG 不做字节守卫**: 栅格化器随机器而变(`rsvg-convert` / `qlmanage`), 拿字节当基线会在别人机器上假红。
   钉住的是**导出指纹**(= `bun run <源>` 的 stdout sha256)那一层 —— 内核一改字节它就过期, 提醒重出。

@@ -29,6 +29,7 @@ import { LABEL_BOX_DEFAULTS, MASK_ROW_INK_EM } from '../src/shapes/edge';
 import { GRID_ID } from '../src/shapes/grid-pattern';
 import { ICON_DEFAULTS } from '../src/shapes/icon';
 import { CYLINDER_CAP_RATIO, NODE_TEXT_LAYOUT } from '../src/shapes/node';
+import { QUADRANT_LAYOUT } from '../src/shapes/quadrant';
 import { SEQ_DEFAULTS } from '../templates/sequence';
 import { LAYERED_DEFAULTS } from '../templates/layered';
 import { LIFECYCLE_DEFAULTS } from '../templates/lifecycle';
@@ -114,6 +115,7 @@ describe('skill 正文 · 与源码对账', () => {
     { label: '`SEQ_DEFAULTS`', read: () => Object.values(SEQ_DEFAULTS) },
     { label: '`LAYERED_DEFAULTS`', read: () => Object.values(LAYERED_DEFAULTS) },
     { label: '`LIFECYCLE_DEFAULTS`', read: () => Object.values(LIFECYCLE_DEFAULTS) },
+    { label: '`QUADRANT_LAYOUT`', read: () => Object.values(QUADRANT_LAYOUT) },
   ];
 
   /**

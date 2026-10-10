@@ -84,6 +84,10 @@ export const EXAMPLES: ExampleEntry[] = [
     what: '外部素材链: echarts 出的整幅 SVG 当底板嵌进面板(嵌套 <svg>, 素材 z 序在底)' },
   { key: 'decision-tree-effort', group: 'gallery', file: 'examples/gallery/decision-tree-effort.ts',
     what: '判定流紧凑单主干树: 主干 8 节点直下 + 三支路短探快收 + 贴中轴回边(坑表见文件头与配方 6)' },
+  { key: 'swot', group: 'gallery', file: 'examples/gallery/swot.ts',
+    what: '四象限: 内容反算格位 → 密铺四格 + 带轴十字(四端箭头) + 逐行/逐列极标签, 全程一个手写坐标都没有(quadrantShape 的 2×2 形态)' },
+  { key: 'dnd-alignment', group: 'gallery', file: 'examples/gallery/dnd-alignment.ts',
+    what: '九宫格: 同一件 quadrantShape 的 3×3 形态 —— 井字 + 外框 + 逐格行列头; 箭头在这里打不开(3×3 没有中轴线, 开了当场抛), 方向感靠行列头说' },
   // v0.2 排版层(260925): 三件 shapes 排版件 + 两件 blocks —— 五张都是描述符层直出
   // (拼 `svg()` 出图, 不过门禁: 它们画的是压在版式上的墨迹, 没有可审计的拓扑)
   { key: 'stat', group: 'gallery', file: 'examples/infograph/stat.ts',
