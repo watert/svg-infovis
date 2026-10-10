@@ -50,6 +50,8 @@ import { PIERCE_MIN } from './thresholds.js';
 // 面上的点只许一份, 实现在几何层。再导出同一绑定, `knives/route` 的旧路径不变
 export { type Side, type PortRef, portPoint, sideDir } from '../geometry/port.js';
 import { type Side, type PortRef, portPoint, sideDir } from '../geometry/port.js';
+// 形状感知的端点(菱形可见尖端)读 shapes/node 那一份 —— knives → shapes 是合法方向(同 knives/fit)
+import { type NodeShapeKind, nodePortPoint } from '../shapes/node.js';
 
 export type RouteRequest = {
   from: Rect;
@@ -60,6 +62,19 @@ export type RouteRequest = {
   stub?: number;
   /** 腰线位置(覆盖自动中线): 竖直腰用 y, 水平腰用 x */
   lane?: number;
+  /**
+   * 端节点的**形状**(缺省 = 旧行为, 端点取 bbox 面上的点)。
+   *
+   * `'diamond'` 时端点回缩到圆角后的**可见尖端**(走 `shapes/node` 的 `nodePortPoint` ——
+   * 数学顶点被圆角沿平分线内缩 `r·(1/sin(half)−1)`, 宽菱形锐顶点可达 ~19px, 261009 实测
+   * 水平边全悬空); stub 从尖端起算, 折线几何与旧行为同构。`'rect'` / `'cylinder'` 是透传
+   * (它们的面中点本来就在轮廓上)。菱形只认面中点: 同时给 `t` / `at` 当场抛(不静默吞参数)。
+   */
+  fromShape?: NodeShapeKind;
+  toShape?: NodeShapeKind;
+  /** 端节点绘制用的圆角半径(与 `NodeProps.radius` 同义, 缺省 10) —— 仅对应 Shape 为 `'diamond'` 时参与 */
+  fromRadius?: number;
+  toRadius?: number;
   /**
    * 作者给的**中间折点**(不含两端端口点) —— 对标 archify `connections[].via`, 纯声明、零算法。
    * 语义: `端口点 → via[0] → … → via[n] → 端口点`, 相邻两点之间由引擎插正交拐点。
@@ -110,6 +125,20 @@ export type RouteResult = {
 
 const isVertical = (s: Side) => s === 'top' || s === 'bottom';
 
+/**
+ * 端点取点: 形状感知的一层薄分发。
+ *   · 未声明形状 / rect / cylinder → `portPoint` 原样(`t` / `at` 照吃, 旧行为逐字不变)
+ *   · diamond → `nodePortPoint`(可见尖端); 此时 `t` / `at` 无意义 —— **当场抛, 不静默吞掉**:
+ *     菱形轮廓上只有四个面中点, 给了 t 的作者以为端点会摊在面上, 实际只会悬空(261009 那条坑)
+ */
+function shapeEndPoint(owner: string, rect: Rect, port: PortRef, shape?: NodeShapeKind, radius?: number): Pt {
+  if (shape !== 'diamond') return portPoint(rect, port);
+  if (port.t !== undefined || port.at !== undefined) {
+    throw new ShapeInputError('routeOrthogonal', `${owner}Port`, '菱形端口给了 t/at', '菱形只有四个面中点落在轮廓上; 想把多条边摊在一个面上, 改用矩形节点');
+  }
+  return nodePortPoint('diamond', rect, port.side, { radius });
+}
+
 /** `via` 入参写错时的指路文案: 说清"不含端口点", 免得作者把端口点也写进来重复一遍 */
 const HINT_VIA = 'via 是**不含两端端口点**的中间折点数组, 例: `via: [{ x: 300, y: 40 }, { x: 442, y: 40 }]`'
   + '(两端端口点由 fromPort/toPort 决定, 不要重复写进来; 出盒与入盒仍会自动留一个 stub)';
@@ -134,8 +163,8 @@ function readVia(req: RouteRequest): Pt[] | null {
 
 /** 端口点 + 出/入 stub 端点(对顶时各让一半)。via 分支与主路径共用, 保证"出盒沿法线一个 stub"不被绕开 */
 function portStubs(req: RouteRequest, stub: number) {
-  const from = portPoint(req.from, req.fromPort);
-  const to = portPoint(req.to, req.toPort);
+  const from = shapeEndPoint('from', req.from, req.fromPort, req.fromShape, req.fromRadius);
+  const to = shapeEndPoint('to', req.to, req.toPort, req.toShape, req.toRadius);
   const aD = sideDir(req.fromPort.side);
   const bD = sideDir(req.toPort.side);
   const aV = isVertical(req.fromPort.side);

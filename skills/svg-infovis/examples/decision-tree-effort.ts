@@ -121,30 +121,34 @@ const nodes: SceneNode[] = [
 ];
 
 // ---- 边 ----
-// 主干直连: 端点前直段按行距收缩(行距 < 2×18 时默认 stub 会把折线折回自己)
-const trunk = (from: typeof rStart, to: typeof rStart, gap: number) =>
+// 主干直连: 端点前直段按行距收缩(行距 < 2×18 时默认 stub 会把折线折回自己)。
+// ⚠ 端节点是菱形时必须声明 fromShape/toShape —— 否则端点停在 bbox 面中点(数学顶点),
+// 圆角把可见尖端内缩了, 水平边会悬空(261009: 见 shapes/node 的 nodePortPoint)
+const trunk = (from: typeof rStart, to: typeof rStart, gap: number, shapes: { from?: 'diamond'; to?: 'diamond' } = {}) =>
   routeOrthogonal({
     from, fromPort: { side: 'bottom' }, to, toPort: { side: 'top' },
+    ...(shapes.from ? { fromShape: shapes.from } : {}),
+    ...(shapes.to ? { toShape: shapes.to } : {}),
     stub: Math.max(4, Math.min(10, Math.floor(gap / 2) - 2)),
   });
-const eStartD1 = trunk(rStart, rD1, 14);
-const eD1Interview = trunk(rD1, rInterview, 28);
+const eStartD1 = trunk(rStart, rD1, 14, { to: 'diamond' });
+const eD1Interview = trunk(rD1, rInterview, 28, { from: 'diamond' });
 const eInterviewDraft = trunk(rInterview, rDraft, 14);
-const eDraftReview = trunk(rDraft, rReview, 14);
-const eReviewD2 = trunk(rReview, rD2, 28);
-const eD2High = trunk(rD2, rHigh, 28);
+const eDraftReview = trunk(rDraft, rReview, 14, { to: 'diamond' });
+const eReviewD2 = trunk(rReview, rD2, 28, { from: 'diamond', to: 'diamond' });
+const eD2High = trunk(rD2, rHigh, 28, { from: 'diamond' });
 const eHighDone = trunk(rHigh, rDone, 14);
 
 // 支路
-const eD1Medium = routeOrthogonal({ from: rD1, fromPort: { side: 'right' }, to: rMedium, toPort: { side: 'top' } });
-const eMediumD2 = routeOrthogonal({ from: rMedium, fromPort: { side: 'bottom' }, to: rD2, toPort: { side: 'right' } });
-const eD2Direct = routeOrthogonal({ from: rD2, fromPort: { side: 'left' }, to: rDirect, toPort: { side: 'right' }, stub: 12 });
+const eD1Medium = routeOrthogonal({ from: rD1, fromPort: { side: 'right' }, fromShape: 'diamond', to: rMedium, toPort: { side: 'top' } });
+const eMediumD2 = routeOrthogonal({ from: rMedium, fromPort: { side: 'bottom' }, to: rD2, toPort: { side: 'right' }, toShape: 'diamond' });
+const eD2Direct = routeOrthogonal({ from: rD2, fromPort: { side: 'left' }, fromShape: 'diamond', to: rDirect, toPort: { side: 'right' }, stub: 12 });
 const eStartSide = routeOrthogonal({ from: rStart, fromPort: { side: 'left' }, to: rSide, toPort: { side: 'right' }, stub: 10 });
 const eSidePlanMax = routeOrthogonal({ from: rSide, fromPort: { side: 'bottom' }, to: rPlanMax, toPort: { side: 'top' }, stub: 12 });
 // 人审回边: 贴中轴左侧的小回环(菱形左顶点外 XC-106, 比节点半宽 90.5 再让 15.5; 见文件头坑②)
 const BACK_X = XC - 106;
 const eBack = routeOrthogonal({
-  from: rReview, fromPort: { side: 'left' }, to: rDraft, toPort: { side: 'left' },
+  from: rReview, fromPort: { side: 'left' }, fromShape: 'diamond', to: rDraft, toPort: { side: 'left' },
   via: [{ x: BACK_X, y: yReview }, { x: BACK_X, y: yDraft }], stub: 12,
 });
 

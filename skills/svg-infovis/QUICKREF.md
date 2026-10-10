@@ -219,7 +219,7 @@ UPDATE_BASELINE=1 bun test test/route-pick-equivalence.test.ts
 九点锚、面上的点、`bounds` 对 `fitGroupFrames` 的二选一留在下面 (这是拿错就全绿但错位的部分)。函数签名见 `README.md`。
 
 九点锚名(y-down): `nw` 左上 · `n` 上中 · `ne` 右上 · `w` 左中 · `center` 心 · `e` 右中 · `sw` 左下 · `s` 下中 · `se` 右下。锚点查询叫 `rectAnchor` 而**不叫** `rectAt` —— `PortRef.at` 是绝对坐标, `at` 一词不许两义。
-面上点只有一份: `rectFace(r, side, { t, at, offset })` = `portPoint` 加 `offset × sideDir` —— 它**不另起端口协议**(`t` / `at` 与 `PortRef` 同源)。
+面上点只有一份: `rectFace(r, side, { t, at, offset })` = `portPoint` 加 `offset × sideDir` —— 它**不另起端口协议**(`t` / `at` 与 `PortRef` 同源)。⚠ 这两份都在 **bbox** 上工作: 给**菱形**挂边要用 `nodePortPoint('diamond', r, side)`(可见尖端, 圆角内缩已算进去), 矩/柱随便用哪个都逐字一致。
 
 ### `bounds()` 还是 `fitGroupFrames`?(框从哪来 —— 二选一, 不留第三条路)
 
@@ -297,6 +297,7 @@ UPDATE_BASELINE=1 bun test test/route-pick-equivalence.test.ts
 | `catch` 后正常返回 | `process.exitCode = 1` | 门禁在 shell 层失效, `&&` 链揣着坏图一路过 |
 | `> out.svg 2>&1` | 诊断走 stderr, 图走文件 | 诊断霸占文件头部, 且 **exit 0** |
 | 菱形节点给 `t: 0.3` 摊多条出边 | 菱形只有四个**面中点**落在轮廓上, 一个面一条边; 三路分叉交给矩形 | 端点跑到菱形外的空气里, 边像悬空长出来 |
+| 拿 `portPoint` / `rectFace` 的**面中点**当菱形边的端点 | 走 route: `routeOrthogonal({ ..., fromShape: 'diamond' })` 端点自动回缩到**可见尖端**; 手工取点: `nodePortPoint('diamond', rect, side)`(`shapes/node`) | 数学顶点 ≠ 可见尖端: 圆角沿平分线内缩 `r·(1/sin(half)−1)`, 宽菱形左右锐顶点内缩 ~19px(261009 实测), 水平边悬空; 上下钝顶点 <1px, 所以竖边看起来没事 |
 | 改 `SceneEdge` 想给边加虚线 / 换端点形态 | `tryExport(scene, { edgeStyles: { e1: { dash, width, end } } })` | `SceneEdge` 只有 `id/points/from/to/label/tone` —— 那四项在 scene 里没处放。⚠ `edgeStyles` / `nodeStyles` / `groupStyles` **都是 `ExportOptions` 的字段**: 写进 `Scene`(或喂给 `exportScene` 的第二个参数以外的地方)**不报错也不生效**, 产物只是悄悄退回主题默认值 —— bun 不做类型检查, 只有 `tsc` 报 `TS2353`(260920 实测踩中两次, 产物"看着正常"骗过了肉检) |
 | 想给节点"浅色强调底"(角色框: 上下文/状态/当前步) | `variant: 'tint'`(**语义槽**, 进 scene 或覆盖表) | 学术图三态 outline/tint/solid 的中间档(260919): tint 填充 + solidBorder 深描边; 只有 outline/solid 时要么太素要么太重 |
 | 节点标签 / 旁注 / 边标签要两行 | `label` / `sub` / `SceneText.text` / `edgeLabel` 的 content 里直接写 `\n`(260920 起渲染同拍拆行, 与 `label_fit` / `nodeFit` 同源; **边标签 260923 接通**, 旧口径"遮罩片只吃一行"已废) | 此前"审计认可、渲染不拆"是欠账, `sub` 那份是同病灶的第二半(度量子按行、渲染发整串 ⇒ 盒窄字宽且**门禁全绿**)。⚠ 边标签多行**改了字节**: 检测盒高换了公式 ⇒ **所有 `edgeLabel` 产物的字节都变了**, 下游照新字节重出(数与来龙去脉见缺省值表的 `LABEL_BOX_DEFAULTS`)。活体: `examples/gallery/academic-figure.ts` 的 `loop` —— 双行说明从两条 `SceneText` 收回 `labels[]`, 代价是 `SceneLabel` 没有 `weight` 槽、主/次字重差随之消失(明写的取舍) |

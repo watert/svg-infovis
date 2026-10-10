@@ -33,7 +33,7 @@ date: 2026-09-26T23:05:00+08:00
 
 ## `shapes/` — props → descriptor
 
-- `./shapes/node` — 三形态节点(`rect` / `diamond` / `cylinder`)
+- `./shapes/node` — 三形态节点(`rect` / `diamond` / `cylinder`)与形状感知的边挂点 `nodePortPoint`(菱形回缩到圆角后的可见尖端)
 - `./shapes/edge` — 边装配 + `edgeLabel` / `labelBoxSize`(标签遮罩尺寸唯一来源)
 - `./shapes/group` — 分组框 + 标签定位
 - `./shapes/text` — 文本 / 标签遮罩几何
@@ -54,7 +54,7 @@ date: 2026-09-26T23:05:00+08:00
 
 ## `knives/` — 构建期推导与判决
 
-- `./knives/route` — 正交路由(端口 → 折点列; `via` 是作者声明, 不是避障)
+- `./knives/route` — 正交路由(端口 → 折点列; `via` 是作者声明, 不是避障; `fromShape` / `toShape` 声明端节点形状, 菱形端点自动落到可见尖端)
 - `./knives/route-pair` — 成对双线 + 沿线标签
 - `./knives/route-cost` — 候选折点列代价向量(读数, 不是门禁)
 - `./knives/lanes` — 共享走廊的腰线批量分配(旋钮, 不是门禁)

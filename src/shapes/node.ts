@@ -27,6 +27,7 @@ import { type Attrs, type DGroup, type Descriptor, anchorAttrs, baselineY, group
 import { DEFAULT_THEME, type Theme, type Tone, type Variant, toneStyle } from '../theme.js';
 import { ShapeInputError, assertFiniteNumber, assertFiniteRect, assertOneOf } from '../guard.js';
 import { type Tangent, radiusPolygonPath } from '../geometry/rounded-path.js';
+import { type Side, portPoint, sideDir } from '../geometry/port.js';
 import { rowBlock } from '../geometry/text-rows.js';
 import { type Pt, type Rect, fmt, round1 } from '../geometry/vec.js';
 import { type NodeIcon, iconRect, iconShape } from './icon.js';
@@ -273,6 +274,33 @@ export function nodeGeometry(p: NodeProps): NodeGeometry {
     clamped,
     minActualRadius: Math.min(...tangents.map((t) => t.actualRadius)),
   };
+}
+
+/**
+ * 边的**节点挂点**: 形状轮廓上"面中点那一档"的真实点(全仓只许这一份)。
+ *
+ * 为什么 `portPoint` / `rectFace` 不够用: 它们工作在 bbox 上 —— 矩形/圆柱的面中点本来就落在
+ * 轮廓上, 但菱形的面中点是**数学顶点**, 可见轮廓被圆角沿角平分线内缩了
+ * `r·(1/sin(half)−1)`(r=10 的宽菱形, 左右锐顶点内缩可达 ~19px) —— 边端停在数学顶点就是
+ * 悬在空气里(261009 实跑图事故: 判定菱形的水平边全部够不着节点, 而竖边看起来正常,
+ * 因为钝顶点内缩 <1px)。这里把菱形端点回缩到**可见尖端**(圆弧离顶点最近的点, 在平分线上),
+ * 其余形态与 `portPoint(rect, { side })` 逐字一致。
+ *
+ * 只解决"面中点"这一档: 菱形轮廓上本来也只有这四个点与面正交 —— `t≠0.5` 的悬空是另一条纪律
+ * (见 skill recipes 的判定流条目), 不在此合并。
+ *
+ * `opts.radius` 与 `NodeProps.radius` 同义(缺省 10): 节点用什么半径画, 挂点就得按什么半径算。
+ */
+export function nodePortPoint(shape: NodeShapeKind, rect: Rect, side: Side, opts: { radius?: number } = {}): Pt {
+  assertNodeShape('nodePortPoint', shape);
+  if (shape !== 'diamond') return portPoint(rect, { side });
+  const g = nodeGeometry({ ...rect, shape, radius: opts.radius });
+  // diamondPoints 的顶点序: [top, right, bottom, left] —— 面 → 角下标
+  const corner = g.corners[{ top: 0, right: 1, bottom: 2, left: 3 }[side]];
+  const inset = corner.actualRadius * (1 / Math.sin(Math.max(corner.half, 1e-3)) - 1);
+  const d = sideDir(side); // 朝外法线; 回缩取反
+  const v = portPoint(rect, { side });
+  return { x: v.x - d.x * inset, y: v.y - d.y * inset };
 }
 
 /** 节点的 SVG 属性(供 descriptor 与 React 薄壳共用) */

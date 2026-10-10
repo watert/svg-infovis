@@ -19,8 +19,8 @@ date: 2026-09-26T23:35:00+08:00
 |---|---|---|---|
 | `sequence-archify-style` | [`sequence-archify-style.png`](./sequence-archify-style.png) | [`sequence-archify-style.ts`](./sequence-archify-style.ts) | **序列 / 泳道图能到什么观感**: paper 主题 + 全 `tint` 参与者 + 消息按语义分色 + phase 分隔带 + 激活条 + 纸感底纹 |
 | `lifecycle-agent-run` | [`lifecycle-agent-run.png`](./lifecycle-agent-run.png) | [`lifecycle-agent-run.ts`](./lifecycle-agent-run.ts) | **阶段带(状态机)的完整形态**: 三段 × 10 状态 + 向下岔路 + 跨全图回流, 深色主题带图例 —— 手排参照实现(339 行), 也是"手排税"的测量载体 |
-| `academic-figure` | [`academic-figure.png`](./academic-figure.png) | [`academic-figure.ts`](./academic-figure.ts) |
-| `decision-tree-effort` | [`decision-tree-effort.png`](./decision-tree-effort.png) | [`decision-tree-effort.ts`](./decision-tree-effort.ts) | **判定流 / 决策树的紧凑树形**: 单主干中轴直下 + 分支短探快收 + 贴中轴回边, 625×667 showcase 0 诊断 | **学术风 + 四件槽**: paper 墨线观感 / `tint` 角色框 / `struck` + `opacity` 废除格 / `SceneText` 的 weight 与 color, 外加"有意让两栏同层"的白名单写法 |
+| `academic-figure` | [`academic-figure.png`](./academic-figure.png) | [`academic-figure.ts`](./academic-figure.ts) | **学术风 + 四件槽**: paper 墨线观感 / `tint` 角色框 / `struck` + `opacity` 废除格 / `SceneText` 的 weight 与 color, 外加"有意让两栏同层"的白名单写法 |
+| `decision-tree-effort` | [`decision-tree-effort.png`](./decision-tree-effort.png) | [`decision-tree-effort.ts`](./decision-tree-effort.ts) | **判定流 / 决策树的紧凑树形**: 单主干中轴直下 + 分支短探快收 + 贴中轴回边, 625×667 showcase 0 诊断 |
 
 ### `sequence-archify-style` —— 序列图: 先看骨架, 再看后处理
 
